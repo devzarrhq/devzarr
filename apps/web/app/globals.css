@@ -4,6 +4,7 @@
 
 body {
   border: 10px solid red !important;
+  background: yellow !important;
 }
 
 /* Test: Add a Tailwind class directly */
