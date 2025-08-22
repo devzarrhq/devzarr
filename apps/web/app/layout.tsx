@@ -1,4 +1,4 @@
-import '../globals.css'
+import 'globals.css'
 import type { ReactNode } from 'react'
 import { ThemeProvider } from './theme-context'
 
