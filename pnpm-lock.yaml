@@ -12,7 +12,7 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
       autoprefixer:
-        specifier: ^10.4.21
+        specifier: ^4.1.12
         version: 10.4.21(postcss@8.5.6)
       postcss:
         specifier: ^8.5.6
