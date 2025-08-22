@@ -10,7 +10,8 @@
     "lucide-react": "^0.292.0",
     "stripe": "^12.0.0",
     "shadcn-ui": "^0.7.0",
-    "@headlessui/react": "^1.7.17"
+    "@headlessui/react": "^1.7.17",
+    "@tailwindcss/postcss": "^4.1.0"
   },
   "devDependencies": {
     "typescript": "^5.4.0",
