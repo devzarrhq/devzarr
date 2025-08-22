@@ -9,6 +9,8 @@ export default function HomePage() {
       <div className="flex-1 flex flex-col md:ml-64">
         <Topbar />
         <main className="flex-1 w-full">
+          {/* Test Tailwind */}
+          <div className="test-tailwind">TAILWIND TEST</div>
           <Feed />
         </main>
       </div>
