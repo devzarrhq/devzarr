@@ -8,7 +8,7 @@ export default function SettingsMenu() {
   const { theme, setTheme, accent, setAccent } = useTheme();
 
   return (
-    <div className="p-4 w-72 bg-gray-900 rounded-xl shadow-lg">
+    <div className="p-4 w-72 bg-gray-900 rounded-xl shadow-lg text-gray-100">
       <h2 className="text-lg font-semibold mb-4">Settings</h2>
       <div className="mb-4">
         <div className="flex items-center justify-between">
