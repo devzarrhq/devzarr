@@ -1,3 +1,25 @@
+:root {
+  --tw-color-accent-blue: #3b82f6;
+  --tw-color-accent-green: #22c55e;
+  --tw-color-accent-purple: #a21caf;
+  --tw-color-accent-orange: #f59e42;
+  --tw-color-accent-red: #ef4444;
+  --tw-color-accent-teal: #14b8a6;
+  --tw-color-accent-yellow: #eab308;
+  --tw-color-accent-pink: #ec4899;
+}
+
+.dark {
+  --tw-color-accent-blue: #60a5fa;
+  --tw-color-accent-green: #4ade80;
+  --tw-color-accent-purple: #c084fc;
+  --tw-color-accent-orange: #fdba74;
+  --tw-color-accent-red: #f87171;
+  --tw-color-accent-teal: #2dd4bf;
+  --tw-color-accent-yellow: #fde047;
+  --tw-color-accent-pink: #f472b6;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
