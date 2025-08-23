@@ -1,5 +1,4 @@
 {
-  "name": "web",
   "dependencies": {
     "next": "14.0.0",
     "react": "18.2.0",
@@ -10,17 +9,14 @@
     "lucide-react": "^0.292.0",
     "stripe": "^12.0.0",
     "shadcn-ui": "^0.7.0",
-    "@headlessui/react": "^1.7.17"
+    "@headlessui/react": "^1.7.17",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.56.0"
   },
   "devDependencies": {
     "typescript": "^5.4.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/node": "^20.0.0"
-  },
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
   }
 }

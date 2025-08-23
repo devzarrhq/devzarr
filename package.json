@@ -1,7 +1,5 @@
 {
   "dependencies": {
-    "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.56.0",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/next": "^9.0.0",
     "@types/node": "^20.0.0",
@@ -15,8 +13,5 @@
   },
   "devDependencies": {
     "typescript": "^5.4.0"
-  },
-  "scripts": {
-    "dev": "pnpm --filter web dev"
   }
 }
