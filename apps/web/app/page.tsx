@@ -1,10 +1,7 @@
-import TestTailwind from "./test-tailwind";
-
 export default function HomePage() {
   return (
-    <>
-      <div>Hello CSS</div>
-      <TestTailwind />
-    </>
+    <div className="bg-green-500 text-white p-10">
+      If you see a green background, Tailwind is working!
+    </div>
   );
 }
