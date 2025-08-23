@@ -1,0 +1,13 @@
+node_modules
+apps/web/node_modules
+apps/web/.next
+apps/web/out
+apps/web/.turbo
+apps/web/.vercel
+apps/web/.cache
+apps/web/.storybook
+apps/web/.vscode
+apps/web/.env*
+packages/*
+!.vercelignore
+!.env*
