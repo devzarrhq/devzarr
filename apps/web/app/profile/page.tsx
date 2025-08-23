@@ -49,8 +49,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-64px)] py-8 px-2 bg-transparent">
-      <div className="w-full max-w-xl bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-8 px-2 bg-transparent">
+      <div className="max-w-xl w-full bg-gray-900 rounded-2xl shadow-2xl overflow-hidden mx-auto">
         {/* Background image */}
         <div className="relative h-44 bg-gray-800">
           {profile.background_url ? (
