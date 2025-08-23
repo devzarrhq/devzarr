@@ -15,7 +15,6 @@ export default function LoginPage() {
           theme="dark"
           providers={[]}
           redirectTo={typeof window !== "undefined" ? window.location.origin : ""}
-          className="w-full"
         />
       </div>
     </div>
