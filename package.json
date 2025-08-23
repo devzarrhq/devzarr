@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.12",
     "@types/next": "^9.0.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
