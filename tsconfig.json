@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "composite": true
+    "composite": true,
+    "jsx": "react-jsx",
+    "types": ["node", "react", "react-dom", "next"]
   },
   "include": [
     "apps/**/*",
