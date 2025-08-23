@@ -2,9 +2,8 @@
 module.exports = {
   darkMode: "class",
   content: [
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    // If you use shared UI components in packages/ui, uncomment below and make sure it does not cause a loop:
-    // "../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}"
+    // Do NOT include any parent or workspace directories here!
   ],
   theme: {
     extend: {},
