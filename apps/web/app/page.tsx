@@ -1,3 +1,5 @@
+"use client";
+
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Feed from "./components/Feed";
