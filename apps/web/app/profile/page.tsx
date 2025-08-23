@@ -12,6 +12,7 @@ type Profile = {
   avatar_url: string | null;
   background_url: string | null;
   tagline: string | null;
+  bio: string | null;
   location: string | null;
   created_at: string;
 };
@@ -48,7 +49,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-8 px-2 bg-transparent">
+    <div className="flex items-center justify-center min-h-[calc(100vh-64px)] py-8 px-2 bg-transparent">
       <div className="w-full max-w-xl bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
         {/* Background image */}
         <div className="relative h-44 bg-gray-800">
@@ -73,24 +74,28 @@ export default function ProfilePage() {
               <div className="w-32 h-32 rounded-full border-4 border-gray-900 bg-gray-700" />
             )}
           </div>
-          {/* Edit button */}
-          <button
-            className="absolute top-4 right-4 bg-gray-800/80 hover:bg-gray-700 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow"
-            // onClick={openEditModal} // To be implemented
-          >
-            <Pencil size={18} />
-            Edit profile
-          </button>
         </div>
         {/* Profile details */}
         <div className="pt-20 pb-8 px-8">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl font-bold text-white">{profile.display_name || profile.handle}</span>
-            {/* Verified badge, if needed */}
+            <div className="ml-auto">
+              <button
+                className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-medium shadow transition"
+                // onClick={openEditModal} // To be implemented
+                type="button"
+              >
+                <Pencil size={16} />
+                Edit Profile
+              </button>
+            </div>
           </div>
           <div className="text-gray-400 text-lg mb-2">@{profile.handle}</div>
           {profile.tagline && (
-            <div className="text-gray-200 mb-4">{profile.tagline}</div>
+            <div className="text-gray-200 mb-2">{profile.tagline}</div>
+          )}
+          {profile.bio && (
+            <div className="text-gray-300 mb-4 whitespace-pre-line">{profile.bio}</div>
           )}
           <div className="flex items-center gap-4 text-gray-400 text-sm mb-4">
             {profile.location && (
