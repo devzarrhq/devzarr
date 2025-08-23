@@ -2,7 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Test: Add a Tailwind class directly */
-.test-tailwind {
-  @apply text-4xl text-accent-blue;
+body::after {
+  content: "CSS LOADED";
+  display: block;
+  color: red;
+  font-size: 2rem;
+  text-align: center;
+  margin-top: 2rem;
 }
