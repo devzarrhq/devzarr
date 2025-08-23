@@ -1,15 +1,10 @@
-// apps/web/app/page.tsx  — SERVER COMPONENT (no "use client")
-
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Feed from "./components/Feed";
 
-// If you moved it to app/lib/supabase/server.ts, use this:
 import { createSupabaseServer } from "@/lib/supabase/server";
-// If you kept your file under components/lib/... then use:
-// import { createSupabaseServer } from "./components/lib/supabase/server";
 
-export const dynamic = "force-dynamic"; // keep it fresh while iterating
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const supabase = createSupabaseServer();
@@ -25,7 +20,12 @@ export default async function HomePage() {
     .limit(20);
 
   if (error) console.error("Feed query error:", error);
-  const posts = data ?? [];
+  // Fix: Map project/author from array to object if needed
+  const posts = (data ?? []).map((p: any) => ({
+    ...p,
+    project: Array.isArray(p.project) ? p.project[0] : p.project,
+    author: Array.isArray(p.author) ? p.author[0] : p.author,
+  }));
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
