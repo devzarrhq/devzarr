@@ -3,15 +3,26 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@ui/*": ["../../packages/ui/src/*"],
-      "@types/*": ["../../packages/types/src/*"]
-    }
+      "@ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@types/*": [
+        "../../packages/types/src/*"
+      ]
+    },
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "app/**/*",
     "components/**/*",
     "../../packages/ui/src/**/*",
-    "../../packages/types/src/**/*"
+    "../../packages/types/src/**/*",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
