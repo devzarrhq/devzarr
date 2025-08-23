@@ -1,7 +1,1 @@
-node_modules
-**/.next
-**/.turbo
-**/.cache
-**/.storybook
-**/.vscode
-**/.env*
+node_modules/
