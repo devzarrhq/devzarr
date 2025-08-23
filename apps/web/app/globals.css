@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  border: 10px solid red !important;
-  background: yellow !important;
-}
-
 /* Test: Add a Tailwind class directly */
 .test-tailwind {
   @apply text-4xl text-accent-blue;
