@@ -1,5 +1,4 @@
 {
-  "projects": {},
   "builds": [
     {
       "src": "apps/web/package.json",
