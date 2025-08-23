@@ -37,32 +37,39 @@ const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
   const [accent, setAccentState] = useState<AccentColor>("blue");
+  const [hasMounted, setHasMounted] = useState(false);
 
-  // Load from localStorage on mount
+  // Only load from localStorage on client after mount
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme") as Theme | null;
     const storedAccent = localStorage.getItem("accent") as AccentColor | null;
     if (storedTheme) setThemeState(storedTheme);
     if (storedAccent && ACCENT_COLORS.includes(storedAccent)) setAccentState(storedAccent);
+    setHasMounted(true);
   }, []);
 
   // Apply theme to <html> class
   useEffect(() => {
+    if (!hasMounted) return;
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
     localStorage.setItem("theme", theme);
-  }, [theme]);
+  }, [theme, hasMounted]);
 
   // Store accent in localStorage
   useEffect(() => {
+    if (!hasMounted) return;
     localStorage.setItem("accent", accent);
-  }, [accent]);
+  }, [accent, hasMounted]);
 
   const setTheme = (t: Theme) => setThemeState(t);
   const setAccent = (a: AccentColor) => setAccentState(a);
+
+  // Prevent rendering until client-side values are loaded
+  if (!hasMounted) return null;
 
   return (
     <ThemeContext.Provider value={{ theme, accent, setTheme, setAccent }}>
