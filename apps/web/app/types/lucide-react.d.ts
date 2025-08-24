@@ -17,6 +17,7 @@ declare module "lucide-react" {
   export const UserCircle: React.FC<LucideProps>;
   export const Menu: React.FC<LucideProps>;
   export const Pencil: React.FC<LucideProps>;
-  export const Info: React.FC<LucideProps>; // <-- Added Info icon
+  export const Info: React.FC<LucideProps>;
+  export const Plus: React.FC<LucideProps>; // <-- Added Plus icon
   // Add more icons as needed
 }
