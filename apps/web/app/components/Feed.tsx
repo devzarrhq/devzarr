@@ -22,22 +22,22 @@ export default function Feed({ initialPosts = [] as Post[] }) {
   const [showAddPost, setShowAddPost] = useState(false);
 
   return (
-    <section className="w-full max-w-5xl mx-auto py-12 px-2 md:px-8">
-      <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div>
+    <section className="w-full max-w-6xl mx-auto py-14 px-2 md:px-10">
+      <div className="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+        <div className="flex-1 min-w-0">
           <h1
-            className="text-5xl font-extrabold mb-2"
+            className="text-5xl font-extrabold mb-1 whitespace-nowrap"
             style={{ color: `var(--tw-color-accent-${accent})` }}
           >
             Project Feed
           </h1>
-          <p className="text-gray-300 text-lg max-w-2xl">
+          <p className="text-gray-300 text-lg max-w-2xl truncate md:whitespace-nowrap">
             Discover indie dev tools, launches, and more.
           </p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-6 flex-shrink-0">
           <button
-            className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold shadow-lg transition-colors text-lg whitespace-nowrap"
+            className="flex items-center gap-2 px-10 py-4 rounded-full font-semibold shadow-lg transition-colors text-lg whitespace-nowrap"
             style={{
               background: `var(--tw-color-accent-${accent})`,
               color: "#fff",
@@ -48,7 +48,7 @@ export default function Feed({ initialPosts = [] as Post[] }) {
             Add Post
           </button>
           <button
-            className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold shadow-lg transition-colors text-lg whitespace-nowrap"
+            className="flex items-center gap-2 px-10 py-4 rounded-full font-semibold shadow-lg transition-colors text-lg whitespace-nowrap"
             style={{
               background: `var(--tw-color-accent-${accent})`,
               color: "#fff",
@@ -65,7 +65,7 @@ export default function Feed({ initialPosts = [] as Post[] }) {
       <AddPostModal open={showAddPost} onClose={() => setShowAddPost(false)} />
 
       {posts.length === 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
@@ -78,7 +78,7 @@ export default function Feed({ initialPosts = [] as Post[] }) {
           ))}
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {posts.map((p) => (
             <article
               key={p.id}
