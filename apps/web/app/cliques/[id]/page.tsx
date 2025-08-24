@@ -63,17 +63,17 @@ export default async function CliquePage({ params }: { params: { id: string } })
     avatar_url: m.profiles?.avatar_url ?? null,
   }));
 
-  // Check if user is a member (server-side)
+  // Check if user is a member (server-side) -- FIXED: use getUser() not getSession()
   let isMember = false;
   const cookieStore = cookies();
   const supabaseClient = createSupabaseServer();
-  const { data: { session } = {} } = await supabaseClient.auth.getSession();
-  if (session?.user) {
+  const { data: { user } = {} } = await supabaseClient.auth.getUser();
+  if (user) {
     const { data: member } = await supabase
       .from("clique_members")
       .select("clique_id")
       .eq("clique_id", clique.id)
-      .eq("user_id", session.user.id)
+      .eq("user_id", user.id)
       .maybeSingle();
     isMember = !!member;
   }
