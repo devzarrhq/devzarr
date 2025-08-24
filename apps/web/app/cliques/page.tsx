@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import CliquesSearch from "./CliquesSearch";
 import AddCliqueModal from "./AddCliqueModal";
+import { useTheme } from "../theme-context";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,17 @@ export default async function CliquesPage() {
     }
   }
 
+  // Use accent color in client
+  return (
+    <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+  );
+}
+
+// Client wrapper for accent color
+"use client";
+import React from "react";
+export function CliquesPageClient({ cliques, memberCounts }: { cliques: any[]; memberCounts: Record<string, number> }) {
+  const { accent } = useTheme();
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
@@ -39,13 +51,18 @@ export default async function CliquesPage() {
           <section className="w-full py-10">
             <div className="mx-auto w-full max-w-4xl xl:max-w-5xl 2xl:max-w-6xl px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col gap-4 items-start mb-8">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-emerald-300">Cliques</h1>
+                <h1
+                  className="text-4xl md:text-5xl font-extrabold"
+                  style={{ color: `var(--tw-color-accent-${accent})` }}
+                >
+                  Cliques
+                </h1>
                 <p className="text-gray-300 text-lg max-w-2xl">
                   Find and join real-time dev groups.
                 </p>
                 <AddCliqueModal />
               </div>
-              <CliquesSearch cliques={cliques ?? []} memberCounts={memberCounts} />
+              <CliquesSearch cliques={cliques} memberCounts={memberCounts} />
             </div>
           </section>
           {/* Right column: reserved for widgets */}

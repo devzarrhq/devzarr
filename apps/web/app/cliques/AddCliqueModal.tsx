@@ -5,6 +5,7 @@ import { Dialog } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { Users, Plus } from "lucide-react";
+import { useTheme } from "../theme-context";
 
 function slugify(input: string) {
   return input
@@ -26,6 +27,7 @@ export default function AddCliqueModal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { accent } = useTheme();
 
   // Auto-generate slug as you type the name (unless user overrides)
   function handleNameChange(val: string) {
@@ -93,7 +95,8 @@ export default function AddCliqueModal() {
   return (
     <>
       <button
-        className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold shadow-md transition-colors text-sm md:text-base bg-emerald-500/90 text-white hover:bg-emerald-500"
+        className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold shadow-md transition-colors text-sm md:text-base"
+        style={{ background: `var(--tw-color-accent-${accent})`, color: "#fff" }}
         onClick={() => setOpen(true)}
       >
         <Plus className="w-5 h-5" />
@@ -103,7 +106,10 @@ export default function AddCliqueModal() {
         <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
         <div className="min-h-full grid place-items-center p-4">
           <Dialog.Panel className="relative w-full max-w-lg rounded-2xl bg-gray-900 p-6 md:p-8 shadow-2xl ring-1 ring-white/10">
-            <Dialog.Title className="text-xl md:text-2xl font-bold mb-4 text-emerald-300 flex items-center gap-2">
+            <Dialog.Title
+              className="text-xl md:text-2xl font-bold mb-4 flex items-center gap-2"
+              style={{ color: `var(--tw-color-accent-${accent})` }}
+            >
               <Users className="w-6 h-6" />
               Create a Clique
             </Dialog.Title>
@@ -173,7 +179,8 @@ export default function AddCliqueModal() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded font-semibold text-white disabled:opacity-50 bg-emerald-500/90 hover:bg-emerald-500"
+                  className="px-4 py-2 rounded font-semibold text-white disabled:opacity-50"
+                  style={{ background: `var(--tw-color-accent-${accent})` }}
                   disabled={loading || !name.trim() || !slug.trim() || slugTaken}
                 >
                   {loading ? "Creating…" : "Create"}
