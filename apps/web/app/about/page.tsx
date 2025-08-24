@@ -27,7 +27,8 @@ export default function AboutPage() {
                 overlay="from-gray-900/60 to-gray-950/95"
                 className="w-full h-full"
               >
-                {/* Empty: background only */}
+                {/* Empty fragment to satisfy required children prop */}
+                <></>
               </ParallaxBackground>
             </div>
             <div className="mx-auto w-full max-w-4xl px-6 pt-12 pb-8 text-white relative z-10">
