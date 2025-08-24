@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Rocket, Users, MessageCircle, UserCircle, HelpCircle } from "lucide-react";
+import { Home, Rocket, Users, MessageCircle, UserCircle, Info } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "../theme-context";
 
@@ -10,7 +10,7 @@ const navLinks = [
   { name: "Cliques", icon: Users, href: "/cliques" },
   { name: "Messages", icon: MessageCircle, href: "/messages" },
   { name: "Profile", icon: UserCircle, href: "/profile" },
-  { name: "About", icon: HelpCircle, href: "/about" }, // Use HelpCircle for About
+  { name: "About", icon: Info, href: "/about" }, // Use Info icon for About
 ];
 
 export default function Sidebar() {
