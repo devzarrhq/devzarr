@@ -60,6 +60,10 @@ export default async function CliquePage({ params }: { params: { id: string } })
             <div className="mb-8 text-xs text-gray-500">
               Created: {new Date(clique.created_at).toLocaleString()}
             </div>
+            {/* Debug: Show raw members data */}
+            <pre className="text-xs text-yellow-300 bg-black/50 p-2 rounded mb-4 max-w-full overflow-x-auto">
+              {JSON.stringify(membersRaw, null, 2)}
+            </pre>
             <Chat cliqueId={clique.id} />
           </div>
           <CliqueUserList members={members} />
