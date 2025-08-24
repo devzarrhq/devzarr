@@ -5,7 +5,9 @@ import Chat from "../Chat";
 import { cookies } from "next/headers";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
-import CliqueUserList from "./CliqueUserList";
+
+// Dynamically import CliqueUserList as a client component
+const CliqueUserList = dynamic(() => import("./CliqueUserList"), { ssr: false });
 
 // Small client component for accent color
 function CliqueTitle({
@@ -63,7 +65,7 @@ export default async function CliquePage({ params }: { params: { id: string } })
     avatar_url: m.profiles?.avatar_url ?? null,
   }));
 
-  // Check if user is a member (server-side) -- FIXED: use getUser() not getSession()
+  // Check if user is a member (server-side)
   let isMember = false;
   const cookieStore = cookies();
   const supabaseClient = createSupabaseServer();
