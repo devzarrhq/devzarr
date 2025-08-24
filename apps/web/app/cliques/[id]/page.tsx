@@ -57,12 +57,13 @@ export default async function CliquePage({ params }: { params: { id: string } })
     .select("user_id, role, profiles:profiles(user_id, handle, display_name, avatar_url)")
     .eq("clique_id", clique.id);
 
+  // Sanitize members: ensure all fields are serializable (no Date, no undefined, no functions)
   const members = (membersRaw ?? []).map((m: any) => ({
-    user_id: m.user_id,
-    role: m.role,
-    handle: m.profiles?.handle ?? null,
-    display_name: m.profiles?.display_name ?? null,
-    avatar_url: m.profiles?.avatar_url ?? null,
+    user_id: String(m.user_id ?? ""),
+    role: String(m.role ?? ""),
+    handle: m.profiles?.handle ? String(m.profiles.handle) : null,
+    display_name: m.profiles?.display_name ? String(m.profiles.display_name) : null,
+    avatar_url: m.profiles?.avatar_url ? String(m.profiles.avatar_url) : null,
   }));
 
   // Check if user is a member (server-side)
