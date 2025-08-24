@@ -22,7 +22,7 @@ export default function Feed({ initialPosts = [] as Post[] }) {
   const [showAddPost, setShowAddPost] = useState(false);
 
   return (
-    <section className="w-full max-w-6xl mx-auto py-14 px-2 md:px-10">
+    <section className="w-full max-w-7xl mx-auto py-14 px-2 md:px-12">
       <div className="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
         <div className="flex-1 min-w-0">
           <h1
@@ -31,7 +31,7 @@ export default function Feed({ initialPosts = [] as Post[] }) {
           >
             Project Feed
           </h1>
-          <p className="text-gray-300 text-lg max-w-2xl truncate md:whitespace-nowrap">
+          <p className="text-gray-300 text-lg max-w-3xl truncate md:whitespace-nowrap">
             Discover indie dev tools, launches, and more.
           </p>
         </div>
@@ -82,7 +82,8 @@ export default function Feed({ initialPosts = [] as Post[] }) {
           {posts.map((p) => (
             <article
               key={p.id}
-              className="rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg"
+              className="rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg w-full"
+              style={{ maxWidth: "100%" }}
             >
               <div className="flex items-center gap-3 mb-3">
                 {p.author?.avatar_url ? (
