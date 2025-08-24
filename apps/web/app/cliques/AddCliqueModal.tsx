@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { Users, Plus } from "lucide-react";
 import { useTheme } from "../theme-context";
+import { useAuth } from "../providers/AuthProvider";
 
 function slugify(input: string) {
   return input
@@ -28,6 +29,7 @@ export default function AddCliqueModal() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { accent } = useTheme();
+  const { user } = useAuth();
 
   // Auto-generate slug as you type the name (unless user overrides)
   function handleNameChange(val: string) {
@@ -65,6 +67,10 @@ export default function AddCliqueModal() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!user) {
+      setError("You must be logged in.");
+      return;
+    }
     if (!name.trim() || !slug.trim() || slugTaken) {
       setError("Please provide a unique name and slug.");
       return;
@@ -78,6 +84,7 @@ export default function AddCliqueModal() {
           name: name.trim(),
           slug: slug.trim(),
           description: description.trim() || null,
+          owner_id: user.id, // Ensure owner_id is set
         })
         .select("id")
         .single();
