@@ -5,6 +5,7 @@ import Chat from "../Chat";
 import { cookies } from "next/headers";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import CliqueUserList from "./CliqueUserList";
 
 // Small client component for accent color
 function CliqueTitle({
@@ -48,6 +49,20 @@ export default async function CliquePage({ params }: { params: { id: string } })
     );
   }
 
+  // Fetch members (with profile and role)
+  const { data: membersRaw } = await supabase
+    .from("clique_members")
+    .select("user_id, role, profiles:profiles(user_id, handle, display_name, avatar_url)")
+    .eq("clique_id", clique.id);
+
+  const members = (membersRaw ?? []).map((m: any) => ({
+    user_id: m.user_id,
+    role: m.role,
+    handle: m.profiles?.handle ?? null,
+    display_name: m.profiles?.display_name ?? null,
+    avatar_url: m.profiles?.avatar_url ?? null,
+  }));
+
   // Check if user is a member (server-side)
   let isMember = false;
   const cookieStore = cookies();
@@ -68,7 +83,7 @@ export default async function CliquePage({ params }: { params: { id: string } })
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
         <Topbar />
-        <main className="flex-1 flex flex-col items-center py-10">
+        <main className="flex-1 flex flex-row items-start py-10 gap-8">
           <div className="w-full max-w-2xl px-4">
             <Suspense fallback={<h1 className="text-4xl font-extrabold mb-2 text-gray-200">{clique.name}</h1>}>
               <CliqueTitle name={clique.name} />
@@ -85,6 +100,7 @@ export default async function CliquePage({ params }: { params: { id: string } })
               <Chat cliqueId={clique.id} />
             )}
           </div>
+          <CliqueUserList members={members} />
         </main>
       </div>
     </div>
