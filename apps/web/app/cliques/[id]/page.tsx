@@ -51,8 +51,9 @@ export default async function CliquePage({ params }: { params: { id: string } })
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
         <Topbar />
-        <main className="flex-1 flex flex-row items-start py-10 gap-8">
-          <div className="w-full max-w-2xl px-4">
+        <main className="flex-1 flex flex-col px-4">
+          {/* Title and description */}
+          <div className="w-full max-w-2xl">
             <h1 className="text-4xl font-extrabold mb-2 text-white">{clique.name}</h1>
             {clique.description && (
               <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
@@ -60,13 +61,16 @@ export default async function CliquePage({ params }: { params: { id: string } })
             <div className="mb-8 text-xs text-gray-500">
               Created: {new Date(clique.created_at).toLocaleString()}
             </div>
-            {/* Debug: Show raw members data */}
-            <pre className="text-xs text-yellow-300 bg-black/50 p-2 rounded mb-4 max-w-full overflow-x-auto">
-              {JSON.stringify(membersRaw, null, 2)}
-            </pre>
-            <Chat cliqueId={clique.id} />
           </div>
-          <CliqueUserList members={members} />
+          {/* Chat and members list side by side */}
+          <div className="flex flex-row gap-8 w-full max-w-6xl">
+            <div className="flex-1">
+              <Chat cliqueId={clique.id} />
+            </div>
+            <div className="flex-shrink-0 flex flex-col justify-start">
+              <CliqueUserList members={members} />
+            </div>
+          </div>
         </main>
       </div>
     </div>
