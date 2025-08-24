@@ -3,8 +3,26 @@ import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import Chat from "../Chat";
 import { cookies } from "next/headers";
-import { useTheme } from "../../theme-context";
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
+
+// Small client component for accent color
+function CliqueTitle({
+  name,
+}: {
+  name: string;
+}) {
+  "use client";
+  const { accent } = require("../../theme-context").useTheme();
+  return (
+    <h1
+      className="text-4xl font-extrabold mb-2"
+      style={{ color: `var(--tw-color-accent-${accent})` }}
+    >
+      {name}
+    </h1>
+  );
+}
 
 export default async function CliquePage({ params }: { params: { id: string } }) {
   const supabase = createSupabaseServer();
@@ -45,7 +63,6 @@ export default async function CliquePage({ params }: { params: { id: string } })
     isMember = !!member;
   }
 
-  // Accent color is client-side, so we use a CSS variable for the accent bar
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
@@ -53,22 +70,12 @@ export default async function CliquePage({ params }: { params: { id: string } })
         <Topbar />
         <main className="flex-1 flex flex-col items-center py-10">
           <div className="w-full max-w-2xl px-4">
-            {/* Clique topic/title with accent bar */}
-            <div className="flex items-center mb-2">
-              <div
-                className="w-2 h-10 rounded-full mr-4"
-                style={{ background: "var(--tw-color-accent-blue)" }}
-                id="clique-accent-bar"
-              />
-              <h1
-                className="text-4xl font-extrabold text-left"
-                style={{ color: "var(--tw-color-accent-blue)" }}
-                id="clique-title"
-              >
-                {clique.name}
-              </h1>
-            </div>
-            <div className="text-gray-400 mb-4">{clique.description}</div>
+            <Suspense fallback={<h1 className="text-4xl font-extrabold mb-2 text-gray-200">{clique.name}</h1>}>
+              <CliqueTitle name={clique.name} />
+            </Suspense>
+            {clique.description && (
+              <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
+            )}
             <div className="mb-8 text-xs text-gray-500">
               Created: {new Date(clique.created_at).toLocaleString()}
             </div>
