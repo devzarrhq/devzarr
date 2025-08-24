@@ -22,20 +22,18 @@ export default function Feed({ initialPosts = [] as Post[] }) {
   const [showAddPost, setShowAddPost] = useState(false);
 
   return (
-    <section className="w-full max-w-7xl mx-auto py-14 px-4">
-      <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-        <div className="flex flex-col">
-          <h1
-            className="text-5xl font-extrabold mb-2"
-            style={{ color: `var(--tw-color-accent-${accent})` }}
-          >
-            Project Feed
-          </h1>
-          <p className="text-gray-300 text-lg max-w-2xl">
-            Discover indie dev tools, launches, and more.
-          </p>
-        </div>
-        <div className="flex gap-4 flex-shrink-0">
+    <section className="w-full flex flex-col gap-12 py-14 px-8">
+      <div className="flex flex-col gap-4 items-start">
+        <h1
+          className="text-5xl font-extrabold"
+          style={{ color: `var(--tw-color-accent-${accent})` }}
+        >
+          Project Feed
+        </h1>
+        <p className="text-gray-300 text-lg max-w-2xl">
+          Discover indie dev tools, launches, and more.
+        </p>
+        <div className="flex gap-4 mt-2">
           <button
             className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold shadow-lg transition-colors text-lg"
             style={{
@@ -65,11 +63,11 @@ export default function Feed({ initialPosts = [] as Post[] }) {
       <AddPostModal open={showAddPost} onClose={() => setShowAddPost(false)} wide />
 
       {posts.length === 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-full">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 rounded-xl p-10 shadow-lg border border-gray-800 flex flex-col gap-3"
+              className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 rounded-xl p-10 shadow-lg border border-gray-800 flex flex-col gap-3 w-full"
             >
               <div className="h-7 w-1/2 bg-accent-blue/30 rounded mb-2 animate-pulse" />
               <div className="h-4 w-2/3 bg-gray-700 rounded mb-1 animate-pulse" />
@@ -78,12 +76,11 @@ export default function Feed({ initialPosts = [] as Post[] }) {
           ))}
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="flex flex-col gap-8 w-full">
           {posts.map((p) => (
             <article
               key={p.id}
               className="rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg w-full"
-              style={{ maxWidth: "100%" }}
             >
               <div className="flex items-center gap-3 mb-3">
                 {p.author?.avatar_url ? (
