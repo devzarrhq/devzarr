@@ -16,7 +16,6 @@ export default async function HomePage() {
 
   if (error) console.error("Feed query error:", error);
 
-  // Just pass the raw posts for now
   const posts = data ?? [];
 
   return (
@@ -28,7 +27,16 @@ export default async function HomePage() {
           {/* Center column: Feed */}
           <section className="flex-1 flex items-start justify-center py-10">
             <div className="w-full max-w-2xl">
-              <Feed initialPosts={posts} />
+              {posts.length === 0 ? (
+                <div className="text-center text-gray-400 mt-16">
+                  <p className="text-xl font-semibold">Nothing here... yet.</p>
+                  <p className="text-sm mt-2">
+                    Be the first to share your brilliance. ✨
+                  </p>
+                </div>
+              ) : (
+                <Feed initialPosts={posts} />
+              )}
             </div>
           </section>
           {/* Right column: reserved for widgets */}
