@@ -20,42 +20,63 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
   const [text, setText] = useState("");
   const scroller = useRef<HTMLDivElement>(null);
 
-  // Fetch messages with author info
+  // Fetch messages and author profiles
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
+      // 1. Fetch messages
+      const { data: messages } = await supabase
         .from("messages")
-        .select("id, body, author_id, created_at, profiles:author_id(handle, display_name, avatar_url)")
+        .select("id, body, author_id, created_at")
         .eq("clique_id", cliqueId)
         .order("created_at", { ascending: true })
         .limit(100);
-      // Map author info to .author
-      const mapped = (data ?? []).map((m: any) => ({
+
+      if (!messages || messages.length === 0) {
+        setMsgs([]);
+        return;
+      }
+
+      // 2. Get unique author_ids
+      const authorIds = Array.from(new Set(messages.map((m: any) => m.author_id)));
+
+      // 3. Fetch all profiles for these authors
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, handle, display_name, avatar_url")
+        .in("user_id", authorIds);
+
+      // 4. Map profiles to messages
+      const profileMap: Record<string, any> = {};
+      (profiles ?? []).forEach((p: any) => {
+        profileMap[p.user_id] = p;
+      });
+
+      const mapped = messages.map((m: any) => ({
         ...m,
-        author: m.profiles,
+        author: profileMap[m.author_id] || null,
       }));
+
       setMsgs(mapped);
       scroller.current?.scrollTo(0, scroller.current.scrollHeight);
     })();
 
+    // Real-time: Listen for new messages
     const channel = supabase.channel(`clique:${cliqueId}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `clique_id=eq.${cliqueId}` },
-        (payload) => {
+        async (payload) => {
           const m = payload.new as Message;
           // Fetch author info for new message
-          supabase
+          const { data: author } = await supabase
             .from("profiles")
             .select("handle, display_name, avatar_url")
             .eq("user_id", m.author_id)
-            .single()
-            .then(({ data: author }) => {
-              setMsgs((prev) => [
-                ...prev,
-                { ...m, author: author ? author : undefined },
-              ]);
-              scroller.current?.scrollTo(0, scroller.current.scrollHeight);
-            });
+            .single();
+          setMsgs((prev) => [
+            ...prev,
+            { ...m, author: author ? author : undefined },
+          ]);
+          scroller.current?.scrollTo(0, scroller.current.scrollHeight);
         })
       .subscribe();
 
@@ -79,6 +100,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
       <div ref={scroller} className="flex-1 overflow-y-auto p-4 space-y-2">
         {msgs.map(m => (
           <div key={m.id} className="flex items-start gap-2 text-sm text-gray-100 bg-white/5 rounded-md px-3 py-2 w-fit max-w-[70%]">
+            {/* Avatar */}
             {m.author?.avatar_url ? (
               <img
                 src={m.author.avatar_url}
@@ -90,9 +112,11 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
             )}
             <div>
               <div className="flex items-center gap-2 mb-0.5">
+                {/* Name */}
                 <span className="font-semibold text-xs text-emerald-300">
                   {m.author?.display_name || m.author?.handle || "Anonymous"}
                 </span>
+                {/* Time */}
                 <span className="text-[10px] text-gray-400">
                   {new Date(m.created_at).toLocaleTimeString()}
                 </span>
