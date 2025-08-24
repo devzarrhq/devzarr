@@ -23,12 +23,12 @@ export default function AboutPage() {
               overlay="from-gray-900/60 to-gray-950/95"
               className="w-full h-full"
             >
-              <div className="mx-auto w-full max-w-4xl px-6 pt-12 pb-8">
+              <div className="mx-auto w-full max-w-4xl px-6 pt-12 pb-8 text-white">
                 {/* Banner Heading */}
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-emerald-300 drop-shadow-lg text-left mb-4">
                   A Digital Bazaar for Indie Developers
                 </h1>
-                <p className="mt-2 text-gray-200/90 md:text-lg drop-shadow text-left mb-10">
+                <p className="mt-2 text-gray-200 md:text-lg drop-shadow text-left mb-10">
                   Discoverable projects. Support without gatekeepers. Tools that help the small shine.
                 </p>
                 {/* About content */}
@@ -57,10 +57,10 @@ export default function AboutPage() {
                   <div className="space-y-3">
                     <h3 className="text-xl font-semibold text-white drop-shadow text-left">How Devzarr Works</h3>
                     <ul className="list-disc pl-6 text-gray-200 space-y-2 drop-shadow">
-                      <li className="text-gray-200">Create a profile and showcase your projects.</li>
-                      <li className="text-gray-200">Post updates; your work appears in the Feed and Cliques.</li>
-                      <li className="text-gray-200">Share to socials, earn badges, and collect support/donations.</li>
-                      <li className="text-gray-200">Everything is remix-friendly and community-driven.</li>
+                      <li>Create a profile and showcase your projects.</li>
+                      <li>Post updates; your work appears in the Feed and Cliques.</li>
+                      <li>Share to socials, earn badges, and collect support/donations.</li>
+                      <li>Everything is remix-friendly and community-driven.</li>
                     </ul>
                   </div>
                 </section>
