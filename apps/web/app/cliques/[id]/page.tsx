@@ -6,9 +6,7 @@ import Topbar from "../../components/Topbar";
 import Chat from "../Chat";
 import dynamic from "next/dynamic";
 import { supabaseBrowser } from "@/lib/supabase/client";
-
-// Dynamically import CliqueUserList as a client component
-const CliqueUserList = dynamic(() => import("./CliqueUserList"), { ssr: false });
+import MembersClient from "./MembersClient";
 
 export default function CliquePage({ params }: { params: { id: string } }) {
   const { accent } = useTheme();
@@ -119,7 +117,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
               <Chat cliqueId={clique.id} />
             </div>
             <div className="flex-shrink-0 flex flex-col justify-start">
-              <CliqueUserList members={members} />
+              <MembersClient cliqueId={clique.id} initial={members} />
             </div>
           </div>
         </main>

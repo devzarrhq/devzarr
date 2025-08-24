@@ -9,7 +9,7 @@ type Member = {
   role: string;
 };
 
-export default function CliqueUserList({ members }: { members: Member[] }) {
+export default function CliqueUserList({ members, online }: { members: Member[]; online?: Set<string> }) {
   return (
     <aside className="hidden lg:block w-[260px] flex-shrink-0 px-2 py-4 h-full">
       <div className="bg-white/5 rounded-xl border border-gray-800 shadow p-4 h-full flex flex-col">
@@ -40,6 +40,8 @@ export default function CliqueUserList({ members }: { members: Member[] }) {
                       <UserCircle className="w-5 h-5 text-gray-400" />
                     </div>
                   )}
+                  {/* Online badge */}
+                  <div className={`w-2 h-2 rounded-full ${online?.has(m.user_id) ? "bg-emerald-400" : "bg-gray-600"}`} />
                   <span className={`truncate text-sm font-bold ${roleTint}`}>
                     {prefix}
                     {m.handle ?? "anonymous"}
