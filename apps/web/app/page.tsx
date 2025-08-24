@@ -8,15 +8,19 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const supabase = createSupabaseServer();
 
-  // 1. Fetch posts
-  const { data: posts, error: postsError } = await supabase
+  // Fetch posts with project and author using join syntax
+  const { data: posts, error } = await supabase
     .from("posts")
-    .select("*")
+    .select(`
+      id, title, body, created_at,
+      project:projects(name, slug, cover_url),
+      author:profiles(handle, display_name, avatar_url)
+    `)
     .order("created_at", { ascending: false })
-    .limit(5);
+    .limit(20);
 
-  if (postsError) {
-    console.error("Feed query error:", postsError);
+  if (error) {
+    console.error("Feed query error:", error);
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
@@ -25,7 +29,7 @@ export default async function HomePage() {
           <main className="flex-1 flex items-center justify-center">
             <div className="text-center text-gray-400 mt-16">
               <p className="text-xl font-semibold">Error loading feed.</p>
-              <p className="text-sm mt-2">{postsError.message}</p>
+              <p className="text-sm mt-2">{error.message}</p>
             </div>
           </main>
         </div>
@@ -52,25 +56,6 @@ export default async function HomePage() {
     );
   }
 
-  // 2. Fetch related projects and profiles
-  const projectIds = Array.from(new Set(posts.map((p) => p.project_id).filter(Boolean)));
-  const authorIds = Array.from(new Set(posts.map((p) => p.author_id).filter(Boolean)));
-
-  const [{ data: projects }, { data: profiles }] = await Promise.all([
-    supabase.from("projects").select("id, name, slug, cover_url").in("id", projectIds),
-    supabase.from("profiles").select("user_id, handle, display_name, avatar_url").in("user_id", authorIds),
-  ]);
-
-  const safeProjects = projects ?? [];
-  const safeProfiles = profiles ?? [];
-
-  // 3. Merge related data into posts
-  const postsWithRelations = posts.map((post) => ({
-    ...post,
-    project: safeProjects.find((proj) => proj.id === post.project_id) || null,
-    author: safeProfiles.find((prof) => prof.user_id === post.author_id) || null,
-  }));
-
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
@@ -80,7 +65,7 @@ export default async function HomePage() {
           {/* Center column: Feed */}
           <section className="flex-1 flex items-start justify-center py-10">
             <div className="w-full max-w-2xl">
-              <Feed initialPosts={postsWithRelations} />
+              <Feed initialPosts={posts} />
             </div>
           </section>
           {/* Right column: reserved for widgets */}
