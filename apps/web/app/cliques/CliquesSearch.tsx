@@ -2,6 +2,10 @@
 import { useState } from "react";
 import { Users } from "lucide-react";
 import Link from "next/link";
+import { useCliqueMembership } from "./useCliqueMembership";
+import { supabaseBrowser } from "@/lib/supabase/client";
+import { useAuth } from "../providers/AuthProvider";
+import { useRouter } from "next/navigation";
 
 type Clique = {
   id: string;
@@ -24,6 +28,22 @@ export default function CliquesSearch({
       c.slug?.toLowerCase().includes(query.toLowerCase()) ||
       c.description?.toLowerCase().includes(query.toLowerCase())
   );
+  const { user } = useAuth();
+  const router = useRouter();
+
+  async function handleJoin(cliqueId: string) {
+    if (!user) {
+      alert("Sign in to join cliques.");
+      return;
+    }
+    const supabase = supabaseBrowser();
+    await supabase.from("clique_members").insert({
+      clique_id: cliqueId,
+      user_id: user.id,
+      role: "member",
+    });
+    router.refresh();
+  }
 
   return (
     <div>
@@ -38,22 +58,42 @@ export default function CliquesSearch({
         {filtered.length === 0 ? (
           <div className="text-gray-400">No cliques found.</div>
         ) : (
-          filtered.map((c) => (
-            <Link
-              key={c.id}
-              href={`/cliques/${c.id}`}
-              className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-emerald-900/10 border border-gray-800 transition"
-            >
-              <Users className="w-8 h-8 text-emerald-300" />
-              <div className="flex-1">
-                <div className="font-semibold text-lg text-white">{c.name}</div>
-                <div className="text-gray-400 text-sm">{c.description || c.slug}</div>
+          filtered.map((c) => {
+            const isMember = useCliqueMembership(c.id);
+            return (
+              <div
+                key={c.id}
+                className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-emerald-900/10 border border-gray-800 transition"
+              >
+                <Link
+                  href={`/cliques/${c.id}`}
+                  className="flex items-center gap-4 flex-1 min-w-0"
+                >
+                  <Users className="w-8 h-8 text-emerald-300" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-lg text-white truncate">{c.name}</div>
+                    <div className="text-gray-400 text-sm truncate">{c.description || c.slug}</div>
+                  </div>
+                  <div className="text-gray-300 text-sm">
+                    {memberCounts[c.id] ?? 0} member{(memberCounts[c.id] ?? 0) === 1 ? "" : "s"}
+                  </div>
+                </Link>
+                {isMember === false && (
+                  <button
+                    className="ml-4 px-4 py-1.5 rounded-lg bg-emerald-500/90 text-white font-semibold text-sm hover:bg-emerald-500"
+                    onClick={() => handleJoin(c.id)}
+                  >
+                    Join
+                  </button>
+                )}
+                {isMember === true && (
+                  <span className="ml-4 px-4 py-1.5 rounded-lg bg-white/10 text-white font-semibold text-sm">
+                    Member
+                  </span>
+                )}
               </div>
-              <div className="text-gray-300 text-sm">
-                {memberCounts[c.id] ?? 0} member{(memberCounts[c.id] ?? 0) === 1 ? "" : "s"}
-              </div>
-            </Link>
-          ))
+            );
+          })
         )}
       </div>
     </div>
