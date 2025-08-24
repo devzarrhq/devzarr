@@ -8,23 +8,16 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const supabase = createSupabaseServer();
 
+  // Simple test query
   const { data, error } = await supabase
     .from("posts")
-    .select(`
-      id, title, body, created_at,
-      project:projects(name, slug, cover_url),
-      author:profiles(handle, display_name, avatar_url)
-    `)
-    .order("created_at", { ascending: false })
-    .limit(20);
+    .select("*")
+    .limit(5);
 
   if (error) console.error("Feed query error:", error);
-  // Fix: Map project/author from array to object if needed
-  const posts = (data ?? []).map((p: any) => ({
-    ...p,
-    project: Array.isArray(p.project) ? p.project[0] : p.project,
-    author: Array.isArray(p.author) ? p.author[0] : p.author,
-  }));
+
+  // Just pass the raw posts for now
+  const posts = data ?? [];
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
