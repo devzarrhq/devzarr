@@ -1,7 +1,7 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
-import Chat from "./Chat";
+import Chat from "../Chat";
 import { cookies } from "next/headers";
 
 export default async function CliquePage({ params }: { params: { id: string } }) {
