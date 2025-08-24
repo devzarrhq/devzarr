@@ -78,43 +78,69 @@ export default function Feed({ initialPosts = [] as Post[] }) {
         </div>
       ) : (
         <div className="flex flex-col gap-8 w-full">
-          {posts.map((p) => (
-            <article
-              key={p.id}
-              className="rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg w-full"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                {p.author?.avatar_url ? (
-                  <img
-                    src={p.author.avatar_url!}
-                    alt={p.author.display_name ?? p.author.handle ?? "author"}
-                    className="h-9 w-9 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="h-9 w-9 rounded-full bg-gray-700" />
-                )}
-                <div className="leading-tight">
-                  <div className="text-gray-100 font-medium">
-                    {p.author?.display_name || p.author?.handle || "Anonymous"}
+          {posts.map((p) =>
+            p.project?.slug ? (
+              <Link
+                key={p.id}
+                href={`/projects/${p.project.slug}`}
+                className="group block rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg w-full transition hover:ring-2 hover:ring-emerald-400/60 focus:outline-none"
+                tabIndex={0}
+                aria-label={`View project ${p.project.name}`}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  {p.author?.avatar_url ? (
+                    <img
+                      src={p.author.avatar_url!}
+                      alt={p.author.display_name ?? p.author.handle ?? "author"}
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-9 w-9 rounded-full bg-gray-700" />
+                  )}
+                  <div className="leading-tight">
+                    <div className="text-gray-100 font-medium">
+                      {p.author?.display_name || p.author?.handle || "Anonymous"}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {new Date(p.created_at).toLocaleString()}
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">
-                    {new Date(p.created_at).toLocaleString()}
+                  <span className="ml-auto text-xs text-emerald-300 group-hover:underline">
+                    in {p.project.name}
+                  </span>
+                </div>
+                {p.title ? <h3 className="text-lg font-semibold mb-1">{p.title}</h3> : null}
+                {p.body ? <p className="text-gray-300 whitespace-pre-wrap">{p.body}</p> : null}
+              </Link>
+            ) : (
+              <article
+                key={p.id}
+                className="rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg w-full"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  {p.author?.avatar_url ? (
+                    <img
+                      src={p.author.avatar_url!}
+                      alt={p.author.display_name ?? p.author.handle ?? "author"}
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-9 w-9 rounded-full bg-gray-700" />
+                  )}
+                  <div className="leading-tight">
+                    <div className="text-gray-100 font-medium">
+                      {p.author?.display_name || p.author?.handle || "Anonymous"}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {new Date(p.created_at).toLocaleString()}
+                    </div>
                   </div>
                 </div>
-                {p.project?.slug && (
-                  <Link
-                    href={`/projects/${p.project.slug}`}
-                    className="ml-auto text-xs text-emerald-300 hover:underline"
-                  >
-                    in {p.project.name}
-                  </Link>
-                )}
-              </div>
-
-              {p.title ? <h3 className="text-lg font-semibold mb-1">{p.title}</h3> : null}
-              {p.body ? <p className="text-gray-300 whitespace-pre-wrap">{p.body}</p> : null}
-            </article>
-          ))}
+                {p.title ? <h3 className="text-lg font-semibold mb-1">{p.title}</h3> : null}
+                {p.body ? <p className="text-gray-300 whitespace-pre-wrap">{p.body}</p> : null}
+              </article>
+            )
+          )}
         </div>
       )}
     </section>
