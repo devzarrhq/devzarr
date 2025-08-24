@@ -103,7 +103,7 @@ export default async function CliquePage({ params }: { params: { id: string } })
               <Chat cliqueId={clique.id} />
             )}
           </div>
-          <CliqueUserList members={members} />
+          {/* <CliqueUserList members={members} /> */}
         </main>
       </div>
     </div>
