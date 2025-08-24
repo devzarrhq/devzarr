@@ -11,7 +11,7 @@ type Message = {
     handle: string | null;
     display_name: string | null;
     avatar_url: string | null;
-  };
+  } | null;
 };
 
 export default function Chat({ cliqueId }: { cliqueId: string }) {
@@ -24,26 +24,39 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
   useEffect(() => {
     (async () => {
       // 1. Fetch messages
-      const { data: messages } = await supabase
+      const { data: messages, error: msgError } = await supabase
         .from("messages")
         .select("id, body, author_id, created_at")
         .eq("clique_id", cliqueId)
         .order("created_at", { ascending: true })
         .limit(100);
 
+      if (msgError) {
+        console.error("Error fetching messages:", msgError);
+        setMsgs([]);
+        return;
+      }
       if (!messages || messages.length === 0) {
         setMsgs([]);
         return;
       }
 
       // 2. Get unique author_ids
-      const authorIds = Array.from(new Set(messages.map((m: any) => m.author_id)));
+      const authorIds = Array.from(new Set(messages.map((m: any) => m.author_id))).filter(Boolean);
+      if (authorIds.length === 0) {
+        setMsgs(messages);
+        return;
+      }
 
       // 3. Fetch all profiles for these authors
-      const { data: profiles } = await supabase
+      const { data: profiles, error: profError } = await supabase
         .from("profiles")
         .select("user_id, handle, display_name, avatar_url")
         .in("user_id", authorIds);
+
+      if (profError) {
+        console.error("Error fetching profiles:", profError);
+      }
 
       // 4. Map profiles to messages
       const profileMap: Record<string, any> = {};
@@ -57,7 +70,9 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
       }));
 
       setMsgs(mapped);
-      scroller.current?.scrollTo(0, scroller.current.scrollHeight);
+      setTimeout(() => {
+        scroller.current?.scrollTo(0, scroller.current.scrollHeight);
+      }, 100);
     })();
 
     // Real-time: Listen for new messages
@@ -67,16 +82,21 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         async (payload) => {
           const m = payload.new as Message;
           // Fetch author info for new message
-          const { data: author } = await supabase
+          const { data: author, error: authorError } = await supabase
             .from("profiles")
             .select("handle, display_name, avatar_url")
             .eq("user_id", m.author_id)
             .single();
+          if (authorError) {
+            console.error("Error fetching author for new message:", authorError);
+          }
           setMsgs((prev) => [
             ...prev,
-            { ...m, author: author ? author : undefined },
+            { ...m, author: author ? author : null },
           ]);
-          scroller.current?.scrollTo(0, scroller.current.scrollHeight);
+          setTimeout(() => {
+            scroller.current?.scrollTo(0, scroller.current.scrollHeight);
+          }, 100);
         })
       .subscribe();
 
@@ -108,7 +128,9 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
                 className="w-7 h-7 rounded-full object-cover mr-2"
               />
             ) : (
-              <div className="w-7 h-7 rounded-full bg-gray-700 mr-2" />
+              <div className="w-7 h-7 rounded-full bg-gray-700 mr-2 flex items-center justify-center text-xs text-gray-400">
+                ?
+              </div>
             )}
             <div>
               <div className="flex items-center gap-2 mb-0.5">
