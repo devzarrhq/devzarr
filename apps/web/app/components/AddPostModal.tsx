@@ -10,6 +10,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onCreated?: () => void;
+  wide?: boolean;
 };
 
 type Project = {
@@ -17,7 +18,7 @@ type Project = {
   name: string;
 };
 
-export default function AddPostModal({ open, onClose, onCreated }: Props) {
+export default function AddPostModal({ open, onClose, onCreated, wide }: Props) {
   const { accent } = useTheme();
   const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -90,7 +91,11 @@ export default function AddPostModal({ open, onClose, onCreated }: Props) {
     <Dialog open={open} onClose={onClose} className="fixed z-50 inset-0 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4">
         <Dialog.Overlay className="fixed inset-0 bg-black/60" />
-        <div className="relative bg-gray-900 rounded-2xl shadow-2xl max-w-lg w-full mx-auto p-8 z-10">
+        <div
+          className={`relative bg-gray-900 rounded-2xl shadow-2xl w-full mx-auto p-8 z-10 ${
+            wide ? "max-w-3xl" : "max-w-lg"
+          }`}
+        >
           <Dialog.Title
             className="text-2xl font-bold mb-4"
             style={{ color: `var(--tw-color-accent-${accent})` }}

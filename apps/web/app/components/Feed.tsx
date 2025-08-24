@@ -22,16 +22,16 @@ export default function Feed({ initialPosts = [] as Post[] }) {
   const [showAddPost, setShowAddPost] = useState(false);
 
   return (
-    <section className="w-full max-w-7xl mx-auto py-14 px-2 md:px-12">
-      <div className="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+    <section className="w-full max-w-[96vw] md:max-w-[80vw] xl:max-w-7xl mx-auto py-14 px-2 md:px-8">
+      <div className="mb-12 flex flex-row items-center justify-between gap-8 min-w-0">
         <div className="flex-1 min-w-0">
           <h1
-            className="text-5xl font-extrabold mb-1 whitespace-nowrap"
+            className="text-5xl font-extrabold mb-1 whitespace-nowrap overflow-hidden text-ellipsis"
             style={{ color: `var(--tw-color-accent-${accent})` }}
           >
             Project Feed
           </h1>
-          <p className="text-gray-300 text-lg max-w-3xl truncate md:whitespace-nowrap">
+          <p className="text-gray-300 text-lg max-w-3xl truncate whitespace-nowrap overflow-hidden text-ellipsis">
             Discover indie dev tools, launches, and more.
           </p>
         </div>
@@ -61,8 +61,8 @@ export default function Feed({ initialPosts = [] as Post[] }) {
         </div>
       </div>
 
-      <AddProjectModal open={showAddProject} onClose={() => setShowAddProject(false)} />
-      <AddPostModal open={showAddPost} onClose={() => setShowAddPost(false)} />
+      <AddProjectModal open={showAddProject} onClose={() => setShowAddProject(false)} wide />
+      <AddPostModal open={showAddPost} onClose={() => setShowAddPost(false)} wide />
 
       {posts.length === 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
