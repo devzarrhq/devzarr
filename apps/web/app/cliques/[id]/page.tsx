@@ -31,20 +31,30 @@ export default async function CliquePage({ params }: { params: { id: string } })
     );
   }
 
-  // Fetch members (with profile and role)
-  const { data: membersRaw } = await supabase
+  // 1) pull members (id + role)
+  const { data: cm } = await supabase
     .from("clique_members")
-    .select("user_id, role, profiles:profiles(user_id, handle, display_name, avatar_url)")
-    .eq("clique_id", clique.id);
+    .select("user_id, role")
+    .eq("clique_id", params.id);
 
-  // Sanitize members: ensure all fields are serializable (no Date, no undefined, no functions)
-  const members = (membersRaw ?? []).map((m: any) => ({
-    user_id: m.user_id ? String(m.user_id) : "",
-    role: m.role ? String(m.role) : "",
-    handle: m.profiles?.handle ? String(m.profiles.handle) : null,
-    display_name: m.profiles?.display_name ? String(m.profiles.display_name) : null,
-    avatar_url: m.profiles?.avatar_url ? String(m.profiles.avatar_url) : null,
-  }));
+  const userIds = (cm ?? []).map(m => m.user_id);
+  // 2) pull profiles in bulk
+  const { data: profs } = userIds.length
+    ? await supabase
+        .from("profiles")
+        .select("user_id, handle, display_name, avatar_url")
+        .in("user_id", userIds)
+    : { data: [] as any[] };
+
+  // 3) merge + sort (owner → moderator → member → alpha)
+  const rank = (r?: string) => (r === "owner" ? 0 : r === "moderator" ? 1 : 2);
+  const members = (cm ?? [])
+    .map(m => ({
+      user_id: m.user_id,
+      role: m.role ?? "member",
+      ...(profs?.find(p => p.user_id === m.user_id) ?? { handle: null, display_name: null, avatar_url: null })
+    }))
+    .sort((a, b) => rank(a.role) - rank(b.role) || (a.display_name ?? a.handle ?? "").localeCompare(b.display_name ?? b.handle ?? ""));
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">

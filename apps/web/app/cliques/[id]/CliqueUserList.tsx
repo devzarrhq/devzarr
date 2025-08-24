@@ -18,25 +18,35 @@ export default function CliqueUserList({ members }: { members: Member[] }) {
           {members.length === 0 ? (
             <li className="text-gray-400 text-sm">No members yet.</li>
           ) : (
-            members.map((m) => (
-              <li key={m.user_id} className="flex items-center gap-2">
-                {/* Avatar */}
-                {m.avatar_url ? (
-                  <img
-                    src={m.avatar_url}
-                    alt={m.display_name || m.handle || "user"}
-                    className="w-7 h-7 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center">
-                    <UserCircle className="w-5 h-5 text-gray-400" />
-                  </div>
-                )}
-                <span className="truncate text-gray-100 text-sm font-bold">
-                  @{m.handle || "anonymous"}
-                </span>
-              </li>
-            ))
+            members.map((m) => {
+              const prefix = m.role === "owner" ? "@" : m.role === "moderator" ? "+" : "";
+              const roleTint =
+                m.role === "owner"
+                  ? "text-emerald-300"
+                  : m.role === "moderator"
+                  ? "text-cyan-300"
+                  : "text-gray-100";
+              return (
+                <li key={m.user_id} className="flex items-center gap-2">
+                  {/* Avatar */}
+                  {m.avatar_url ? (
+                    <img
+                      src={m.avatar_url}
+                      alt={m.display_name || m.handle || "user"}
+                      className="w-7 h-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center">
+                      <UserCircle className="w-5 h-5 text-gray-400" />
+                    </div>
+                  )}
+                  <span className={`truncate text-sm font-bold ${roleTint}`}>
+                    {prefix}
+                    {m.handle ?? "anonymous"}
+                  </span>
+                </li>
+              );
+            })
           )}
         </ul>
       </div>
