@@ -1,5 +1,5 @@
 "use client";
-import { UserCircle } from "lucide-react";
+import { UserCircle, Crown, Shield } from "lucide-react";
 
 type Member = {
   user_id: string;
@@ -20,6 +20,7 @@ export default function CliqueUserList({ members }: { members: Member[] }) {
           ) : (
             members.map((m) => (
               <li key={m.user_id} className="flex items-center gap-2">
+                {/* Avatar */}
                 {m.avatar_url ? (
                   <img
                     src={m.avatar_url}
@@ -31,17 +32,34 @@ export default function CliqueUserList({ members }: { members: Member[] }) {
                     <UserCircle className="w-5 h-5 text-gray-400" />
                   </div>
                 )}
-                <span className="truncate text-gray-100 text-sm font-medium">
-                  {m.display_name || m.handle || "Anonymous"}
-                </span>
-                {m.handle && (
-                  <span className="ml-2 text-xs text-gray-400 truncate">@{m.handle}</span>
-                )}
-                {(m.role === "moderator" || m.role === "owner") && (
-                  <span className="ml-1 text-emerald-400 font-bold text-base" title="Moderator">
-                    @
+                <div className="flex flex-col leading-tight">
+                  {m.display_name && (
+                    <span className="text-xs text-gray-300 font-medium">
+                      {m.display_name}
+                    </span>
+                  )}
+                  <span className="truncate text-gray-100 text-sm font-bold flex items-center gap-1">
+                    @{m.handle || "anonymous"}
+                    {m.role === "owner" && (
+                      <span
+                        className="ml-1 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-500 text-white text-[10px] font-bold"
+                        title="Owner"
+                      >
+                        O
+                        <Crown className="w-3 h-3 ml-0.5 text-white" />
+                      </span>
+                    )}
+                    {m.role === "moderator" && (
+                      <span
+                        className="ml-1 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-500 text-white text-[10px] font-bold"
+                        title="Moderator"
+                      >
+                        M
+                        <Shield className="w-3 h-3 ml-0.5 text-white" />
+                      </span>
+                    )}
                   </span>
-                )}
+                </div>
               </li>
             ))
           )}
