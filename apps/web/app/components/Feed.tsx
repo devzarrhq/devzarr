@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTheme } from "../theme-context";
 import AddProjectModal from "./AddProjectModal";
+import AddPostModal from "./AddPostModal";
 import { Plus } from "lucide-react";
 
 type Post = {
@@ -17,7 +18,8 @@ type Post = {
 export default function Feed({ initialPosts = [] as Post[] }) {
   const { accent } = useTheme();
   const posts = initialPosts;
-  const [showAdd, setShowAdd] = useState(false);
+  const [showAddProject, setShowAddProject] = useState(false);
+  const [showAddPost, setShowAddPost] = useState(false);
 
   return (
     <section className="w-full max-w-4xl mx-auto py-10 px-4">
@@ -31,20 +33,34 @@ export default function Feed({ initialPosts = [] as Post[] }) {
           </h1>
           <p className="text-gray-300 text-lg">Discover indie dev tools, launches, and more.</p>
         </div>
-        <button
-          className="flex items-center gap-2 px-5 py-2 rounded-full font-semibold shadow-lg transition-colors"
-          style={{
-            background: `var(--tw-color-accent-${accent})`,
-            color: "#fff",
-          }}
-          onClick={() => setShowAdd(true)}
-        >
-          <Plus className="w-5 h-5" />
-          Add Project
-        </button>
+        <div className="flex gap-2">
+          <button
+            className="flex items-center gap-2 px-5 py-2 rounded-full font-semibold shadow-lg transition-colors"
+            style={{
+              background: `var(--tw-color-accent-${accent})`,
+              color: "#fff",
+            }}
+            onClick={() => setShowAddPost(true)}
+          >
+            <Plus className="w-5 h-5" />
+            Add Post
+          </button>
+          <button
+            className="flex items-center gap-2 px-5 py-2 rounded-full font-semibold shadow-lg transition-colors"
+            style={{
+              background: `var(--tw-color-accent-${accent})`,
+              color: "#fff",
+            }}
+            onClick={() => setShowAddProject(true)}
+          >
+            <Plus className="w-5 h-5" />
+            Add Project
+          </button>
+        </div>
       </div>
 
-      <AddProjectModal open={showAdd} onClose={() => setShowAdd(false)} />
+      <AddProjectModal open={showAddProject} onClose={() => setShowAddProject(false)} />
+      <AddPostModal open={showAddPost} onClose={() => setShowAddPost(false)} />
 
       {posts.length === 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
