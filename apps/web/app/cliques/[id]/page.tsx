@@ -1,11 +1,11 @@
 "use client";
 import { useTheme } from "../../theme-context";
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import Chat from "../Chat";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 // Dynamically import CliqueUserList as a client component
 const CliqueUserList = dynamic(() => import("./CliqueUserList"), { ssr: false });
@@ -19,7 +19,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
   useEffect(() => {
     (async () => {
       try {
-        const supabase = createSupabaseServer();
+        const supabase = supabaseBrowser();
         // Fetch clique by ID
         const { data: cliqueData, error: cliqueError } = await supabase
           .from("cliques")
