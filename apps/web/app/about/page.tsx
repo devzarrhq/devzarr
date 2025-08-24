@@ -1,6 +1,5 @@
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
-import ParallaxBanner from "../components/ParallaxBanner";
 import ParallaxBackground from "../components/ParallaxBackground";
 
 export const metadata = {
@@ -26,18 +25,18 @@ export default function AboutPage() {
             >
               {/* Banner content */}
               <div className="mx-auto max-w-4xl px-6 text-center pt-8 pb-4">
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-emerald-300">
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-emerald-300 drop-shadow-lg">
                   A Digital Bazaar for Indie Developers
                 </h1>
-                <p className="mt-4 text-gray-200/90 md:text-lg">
+                <p className="mt-4 text-gray-200/90 md:text-lg drop-shadow">
                   Discoverable projects. Support without gatekeepers. Tools that help the small shine.
                 </p>
               </div>
               {/* About content */}
               <main className="mx-auto w-full max-w-4xl px-6 py-14 space-y-16">
                 <section className="space-y-4">
-                  <h2 className="text-2xl font-semibold text-white">Our Mission</h2>
-                  <p className="text-gray-300 leading-relaxed">
+                  <h2 className="text-2xl font-semibold text-white drop-shadow">Our Mission</h2>
+                  <p className="text-gray-200 leading-relaxed drop-shadow">
                     Devzarr is a community-powered marketplace for ideas: a place where indie makers can
                     launch, learn, and lift each other. We champion visibility, fair discovery, and
                     creator-owned growth.
@@ -57,8 +56,8 @@ export default function AboutPage() {
                 </section>
 
                 <section className="space-y-3">
-                  <h3 className="text-xl font-semibold text-white">How Devzarr Works</h3>
-                  <ul className="list-disc pl-6 text-gray-300 space-y-2">
+                  <h3 className="text-xl font-semibold text-white drop-shadow">How Devzarr Works</h3>
+                  <ul className="list-disc pl-6 text-gray-200 space-y-2 drop-shadow">
                     <li>Create a profile and showcase your projects.</li>
                     <li>Post updates; your work appears in the Feed and Cliques.</li>
                     <li>Share to socials, earn badges, and collect support/donations.</li>
@@ -81,8 +80,8 @@ export default function AboutPage() {
 function Feature({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
-      <h4 className="font-semibold text-emerald-300">{title}</h4>
-      <p className="mt-2 text-gray-300 text-sm leading-relaxed">{children}</p>
+      <h4 className="font-semibold text-emerald-300 drop-shadow">{title}</h4>
+      <p className="mt-2 text-gray-200 text-sm leading-relaxed drop-shadow">{children}</p>
     </div>
   );
 }
