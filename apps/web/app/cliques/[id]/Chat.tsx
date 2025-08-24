@@ -37,7 +37,9 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert("Sign in first");
     const { error } = await supabase.from("messages").insert({
-      clique_id: cliqueId, author_id: user.id, body: text.trim(),
+      clique_id: cliqueId,
+      author_id: user.id,
+      body: text.trim(),
     });
     if (!error) setText("");
   };
