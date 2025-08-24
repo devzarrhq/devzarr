@@ -1,6 +1,7 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
+import Chat from "../Chat";
 
 export default async function CliquePage({ params }: { params: { id: string } }) {
   const supabase = createSupabaseServer();
@@ -26,7 +27,7 @@ export default async function CliquePage({ params }: { params: { id: string } })
     );
   }
 
-  // Only render static content for now
+  // Only render static content and Chat for now
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
@@ -41,7 +42,7 @@ export default async function CliquePage({ params }: { params: { id: string } })
             <div className="mb-8 text-xs text-gray-500">
               Created: {new Date(clique.created_at).toLocaleString()}
             </div>
-            {/* No client components, no Suspense, no dynamic imports */}
+            <Chat cliqueId={clique.id} />
           </div>
         </main>
       </div>
