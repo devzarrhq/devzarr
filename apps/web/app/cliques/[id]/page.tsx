@@ -2,6 +2,10 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import Chat from "../Chat";
+import dynamic from "next/dynamic";
+
+// Dynamically import CliqueUserList as a client component
+const CliqueUserList = dynamic(() => import("./CliqueUserList"), { ssr: false });
 
 export default async function CliquePage({ params }: { params: { id: string } }) {
   const supabase = createSupabaseServer();
@@ -27,7 +31,21 @@ export default async function CliquePage({ params }: { params: { id: string } })
     );
   }
 
-  // Only render static content and Chat for now
+  // Fetch members (with profile and role)
+  const { data: membersRaw } = await supabase
+    .from("clique_members")
+    .select("user_id, role, profiles:profiles(user_id, handle, display_name, avatar_url)")
+    .eq("clique_id", clique.id);
+
+  // Sanitize members: ensure all fields are serializable (no Date, no undefined, no functions)
+  const members = (membersRaw ?? []).map((m: any) => ({
+    user_id: m.user_id ? String(m.user_id) : "",
+    role: m.role ? String(m.role) : "",
+    handle: m.profiles?.handle ? String(m.profiles.handle) : null,
+    display_name: m.profiles?.display_name ? String(m.profiles.display_name) : null,
+    avatar_url: m.profiles?.avatar_url ? String(m.profiles.avatar_url) : null,
+  }));
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
@@ -44,6 +62,7 @@ export default async function CliquePage({ params }: { params: { id: string } })
             </div>
             <Chat cliqueId={clique.id} />
           </div>
+          <CliqueUserList members={members} />
         </main>
       </div>
     </div>
