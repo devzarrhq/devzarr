@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useTheme } from "../theme-context";
+import { useAuth } from "../providers/AuthProvider";
 
 type Props = {
   open: boolean;
@@ -13,6 +14,7 @@ type Props = {
 
 export default function AddProjectModal({ open, onClose, onCreated }: Props) {
   const { accent } = useTheme();
+  const { user } = useAuth();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [summary, setSummary] = useState("");
@@ -28,16 +30,20 @@ export default function AddProjectModal({ open, onClose, onCreated }: Props) {
     setLoading(true);
     setError(null);
 
-    // Validate required fields
     if (!name.trim() || !slug.trim()) {
       setError("Name and slug are required.");
       setLoading(false);
       return;
     }
+    if (!user) {
+      setError("You must be logged in.");
+      setLoading(false);
+      return;
+    }
 
-    // Insert project
     const supabase = supabaseBrowser();
     const { error: insertError } = await supabase.from("projects").insert({
+      owner_id: user.id,
       name: name.trim(),
       slug: slug.trim(),
       summary: summary.trim() || null,
