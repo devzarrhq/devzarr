@@ -5,6 +5,7 @@ import { useTheme } from "../theme-context";
 import AddProjectModal from "./AddProjectModal";
 import AddPostModal from "./AddPostModal";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 
 type Post = {
   id: string;
@@ -100,9 +101,14 @@ export default function Feed({ initialPosts = [] as Post[] }) {
                     {new Date(p.created_at).toLocaleString()}
                   </div>
                 </div>
-                <div className="ml-auto text-xs text-gray-400">
-                  {p.project?.name ? `in ${p.project.name}` : ""}
-                </div>
+                {p.project?.slug && (
+                  <Link
+                    href={`/projects/${p.project.slug}`}
+                    className="ml-auto text-xs text-emerald-300 hover:underline"
+                  >
+                    in {p.project.name}
+                  </Link>
+                )}
               </div>
 
               {p.title ? <h3 className="text-lg font-semibold mb-1">{p.title}</h3> : null}
