@@ -8,15 +8,65 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const supabase = createSupabaseServer();
 
-  // Simple test query
-  const { data, error } = await supabase
+  // 1. Fetch posts
+  const { data: posts, error: postsError } = await supabase
     .from("posts")
     .select("*")
+    .order("created_at", { ascending: false })
     .limit(5);
 
-  if (error) console.error("Feed query error:", error);
+  if (postsError) {
+    console.error("Feed query error:", postsError);
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+          <Topbar />
+          <main className="flex-1 flex items-center justify-center">
+            <div className="text-center text-gray-400 mt-16">
+              <p className="text-xl font-semibold">Error loading feed.</p>
+              <p className="text-sm mt-2">{postsError.message}</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
-  const posts = data ?? [];
+  if (!posts || posts.length === 0) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+          <Topbar />
+          <main className="flex-1 flex items-center justify-center">
+            <div className="text-center text-gray-400 mt-16">
+              <p className="text-xl font-semibold">Nothing here... yet.</p>
+              <p className="text-sm mt-2">
+                Be the first to share your brilliance. ✨
+              </p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Fetch related projects and profiles
+  const projectIds = Array.from(new Set(posts.map((p) => p.project_id).filter(Boolean)));
+  const authorIds = Array.from(new Set(posts.map((p) => p.author_id).filter(Boolean)));
+
+  const [{ data: projects = [] }, { data: profiles = [] }] = await Promise.all([
+    supabase.from("projects").select("id, name, slug, cover_url").in("id", projectIds),
+    supabase.from("profiles").select("user_id, handle, display_name, avatar_url").in("user_id", authorIds),
+  ]);
+
+  // 3. Merge related data into posts
+  const postsWithRelations = posts.map((post) => ({
+    ...post,
+    project: projects.find((proj) => proj.id === post.project_id) || null,
+    author: profiles.find((prof) => prof.user_id === post.author_id) || null,
+  }));
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
@@ -27,16 +77,7 @@ export default async function HomePage() {
           {/* Center column: Feed */}
           <section className="flex-1 flex items-start justify-center py-10">
             <div className="w-full max-w-2xl">
-              {posts.length === 0 ? (
-                <div className="text-center text-gray-400 mt-16">
-                  <p className="text-xl font-semibold">Nothing here... yet.</p>
-                  <p className="text-sm mt-2">
-                    Be the first to share your brilliance. ✨
-                  </p>
-                </div>
-              ) : (
-                <Feed initialPosts={posts} />
-              )}
+              <Feed initialPosts={postsWithRelations} />
             </div>
           </section>
           {/* Right column: reserved for widgets */}
