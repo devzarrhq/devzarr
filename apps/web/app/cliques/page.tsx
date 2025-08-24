@@ -2,6 +2,7 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import CliquesSearch from "./CliquesSearch";
+import AddCliqueModal from "./AddCliqueModal";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +34,24 @@ export default async function CliquesPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
         <Topbar />
-        <main className="flex-1 py-10 px-4 max-w-3xl mx-auto">
-          <h1 className="text-4xl font-extrabold mb-6 text-emerald-300">Cliques</h1>
-          <CliquesSearch cliques={cliques ?? []} memberCounts={memberCounts} />
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
+          {/* Center column: Cliques */}
+          <section className="w-full py-10">
+            <div className="mx-auto w-full max-w-4xl xl:max-w-5xl 2xl:max-w-6xl px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col gap-4 items-start mb-8">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-emerald-300">Cliques</h1>
+                <p className="text-gray-300 text-lg max-w-2xl">
+                  Find and join real-time dev groups.
+                </p>
+                <AddCliqueModal />
+              </div>
+              <CliquesSearch cliques={cliques ?? []} memberCounts={memberCounts} />
+            </div>
+          </section>
+          {/* Right column: reserved for widgets */}
+          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 sticky top-16">
+            {/* Future: Featured Cliques, etc. */}
+          </aside>
         </main>
       </div>
     </div>
