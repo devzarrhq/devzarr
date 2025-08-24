@@ -19,6 +19,14 @@ export default async function HomePage() {
     .order("created_at", { ascending: false })
     .limit(20);
 
+  // Flatten project/author arrays to single object or null
+  const postsFlat =
+    posts?.map((p: any) => ({
+      ...p,
+      project: Array.isArray(p.project) ? p.project[0] ?? null : p.project ?? null,
+      author: Array.isArray(p.author) ? p.author[0] ?? null : p.author ?? null,
+    })) ?? [];
+
   if (error) {
     console.error("Feed query error:", error);
     return (
@@ -37,7 +45,7 @@ export default async function HomePage() {
     );
   }
 
-  if (!posts || posts.length === 0) {
+  if (!postsFlat || postsFlat.length === 0) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
@@ -65,7 +73,7 @@ export default async function HomePage() {
           {/* Center column: Feed */}
           <section className="flex-1 flex items-start justify-center py-10">
             <div className="w-full max-w-2xl">
-              <Feed initialPosts={posts} />
+              <Feed initialPosts={postsFlat} />
             </div>
           </section>
           {/* Right column: reserved for widgets */}
