@@ -1,7 +1,9 @@
-// apps/web/components/Feed.tsx
 "use client";
 
-import { useTheme } from "../theme-context"; // adjust if path differs
+import { useState } from "react";
+import { useTheme } from "../theme-context";
+import AddProjectModal from "./AddProjectModal";
+import { Plus } from "lucide-react";
 
 type Post = {
   id: string;
@@ -15,21 +17,36 @@ type Post = {
 export default function Feed({ initialPosts = [] as Post[] }) {
   const { accent } = useTheme();
   const posts = initialPosts;
+  const [showAdd, setShowAdd] = useState(false);
 
   return (
     <section className="w-full max-w-4xl mx-auto py-10 px-4">
-      <div className="mb-8">
-        <h1
-          className="text-4xl font-extrabold mb-2"
-          style={{ color: `var(--tw-color-accent-${accent})` }}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1
+            className="text-4xl font-extrabold mb-2"
+            style={{ color: `var(--tw-color-accent-${accent})` }}
+          >
+            Project Feed
+          </h1>
+          <p className="text-gray-300 text-lg">Discover indie dev tools, launches, and more.</p>
+        </div>
+        <button
+          className="flex items-center gap-2 px-5 py-2 rounded-full font-semibold shadow-lg transition-colors"
+          style={{
+            background: `var(--tw-color-accent-${accent})`,
+            color: "#fff",
+          }}
+          onClick={() => setShowAdd(true)}
         >
-          Project Feed
-        </h1>
-        <p className="text-gray-300 text-lg">Discover indie dev tools, launches, and more.</p>
+          <Plus className="w-5 h-5" />
+          Add Project
+        </button>
       </div>
 
+      <AddProjectModal open={showAdd} onClose={() => setShowAdd(false)} />
+
       {posts.length === 0 ? (
-        // your skeleton loaders (unchanged)
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
             <div
@@ -43,7 +60,6 @@ export default function Feed({ initialPosts = [] as Post[] }) {
           ))}
         </div>
       ) : (
-        // render posts
         <div className="space-y-4">
           {posts.map((p) => (
             <article
