@@ -149,8 +149,10 @@ export default function AddProjectModal({ open, onClose, onCreated, wide }: Prop
 
   return (
     <Dialog open={open} onClose={onClose} className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      <div className="min-h-full grid place-items-center p-4">
+      {/* Overlay */}
+      <div className="fixed inset-0 bg-black/60" aria-hidden="true" />
+      {/* Centered modal */}
+      <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel
           className={`w-full ${wide ? "max-w-3xl" : "max-w-lg"} rounded-2xl bg-gray-900 p-6 md:p-8 shadow-2xl ring-1 ring-white/10`}
           style={{ ["--tw-ring-color" as any]: `var(--tw-color-accent-${accent})` }}
