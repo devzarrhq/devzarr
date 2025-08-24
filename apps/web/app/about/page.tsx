@@ -13,21 +13,20 @@ export default function AboutPage() {
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64 relative">
-        {/* Topbar is sticky and always above parallax */}
+        {/* Topbar is sticky and always above content */}
         <div className="sticky top-0 z-30">
           <Topbar />
         </div>
         <main className="flex-1 flex flex-col md:flex-row gap-0">
-          {/* Parallax background sits behind content */}
-          <section className="flex-1 flex flex-col items-center justify-start py-0 relative">
-            <div className="absolute inset-0 w-full h-full -z-10">
+          {/* Center column: Parallax background only behind main content */}
+          <section className="flex-1 flex flex-col items-center justify-start py-0 relative overflow-hidden">
+            <div className="absolute inset-0 w-full h-full -z-10 pointer-events-none">
               <ParallaxBackground
                 src="/images/bazaar-hero.webp"
                 alt="Ancient bazaar with slanted tents over a cobblestone path"
                 overlay="from-gray-900/60 to-gray-950/95"
                 className="w-full h-full"
               >
-                {/* Empty fragment to satisfy required children prop */}
                 <></>
               </ParallaxBackground>
             </div>
@@ -114,8 +113,8 @@ export default function AboutPage() {
               </Section>
             </div>
           </section>
-          {/* Right column: reserved for widgets */}
-          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10">
+          {/* Right column: reserved for widgets, always solid dark bg */}
+          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800">
             {/* Future: Latest Projects, Featured Projects, etc. */}
           </aside>
         </main>
