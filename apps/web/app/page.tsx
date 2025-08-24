@@ -1,7 +1,6 @@
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Feed from "./components/Feed";
-
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -32,8 +31,17 @@ export default async function HomePage() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
         <Topbar />
-        <main className="flex-1">
-          <Feed initialPosts={posts} />
+        <main className="flex-1 flex flex-col md:flex-row gap-0">
+          {/* Center column: Feed */}
+          <section className="flex-1 flex items-start justify-center py-10">
+            <div className="w-full max-w-2xl">
+              <Feed initialPosts={posts} />
+            </div>
+          </section>
+          {/* Right column: reserved for widgets */}
+          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10">
+            {/* Future: Latest Projects, Featured Projects, etc. */}
+          </aside>
         </main>
       </div>
     </div>
