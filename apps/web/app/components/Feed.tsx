@@ -22,10 +22,10 @@ export default function Feed({ initialPosts = [] as Post[] }) {
   const [showAddPost, setShowAddPost] = useState(false);
 
   return (
-    <section className="w-full flex flex-col gap-12 py-14 px-8">
+    <section className="w-full flex flex-col gap-10 py-10 px-0">
       <div className="flex flex-col gap-4 items-start">
         <h1
-          className="text-5xl font-extrabold"
+          className="text-4xl md:text-5xl font-extrabold"
           style={{ color: `var(--tw-color-accent-${accent})` }}
         >
           Project Feed
@@ -33,27 +33,27 @@ export default function Feed({ initialPosts = [] as Post[] }) {
         <p className="text-gray-300 text-lg max-w-2xl">
           Discover indie dev tools, launches, and more.
         </p>
-        <div className="flex gap-4 mt-2">
+        <div className="flex gap-3 mt-2">
           <button
-            className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold shadow-lg transition-colors text-lg"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold shadow-md transition-colors text-sm md:text-base"
             style={{
               background: `var(--tw-color-accent-${accent})`,
               color: "#fff",
             }}
             onClick={() => setShowAddPost(true)}
           >
-            <Plus className="w-6 h-6" />
+            <Plus className="w-5 h-5" />
             Add Post
           </button>
           <button
-            className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold shadow-lg transition-colors text-lg"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold shadow-md transition-colors text-sm md:text-base"
             style={{
               background: `var(--tw-color-accent-${accent})`,
               color: "#fff",
             }}
             onClick={() => setShowAddProject(true)}
           >
-            <Plus className="w-6 h-6" />
+            <Plus className="w-5 h-5" />
             Add Project
           </button>
         </div>
