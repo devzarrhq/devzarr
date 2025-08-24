@@ -31,6 +31,8 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         .order("created_at", { ascending: true })
         .limit(100);
 
+      console.log("Fetched messages:", messages);
+
       if (msgError) {
         console.error("Error fetching messages:", msgError);
         setMsgs([]);
@@ -43,6 +45,8 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
 
       // 2. Get unique author_ids
       const authorIds = Array.from(new Set(messages.map((m: any) => m.author_id))).filter(Boolean);
+      console.log("Author IDs:", authorIds);
+
       if (authorIds.length === 0) {
         setMsgs(messages);
         return;
@@ -53,6 +57,8 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         .from("profiles")
         .select("user_id, handle, display_name, avatar_url")
         .in("user_id", authorIds);
+
+      console.log("Fetched profiles:", profiles);
 
       if (profError) {
         console.error("Error fetching profiles:", profError);
@@ -68,6 +74,8 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         ...m,
         author: profileMap[m.author_id] || null,
       }));
+
+      console.log("Mapped messages:", mapped);
 
       setMsgs(mapped);
       setTimeout(() => {
@@ -144,6 +152,11 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
                 </span>
               </div>
               <div>{m.body}</div>
+              {/* Debug info */}
+              <div className="text-xs text-yellow-400 mt-1">
+                <div>author_id: {m.author_id}</div>
+                <div>author: {JSON.stringify(m.author)}</div>
+              </div>
             </div>
           </div>
         ))}
