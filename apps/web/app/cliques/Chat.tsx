@@ -20,10 +20,8 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
   const [text, setText] = useState("");
   const scroller = useRef<HTMLDivElement>(null);
 
-  // Fetch messages and author profiles
   useEffect(() => {
     (async () => {
-      // 1. Fetch messages
       const { data: messages, error: msgError } = await supabase
         .from("messages")
         .select("id, body, author_id, created_at")
@@ -31,10 +29,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         .order("created_at", { ascending: true })
         .limit(100);
 
-      console.log("Fetched messages:", messages);
-
       if (msgError) {
-        console.error("Error fetching messages:", msgError);
         setMsgs([]);
         return;
       }
@@ -43,28 +38,21 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         return;
       }
 
-      // 2. Get unique author_ids
+      // Get unique author_ids
       const authorIds = Array.from(new Set(messages.map((m: any) => m.author_id))).filter(Boolean);
-      console.log("Author IDs:", authorIds);
 
       if (authorIds.length === 0) {
         setMsgs(messages);
         return;
       }
 
-      // 3. Fetch all profiles for these authors
-      const { data: profiles, error: profError } = await supabase
+      // Fetch all profiles for these authors
+      const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, handle, display_name, avatar_url")
         .in("user_id", authorIds);
 
-      console.log("Fetched profiles:", profiles);
-
-      if (profError) {
-        console.error("Error fetching profiles:", profError);
-      }
-
-      // 4. Map profiles to messages
+      // Map profiles to messages
       const profileMap: Record<string, any> = {};
       (profiles ?? []).forEach((p: any) => {
         profileMap[p.user_id] = p;
@@ -74,8 +62,6 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         ...m,
         author: profileMap[m.author_id] || null,
       }));
-
-      console.log("Mapped messages:", mapped);
 
       setMsgs(mapped);
       setTimeout(() => {
@@ -89,15 +75,11 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         { event: "INSERT", schema: "public", table: "messages", filter: `clique_id=eq.${cliqueId}` },
         async (payload) => {
           const m = payload.new as Message;
-          // Fetch author info for new message
-          const { data: author, error: authorError } = await supabase
+          const { data: author } = await supabase
             .from("profiles")
             .select("handle, display_name, avatar_url")
             .eq("user_id", m.author_id)
             .single();
-          if (authorError) {
-            console.error("Error fetching author for new message:", authorError);
-          }
           setMsgs((prev) => [
             ...prev,
             { ...m, author: author ? author : null },
@@ -126,6 +108,10 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
   return (
     <div className="flex h-[70vh] flex-col rounded-2xl bg-white/5 ring-1 ring-white/10">
       <div ref={scroller} className="flex-1 overflow-y-auto p-4 space-y-2">
+        {/* DEBUG: Show raw messages array */}
+        <pre className="text-xs text-yellow-300 bg-black/50 p-2 rounded mb-4 max-w-full overflow-x-auto">
+          {JSON.stringify(msgs, null, 2)}
+        </pre>
         {msgs.map(m => (
           <div key={m.id} className="flex items-start gap-2 text-sm text-gray-100 bg-white/5 rounded-md px-3 py-2 w-fit max-w-[70%]">
             {/* Avatar */}
@@ -152,11 +138,6 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
                 </span>
               </div>
               <div>{m.body}</div>
-              {/* Debug info */}
-              <div className="text-xs text-yellow-400 mt-1">
-                <div>author_id: {m.author_id}</div>
-                <div>author: {JSON.stringify(m.author)}</div>
-              </div>
             </div>
           </div>
         ))}
