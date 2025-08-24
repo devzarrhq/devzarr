@@ -78,6 +78,7 @@ export default function AddCliqueModal() {
     setLoading(true);
     try {
       const supabase = supabaseBrowser();
+      // 1. Create the clique
       const { data, error: insertError } = await supabase
         .from("cliques")
         .insert({
@@ -89,6 +90,16 @@ export default function AddCliqueModal() {
         .select("id")
         .single();
       if (insertError) throw insertError;
+
+      // 2. Add creator as owner in clique_members
+      if (data?.id) {
+        await supabase.from("clique_members").insert({
+          clique_id: data.id,
+          user_id: user.id,
+          role: "owner",
+        });
+      }
+
       setOpen(false);
       setName(""); setSlug(""); setDescription("");
       router.push(`/cliques/${data.id}`);
