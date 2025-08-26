@@ -23,7 +23,7 @@ export default function MessagesPageClient({ rows }: { rows: Thread[] }) {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
+    <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-white">Messages</h1>
         <button

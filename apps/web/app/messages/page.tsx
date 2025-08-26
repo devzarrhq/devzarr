@@ -1,10 +1,24 @@
+import Sidebar from "../components/Sidebar";
+import Topbar from "../components/Topbar";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import MessagesPageClient from "./MessagesPageClient";
 
 export default async function MessagesPage() {
   const supabase = createSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return <div className="p-8 text-gray-300">Sign in to use DMs.</div>;
+  if (!user) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+          <Topbar />
+          <main className="flex-1 flex items-center justify-center">
+            <div className="p-8 text-gray-300">Sign in to use DMs.</div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   const { data: threads } = await supabase
     .from("dm_threads")
@@ -24,5 +38,24 @@ export default async function MessagesPage() {
     return { ...t, other };
   });
 
-  return <MessagesPageClient rows={rows} />;
+  return (
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+        <Topbar />
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
+          {/* Center column: Messages */}
+          <section className="w-full py-10">
+            <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8">
+              <MessagesPageClient rows={rows} />
+            </div>
+          </section>
+          {/* Right column: reserved for widgets */}
+          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 sticky top-16 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800">
+            {/* Future: Latest Contacts, Suggestions, etc. */}
+          </aside>
+        </main>
+      </div>
+    </div>
+  );
 }
