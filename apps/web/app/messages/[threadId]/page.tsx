@@ -55,10 +55,10 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
         <Topbar />
-        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] min-h-0">
           {/* Center column: DM chat */}
-          <section className="w-full py-10">
-            <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8">
+          <section className="w-full flex flex-col flex-1 min-h-0 py-10">
+            <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8 flex flex-col flex-1 min-h-0">
               <div className="flex items-center gap-3 mb-6">
                 {other?.avatar_url ? (
                   <img src={other.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
@@ -74,7 +74,9 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
                   <div className="text-xs text-gray-400">@{other?.handle}</div>
                 </div>
               </div>
-              <DMChat threadId={params.threadId} initialMessages={msgs ?? []} />
+              <div className="flex-1 min-h-0 flex flex-col">
+                <DMChat threadId={params.threadId} initialMessages={msgs ?? []} />
+              </div>
             </div>
           </section>
           {/* Right column: reserved for widgets */}
