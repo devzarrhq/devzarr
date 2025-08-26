@@ -20,9 +20,6 @@ export default function LoginPage() {
 
   // Listen for view changes from the Auth UI
   useEffect(() => {
-    // Supabase Auth UI does not expose a callback for view changes,
-    // so we can use a MutationObserver as a workaround.
-    // This is a hack, but works for now.
     const observer = new MutationObserver(() => {
       const btn = document.querySelector('button[type="submit"]');
       if (btn && btn.textContent?.toLowerCase().includes("sign up")) setView("sign_up");
@@ -40,10 +37,9 @@ export default function LoginPage() {
           {view === "sign_up" ? "Sign up for Devzarr" : "Sign in to Devzarr"}
         </h1>
         <style>{`
-          /* Hide default Supabase Auth UI heading */
           .sbui-auth-title { display: none !important; }
         `}</style>
-        <div id="supabase-auth-root" className="w-full">
+        <div id="supabase-auth-root">
           <Auth
             supabaseClient={supabaseBrowser()}
             appearance={{
