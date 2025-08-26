@@ -8,6 +8,28 @@ import { useTheme } from "../../theme-context";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 
+// Helper: check file header for common image types
+async function isValidImageFile(file: File): Promise<boolean> {
+  const signatures: { [key: string]: number[][] } = {
+    jpg: [[0xFF, 0xD8, 0xFF]],
+    png: [[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]],
+    gif: [[0x47, 0x49, 0x46, 0x38]],
+    webp: [[0x52, 0x49, 0x46, 0x46]],
+    bmp: [[0x42, 0x4D]],
+    svg: [[0x3C, 0x73, 0x76, 0x67]], // "<svg"
+  };
+  const buf = await file.slice(0, 12).arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  for (const sigs of Object.values(signatures)) {
+    for (const sig of sigs) {
+      if (bytes.length >= sig.length && sig.every((b, i) => bytes[i] === b)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export default function ProfileSetupPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -57,6 +79,20 @@ export default function ProfileSetupPage() {
     if (!file || !user) return;
     setUploadingAvatar(true);
     setError(null);
+
+    // Check MIME type
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      setUploadingAvatar(false);
+      return;
+    }
+    // Check file header
+    if (!(await isValidImageFile(file))) {
+      setError("File does not appear to be a valid image.");
+      setUploadingAvatar(false);
+      return;
+    }
+
     const supabase = supabaseBrowser();
     const fileExt = file.name.split('.').pop();
     const filePath = `${user.id}/avatar.${fileExt}`;
@@ -80,6 +116,20 @@ export default function ProfileSetupPage() {
     if (!file || !user) return;
     setUploadingBg(true);
     setError(null);
+
+    // Check MIME type
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      setUploadingBg(false);
+      return;
+    }
+    // Check file header
+    if (!(await isValidImageFile(file))) {
+      setError("File does not appear to be a valid image.");
+      setUploadingBg(false);
+      return;
+    }
+
     const supabase = supabaseBrowser();
     const fileExt = file.name.split('.').pop();
     const filePath = `${user.id}/background.${fileExt}`;
