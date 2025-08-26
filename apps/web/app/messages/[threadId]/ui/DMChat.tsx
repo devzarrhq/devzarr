@@ -11,6 +11,13 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   const [showToast, setShowToast] = useState(false);
   const box = useRef<HTMLDivElement>(null);
 
+  // Always scroll to bottom when messages change
+  useEffect(() => {
+    if (box.current) {
+      box.current.scrollTop = box.current.scrollHeight;
+    }
+  }, [messages]);
+
   useEffect(() => {
     const ch = supabase
       .channel(`dm:${threadId}`)
@@ -18,11 +25,13 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
         { event: "INSERT", schema: "public", table: "dm_messages", filter: `thread_id=eq.${threadId}` },
         payload => {
           setMessages(m => [...m, payload.new as Msg]);
-          requestAnimationFrame(() => box.current?.scrollTo({ top: 1e9 }));
         }
       )
       .subscribe();
-    requestAnimationFrame(() => box.current?.scrollTo({ top: 1e9 }));
+    // Scroll to bottom on mount
+    if (box.current) {
+      box.current.scrollTop = box.current.scrollHeight;
+    }
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threadId]);
@@ -54,7 +63,11 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   return (
     <div className="w-full">
       <div className="relative rounded-2xl bg-white/5 ring-1 ring-white/10 h-[70vh] flex flex-col">
-        <div ref={box} className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div
+          ref={box}
+          className="flex-1 overflow-y-auto p-4 space-y-2"
+          style={{ minHeight: 0 }}
+        >
           {messages.map(m => (
             <div key={m.id} className="max-w-[70%] rounded-md px-3 py-2 bg-white/10 text-gray-100">
               <div className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleTimeString()}</div>
