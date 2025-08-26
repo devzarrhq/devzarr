@@ -1,4 +1,3 @@
-"use client";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import DMChat from "./ui/DMChat";
 
