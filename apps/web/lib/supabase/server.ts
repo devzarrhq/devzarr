@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
+// Only allow reading cookies in server components/pages
 export function createSupabaseServer() {
   const cookieStore = cookies();
   return createServerClient(
@@ -11,11 +12,12 @@ export function createSupabaseServer() {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options);
+        // Prevent set/remove in server components/pages
+        set() {
+          // No-op: Only allowed in Server Actions or Route Handlers
         },
-        remove(name: string, options: any) {
-          cookieStore.set(name, "", { ...options, maxAge: 0 });
+        remove() {
+          // No-op: Only allowed in Server Actions or Route Handlers
         },
       },
     }
