@@ -59,19 +59,17 @@ export default function ProfileSetupPage() {
     setError(null);
     const supabase = supabaseBrowser();
     const fileExt = file.name.split('.').pop();
-    // Use handle or user.id for filename, but do NOT prefix with 'avatars/'
     const filePath = `${handle || user.id}.avatar.${fileExt}`;
-    // Remove any previous avatar with a different extension (optional, not implemented here)
     const { error } = await supabase.storage.from("avatars").upload(filePath, file, {
       upsert: true,
       cacheControl: "3600",
     });
     if (error) {
-      setError("Failed to upload avatar.");
+      console.error("Supabase avatar upload error:", error);
+      setError("Failed to upload avatar: " + error.message);
       setUploadingAvatar(false);
       return;
     }
-    // Get public URL
     const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
     setAvatarUrl(data.publicUrl);
     setUploadingAvatar(false);
@@ -84,18 +82,17 @@ export default function ProfileSetupPage() {
     setError(null);
     const supabase = supabaseBrowser();
     const fileExt = file.name.split('.').pop();
-    // Use handle or user.id for filename, but do NOT prefix with 'avatars/'
     const filePath = `${handle || user.id}.background.${fileExt}`;
     const { error } = await supabase.storage.from("avatars").upload(filePath, file, {
       upsert: true,
       cacheControl: "3600",
     });
     if (error) {
-      setError("Failed to upload background image.");
+      console.error("Supabase background upload error:", error);
+      setError("Failed to upload background image: " + error.message);
       setUploadingBg(false);
       return;
     }
-    // Get public URL
     const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
     setBackgroundUrl(data.publicUrl);
     setUploadingBg(false);
