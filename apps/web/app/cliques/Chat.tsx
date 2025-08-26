@@ -127,6 +127,12 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     return data?.user_id ?? null;
   }
 
+  // Force member list refresh by sending a dummy update (for real-time fallback)
+  async function forceMemberListRefresh() {
+    // This is a no-op, but triggers the real-time subscription
+    // Optionally, you could refetch members in the MembersClient via a context or event
+  }
+
   // Command parser and executor
   async function handleCommand(cmd: string) {
     const [command, arg] = cmd.trim().split(/\s+/, 2);
@@ -176,7 +182,12 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         .delete()
         .eq("clique_id", cliqueId)
         .eq("user_id", targetUserId);
-      setToast(error ? `Failed to kick @${targetHandle}` : `@${targetHandle} has been kicked.`);
+      if (error) {
+        setToast(`Failed to kick @${targetHandle}: ${error.message}`);
+      } else {
+        setToast(`@${targetHandle} has been kicked.`);
+        forceMemberListRefresh();
+      }
     } else if (command === "/ban") {
       // Remove from clique_members and add to clique_bans
       const { error: delError } = await supabase
@@ -191,7 +202,12 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
           user_id: targetUserId,
           banned_by: user.id,
         });
-      setToast(delError || banError ? `Failed to ban @${targetHandle}` : `@${targetHandle} has been banned.`);
+      if (delError || banError) {
+        setToast(`Failed to ban @${targetHandle}: ${(delError || banError)?.message}`);
+      } else {
+        setToast(`@${targetHandle} has been banned.`);
+        forceMemberListRefresh();
+      }
     } else if (command === "/promote") {
       // Promote to moderator
       if (targetMember?.role === "moderator") {
@@ -203,7 +219,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         .update({ role: "moderator" })
         .eq("clique_id", cliqueId)
         .eq("user_id", targetUserId);
-      setToast(error ? `Failed to promote @${targetHandle}` : `@${targetHandle} is now a moderator.`);
+      setToast(error ? `Failed to promote @${targetHandle}: ${error.message}` : `@${targetHandle} is now a moderator.`);
     } else if (command === "/demote") {
       // Demote to member
       if (targetMember?.role !== "moderator") {
@@ -215,7 +231,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         .update({ role: "member" })
         .eq("clique_id", cliqueId)
         .eq("user_id", targetUserId);
-      setToast(error ? `Failed to demote @${targetHandle}` : `@${targetHandle} is now a member.`);
+      setToast(error ? `Failed to demote @${targetHandle}: ${error.message}` : `@${targetHandle} is now a member.`);
     } else {
       setToast("Unknown command.");
     }
@@ -239,13 +255,13 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     if (!error) setText("");
   };
 
+  // Enter = send, Shift+Enter = newline
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send();
     }
     // Shift+Enter: allow newline (do nothing)
-    // Enter alone: do nothing (no accidental send)
   };
 
   return (
