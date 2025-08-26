@@ -117,12 +117,12 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     return { user, role: member?.role ?? null };
   }
 
-  // Helper: get user_id by handle
+  // Helper: get user_id by handle (case-insensitive)
   async function getUserIdByHandle(handle: string) {
     const { data } = await supabase
       .from("profiles")
       .select("user_id")
-      .eq("handle", handle.replace(/^@/, ""))
+      .ilike("handle", handle.replace(/^@/, ""))
       .single();
     return data?.user_id ?? null;
   }
@@ -151,7 +151,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     }
     const targetUserId = await getUserIdByHandle(targetHandle);
     if (!targetUserId) {
-      setToast(`User @${targetHandle} not found.`);
+      setToast(`No user with handle @${targetHandle} found.`);
       return;
     }
     if (user.id === targetUserId) {
@@ -166,6 +166,11 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
       .eq("clique_id", cliqueId)
       .eq("user_id", targetUserId)
       .single();
+
+    if (!targetMember) {
+      setToast(`User @${targetHandle} is not a member of this clique.`);
+      return;
+    }
 
     // Only allow acting on members (not owner)
     if (targetMember?.role === "owner") {
@@ -186,7 +191,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         setToast(`Failed to kick @${targetHandle}: ${error.message}`);
         console.error("Kick error:", error);
       } else if (!data || data.length === 0) {
-        setToast(`@${targetHandle} was not found in this clique.`);
+        setToast(`User @${targetHandle} is not a member of this clique.`);
       } else {
         setToast(`@${targetHandle} has been kicked.`);
         forceMemberListRefresh();
@@ -210,7 +215,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         setToast(`Failed to ban @${targetHandle}: ${(delError || banError)?.message}`);
         console.error("Ban error:", delError, banError);
       } else if (!data || data.length === 0) {
-        setToast(`@${targetHandle} was not found in this clique.`);
+        setToast(`User @${targetHandle} is not a member of this clique.`);
       } else {
         setToast(`@${targetHandle} has been banned.`);
         forceMemberListRefresh();
