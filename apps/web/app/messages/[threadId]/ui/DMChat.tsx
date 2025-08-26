@@ -43,22 +43,16 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   };
 
   return (
-    <div className="relative rounded-2xl bg-white/5 ring-1 ring-white/10 h-[70vh] flex flex-col">
-      <div ref={box} className="flex-1 overflow-y-auto p-4 space-y-2">
-        {messages.map(m => (
-          <div key={m.id} className="max-w-[70%] rounded-md px-3 py-2 bg-white/10 text-gray-100">
-            <div className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleTimeString()}</div>
-            <div className="whitespace-pre-wrap">{m.body}</div>
-          </div>
-        ))}
-      </div>
-      {/* Toast: show above the compose box, left-aligned, green, readable */}
-      <div className="relative">
-        {showToast && (
-          <div className="absolute -top-7 left-0 z-10 text-emerald-500 font-semibold text-sm animate-fade-in-out">
-            Message sent!
-          </div>
-        )}
+    <div className="w-full">
+      <div className="relative rounded-2xl bg-white/5 ring-1 ring-white/10 h-[70vh] flex flex-col">
+        <div ref={box} className="flex-1 overflow-y-auto p-4 space-y-2">
+          {messages.map(m => (
+            <div key={m.id} className="max-w-[70%] rounded-md px-3 py-2 bg-white/10 text-gray-100">
+              <div className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleTimeString()}</div>
+              <div className="whitespace-pre-wrap">{m.body}</div>
+            </div>
+          ))}
+        </div>
         <div className="p-3 flex gap-2">
           <textarea
             value={text}
@@ -73,6 +67,14 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           </button>
         </div>
       </div>
+      {/* Toast: below the chat card, centered, green, readable */}
+      {showToast && (
+        <div className="w-full flex justify-center mt-3">
+          <div className="text-emerald-400 font-semibold text-base animate-fade-in-out">
+            Message sent!
+          </div>
+        </div>
+      )}
       <style>{`
         @keyframes fade-in-out {
           0% { opacity: 0; transform: translateY(10px);}
