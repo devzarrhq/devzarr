@@ -42,6 +42,15 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
     }
   };
 
+  // Enter = send, Shift+Enter = newline
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+    // Shift+Enter: allow newline (do nothing)
+  };
+
   return (
     <div className="w-full">
       <div className="relative rounded-2xl bg-white/5 ring-1 ring-white/10 h-[70vh] flex flex-col">
@@ -57,10 +66,10 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           <textarea
             value={text}
             onChange={(e)=>setText(e.target.value)}
-            onKeyDown={(e)=>{ if ((e.metaKey||e.ctrlKey) && e.key === "Enter") { e.preventDefault(); send(); } }}
+            onKeyDown={handleKeyDown}
             rows={2}
             className="flex-1 rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10"
-            placeholder="Write a message… (⌘/Ctrl+Enter to send)"
+            placeholder="Write a message… (Enter to send, Shift+Enter for new line)"
           />
           <button onClick={send} className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500">
             Send
