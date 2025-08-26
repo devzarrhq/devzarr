@@ -4,7 +4,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { Dialog } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { UserCircle, Search } from "lucide-react";
+import { UserCircle, SearchIcon } from "lucide-react";
 import { useAuth } from "../../providers/AuthProvider";
 
 type Profile = {
@@ -88,7 +88,7 @@ export default function UserSearchModal({
       <div className="min-h-full grid place-items-center p-4">
         <Dialog.Panel className="relative w-full max-w-md rounded-2xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/10">
           <Dialog.Title className="text-xl font-bold mb-4 flex items-center gap-2 text-white">
-            <Search className="w-5 h-5" />
+            <SearchIcon className="w-5 h-5" />
             Start a New Conversation
           </Dialog.Title>
           <form
