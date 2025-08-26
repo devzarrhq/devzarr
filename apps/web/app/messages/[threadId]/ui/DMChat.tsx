@@ -77,8 +77,8 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
-      <div className="relative flex flex-col flex-1 min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10">
+    <div className="w-full flex justify-center">
+      <div className="w-full max-w-2xl h-[600px] flex flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
         {/* Only this area scrolls */}
         <div
           ref={box}
