@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../providers/AuthProvider";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useTheme } from "../../theme-context";
+import Sidebar from "../../components/Sidebar";
+import Topbar from "../../components/Topbar";
 
 export default function ProfileSetupPage() {
   const { user } = useAuth();
@@ -14,6 +16,9 @@ export default function ProfileSetupPage() {
   const [handle, setHandle] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [backgroundUrl, setBackgroundUrl] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [location, setLocation] = useState("");
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,13 +30,16 @@ export default function ProfileSetupPage() {
       const supabase = supabaseBrowser();
       const { data } = await supabase
         .from("profiles")
-        .select("handle, display_name, avatar_url, bio")
+        .select("handle, display_name, avatar_url, background_url, tagline, location, bio")
         .eq("user_id", user.id)
         .single();
       if (data) {
         setHandle(data.handle || "");
         setDisplayName(data.display_name || "");
         setAvatarUrl(data.avatar_url || "");
+        setBackgroundUrl(data.background_url || "");
+        setTagline(data.tagline || "");
+        setLocation(data.location || "");
         setBio(data.bio || "");
       }
     })();
@@ -55,6 +63,9 @@ export default function ProfileSetupPage() {
           handle: handle.trim(),
           display_name: displayName.trim(),
           avatar_url: avatarUrl.trim() || null,
+          background_url: backgroundUrl.trim() || null,
+          tagline: tagline.trim() || null,
+          location: location.trim() || null,
           bio: bio.trim() || null,
         })
         .eq("user_id", user.id);
@@ -68,81 +79,132 @@ export default function ProfileSetupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
-      <form
-        className="bg-gray-900 rounded-2xl shadow-2xl px-8 py-10 max-w-md w-full flex flex-col gap-5"
-        onSubmit={handleSubmit}
-      >
-        <h1
-          className="text-2xl font-bold mb-2 text-center"
-          style={{ color: `var(--tw-color-accent-${accent})` }}
-        >
-          Complete Your Profile
-        </h1>
-        <p className="text-gray-300 text-center mb-2">
-          Please fill in your profile details to get started.
-        </p>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">
-            Handle <span className="text-red-500">*</span>
-          </label>
-          <input
-            className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={handle}
-            onChange={e => setHandle(e.target.value)}
-            maxLength={32}
-            placeholder="your-handle"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">
-            Display Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={displayName}
-            onChange={e => setDisplayName(e.target.value)}
-            maxLength={64}
-            placeholder="Your Name"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">
-            Avatar URL
-          </label>
-          <input
-            className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={avatarUrl}
-            onChange={e => setAvatarUrl(e.target.value)}
-            maxLength={256}
-            placeholder="https://image.host/avatar.png"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">
-            Bio
-          </label>
-          <textarea
-            className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={bio}
-            onChange={e => setBio(e.target.value)}
-            maxLength={300}
-            rows={3}
-            placeholder="Tell us about yourself"
-          />
-        </div>
-        {error && <div className="text-red-400 text-sm">{error}</div>}
-        <button
-          type="submit"
-          className="w-full px-4 py-2 rounded font-semibold text-white disabled:opacity-50"
-          style={{ background: `var(--tw-color-accent-${accent})` }}
-          disabled={loading || !canSubmit}
-        >
-          {loading ? "Saving..." : "Save Profile"}
-        </button>
-      </form>
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+        <Topbar />
+        <main className="flex-1 flex flex-col md:flex-row gap-0">
+          {/* Center column: Profile setup form */}
+          <section className="flex-1 flex flex-col items-center justify-start py-10">
+            <div className="w-full max-w-xl px-4">
+              <h1
+                className="text-3xl md:text-4xl font-extrabold mb-2 text-center"
+                style={{ color: `var(--tw-color-accent-${accent})` }}
+              >
+                Complete Your Profile
+              </h1>
+              <p className="text-gray-300 text-center mb-6">
+                Please fill in your profile details to get started.
+              </p>
+              <form
+                className="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden p-8 flex flex-col gap-5"
+                onSubmit={handleSubmit}
+              >
+                <div>
+                  <label className="block text-gray-200 font-medium mb-1">
+                    Handle <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                    value={handle}
+                    onChange={e => setHandle(e.target.value)}
+                    maxLength={32}
+                    placeholder="your-handle"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-200 font-medium mb-1">
+                    Display Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                    value={displayName}
+                    onChange={e => setDisplayName(e.target.value)}
+                    maxLength={64}
+                    placeholder="Your Name"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-200 font-medium mb-1">
+                    Avatar URL
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                    value={avatarUrl}
+                    onChange={e => setAvatarUrl(e.target.value)}
+                    maxLength={256}
+                    placeholder="https://image.host/avatar.png"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-200 font-medium mb-1">
+                    Background Image URL
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                    value={backgroundUrl}
+                    onChange={e => setBackgroundUrl(e.target.value)}
+                    maxLength={256}
+                    placeholder="https://image.host/background.png"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-200 font-medium mb-1">
+                    Tagline
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                    value={tagline}
+                    onChange={e => setTagline(e.target.value)}
+                    maxLength={100}
+                    placeholder="Your tagline (e.g. Indie hacker, AI enthusiast)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-200 font-medium mb-1">
+                    Location
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                    value={location}
+                    onChange={e => setLocation(e.target.value)}
+                    maxLength={100}
+                    placeholder="Where are you?"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-200 font-medium mb-1">
+                    Bio
+                  </label>
+                  <textarea
+                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                    value={bio}
+                    onChange={e => setBio(e.target.value)}
+                    maxLength={300}
+                    rows={3}
+                    placeholder="Tell us about yourself"
+                  />
+                </div>
+                {error && <div className="text-red-400 text-sm">{error}</div>}
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 rounded font-semibold text-white disabled:opacity-50"
+                  style={{ background: `var(--tw-color-accent-${accent})` }}
+                  disabled={loading || !canSubmit}
+                >
+                  {loading ? "Saving..." : "Save Profile"}
+                </button>
+              </form>
+            </div>
+          </section>
+          {/* Right column: reserved for widgets */}
+          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10">
+            {/* Future: Latest Projects, Featured Projects, etc. */}
+          </aside>
+        </main>
+      </div>
     </div>
   );
 }
