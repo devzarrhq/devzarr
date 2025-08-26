@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import UserSearchModal from "./components/UserSearchModal";
 import { Plus } from "lucide-react";
+import { useTheme } from "../theme-context";
 
 type Profile = {
   user_id: string;
@@ -21,18 +22,30 @@ type Thread = {
 
 export default function MessagesPageClient({ rows }: { rows: Thread[] }) {
   const [showModal, setShowModal] = useState(false);
+  const { accent } = useTheme();
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold text-white">Messages</h1>
-        <button
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/90 text-white font-semibold hover:bg-emerald-500"
-          onClick={() => setShowModal(true)}
-        >
-          <Plus className="w-5 h-5" />
-          New Message
-        </button>
+    <section className="w-full flex flex-col gap-10 py-10 px-0">
+      <div className="flex flex-col gap-4 items-start">
+        <div className="flex items-center gap-3">
+          <h1
+            className="text-4xl md:text-5xl font-extrabold"
+            style={{ color: `var(--tw-color-accent-${accent})` }}
+          >
+            Messages
+          </h1>
+          <button
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold shadow-md transition-colors text-sm md:text-base"
+            style={{
+              background: `var(--tw-color-accent-${accent})`,
+              color: "#fff",
+            }}
+            onClick={() => setShowModal(true)}
+          >
+            <Plus className="w-5 h-5" />
+            New Message
+          </button>
+        </div>
       </div>
       <UserSearchModal open={showModal} onClose={() => setShowModal(false)} />
       <ul className="space-y-3">
@@ -50,6 +63,6 @@ export default function MessagesPageClient({ rows }: { rows: Thread[] }) {
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
