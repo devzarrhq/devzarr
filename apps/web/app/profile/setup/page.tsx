@@ -56,9 +56,12 @@ export default function ProfileSetupPage() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     setUploadingAvatar(true);
+    setError(null);
     const supabase = supabaseBrowser();
     const fileExt = file.name.split('.').pop();
-    const filePath = `avatars/${user.id}/avatar.${fileExt}`;
+    // Use handle or user.id for filename, but do NOT prefix with 'avatars/'
+    const filePath = `${handle || user.id}.avatar.${fileExt}`;
+    // Remove any previous avatar with a different extension (optional, not implemented here)
     const { error } = await supabase.storage.from("avatars").upload(filePath, file, {
       upsert: true,
       cacheControl: "3600",
@@ -78,9 +81,11 @@ export default function ProfileSetupPage() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     setUploadingBg(true);
+    setError(null);
     const supabase = supabaseBrowser();
     const fileExt = file.name.split('.').pop();
-    const filePath = `avatars/${user.id}/background.${fileExt}`;
+    // Use handle or user.id for filename, but do NOT prefix with 'avatars/'
+    const filePath = `${handle || user.id}.background.${fileExt}`;
     const { error } = await supabase.storage.from("avatars").upload(filePath, file, {
       upsert: true,
       cacheControl: "3600",
