@@ -8,6 +8,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   const supabase = supabaseBrowser();
   const [messages, setMessages] = useState<Msg[]>(initialMessages);
   const [text, setText] = useState("");
+  const [showToast, setShowToast] = useState(false);
   const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,11 +35,21 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
     const { error } = await supabase.from("dm_messages").insert({
       thread_id: threadId, author_id: user.id, body
     });
-    if (!error) setText("");
+    if (!error) {
+      setText("");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 1500);
+    }
   };
 
   return (
-    <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 h-[70vh] flex flex-col">
+    <div className="relative rounded-2xl bg-white/5 ring-1 ring-white/10 h-[70vh] flex flex-col">
+      {/* Toast */}
+      {showToast && (
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-20 z-50 bg-emerald-500 text-white px-6 py-2 rounded-full shadow-lg animate-fade-in-out pointer-events-none">
+          Message sent!
+        </div>
+      )}
       <div ref={box} className="flex-1 overflow-y-auto p-4 space-y-2">
         {messages.map(m => (
           <div key={m.id} className="max-w-[70%] rounded-md px-3 py-2 bg-white/10 text-gray-100">
@@ -60,6 +71,17 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           Send
         </button>
       </div>
+      <style>{`
+        @keyframes fade-in-out {
+          0% { opacity: 0; transform: translateY(20px) scale(0.95);}
+          10% { opacity: 1; transform: translateY(0) scale(1);}
+          90% { opacity: 1; transform: translateY(0) scale(1);}
+          100% { opacity: 0; transform: translateY(-10px) scale(0.95);}
+        }
+        .animate-fade-in-out {
+          animation: fade-in-out 1.5s both;
+        }
+      `}</style>
     </div>
   );
 }
