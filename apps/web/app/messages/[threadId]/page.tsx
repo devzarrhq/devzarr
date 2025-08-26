@@ -1,3 +1,5 @@
+import Sidebar from "../../components/Sidebar";
+import Topbar from "../../components/Topbar";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import DMChat from "./ui/DMChat";
 
@@ -9,10 +11,30 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
     .select("id, user_a, user_b")
     .eq("id", params.threadId)
     .single();
-  if (!t) return <div className="p-8 text-gray-300">Thread not found.</div>;
+  if (!t) return (
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+        <Topbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="p-8 text-gray-300">Thread not found.</div>
+        </main>
+      </div>
+    </div>
+  );
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return <div className="p-8 text-gray-300">Sign in to use DMs.</div>;
+  if (!user) return (
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+        <Topbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="p-8 text-gray-300">Sign in to use DMs.</div>
+        </main>
+      </div>
+    </div>
+  );
 
   const otherId = t.user_a === user.id ? t.user_b : t.user_a;
   const { data: other } = await supabase
@@ -29,23 +51,38 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
     .limit(200);
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <div className="flex items-center gap-3 mb-6">
-        {other?.avatar_url ? (
-          <img src={other.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
-        ) : (
-          <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center">
-            <span className="text-gray-400 text-xl">?</span>
-          </div>
-        )}
-        <div>
-          <div className="font-semibold text-white text-lg">
-            {other?.display_name || other?.handle || "User"}
-          </div>
-          <div className="text-xs text-gray-400">@{other?.handle}</div>
-        </div>
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+        <Topbar />
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
+          {/* Center column: DM chat */}
+          <section className="w-full py-10">
+            <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center gap-3 mb-6">
+                {other?.avatar_url ? (
+                  <img src={other.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center">
+                    <span className="text-gray-400 text-xl">?</span>
+                  </div>
+                )}
+                <div>
+                  <div className="font-semibold text-white text-lg">
+                    {other?.display_name || other?.handle || "User"}
+                  </div>
+                  <div className="text-xs text-gray-400">@{other?.handle}</div>
+                </div>
+              </div>
+              <DMChat threadId={params.threadId} initialMessages={msgs ?? []} />
+            </div>
+          </section>
+          {/* Right column: reserved for widgets */}
+          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800">
+            {/* Future: Latest Contacts, Suggestions, etc. */}
+          </aside>
+        </main>
       </div>
-      <DMChat threadId={params.threadId} initialMessages={msgs ?? []} />
     </div>
   );
 }
