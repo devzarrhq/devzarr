@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../providers/AuthProvider";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -22,6 +22,10 @@ export default function ProfileSetupPage() {
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // For upload progress
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingBg, setUploadingBg] = useState(false);
 
   // Load existing profile if any
   useEffect(() => {
@@ -46,6 +50,51 @@ export default function ProfileSetupPage() {
   }, [user]);
 
   const canSubmit = handle.trim().length > 0 && displayName.trim().length > 0;
+
+  // --- Upload handlers ---
+  async function handleAvatarUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    const supabase = supabaseBrowser();
+    const fileExt = file.name.split('.').pop();
+    const filePath = `avatars/${user.id}/avatar.${fileExt}`;
+    const { error } = await supabase.storage.from("avatars").upload(filePath, file, {
+      upsert: true,
+      cacheControl: "3600",
+    });
+    if (error) {
+      setError("Failed to upload avatar.");
+      setUploadingAvatar(false);
+      return;
+    }
+    // Get public URL
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    setAvatarUrl(data.publicUrl);
+    setUploadingAvatar(false);
+  }
+
+  async function handleBgUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingBg(true);
+    const supabase = supabaseBrowser();
+    const fileExt = file.name.split('.').pop();
+    const filePath = `avatars/${user.id}/background.${fileExt}`;
+    const { error } = await supabase.storage.from("avatars").upload(filePath, file, {
+      upsert: true,
+      cacheControl: "3600",
+    });
+    if (error) {
+      setError("Failed to upload background image.");
+      setUploadingBg(false);
+      return;
+    }
+    // Get public URL
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    setBackgroundUrl(data.publicUrl);
+    setUploadingBg(false);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +140,7 @@ export default function ProfileSetupPage() {
                 className="text-3xl md:text-4xl font-extrabold mb-2 text-center"
                 style={{ color: `var(--tw-color-accent-${accent})` }}
               >
-                Complete Your Profile
+                Edit Profile
               </h1>
               <p className="text-gray-300 text-center mb-6">
                 Please fill in your profile details to get started.
@@ -128,27 +177,43 @@ export default function ProfileSetupPage() {
                 </div>
                 <div>
                   <label className="block text-gray-200 font-medium mb-1">
-                    Avatar URL
+                    Avatar
                   </label>
-                  <input
-                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-                    value={avatarUrl}
-                    onChange={e => setAvatarUrl(e.target.value)}
-                    maxLength={256}
-                    placeholder="https://image.host/avatar.png"
-                  />
+                  <div className="flex items-center gap-3">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="avatar" className="w-12 h-12 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gray-700" />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      disabled={uploadingAvatar}
+                      className="block text-sm text-gray-400"
+                    />
+                    {uploadingAvatar && <span className="text-xs text-gray-400">Uploading…</span>}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-gray-200 font-medium mb-1">
-                    Background Image URL
+                    Background Image
                   </label>
-                  <input
-                    className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-                    value={backgroundUrl}
-                    onChange={e => setBackgroundUrl(e.target.value)}
-                    maxLength={256}
-                    placeholder="https://image.host/background.png"
-                  />
+                  <div className="flex items-center gap-3">
+                    {backgroundUrl ? (
+                      <img src={backgroundUrl} alt="background" className="w-20 h-12 rounded object-cover" />
+                    ) : (
+                      <div className="w-20 h-12 rounded bg-gray-700" />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBgUpload}
+                      disabled={uploadingBg}
+                      className="block text-sm text-gray-400"
+                    />
+                    {uploadingBg && <span className="text-xs text-gray-400">Uploading…</span>}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-gray-200 font-medium mb-1">
