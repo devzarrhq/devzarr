@@ -81,7 +81,7 @@ export default function ProfilePage() {
               </p>
               <div className="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
                 {/* Background image */}
-                <div className="relative h-44 bg-gray-800">
+                <div className="relative h-40 sm:h-48 bg-gray-800 flex items-end justify-center">
                   {profile.background_url ? (
                     <img
                       src={profile.background_url}
@@ -92,21 +92,21 @@ export default function ProfilePage() {
                     <div className="w-full h-full bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800" />
                   )}
                   {/* Avatar */}
-                  <div className="absolute -bottom-16 left-6">
+                  <div className="absolute left-1/2 -bottom-12 transform -translate-x-1/2">
                     {profile.avatar_url ? (
                       <img
                         src={profile.avatar_url}
                         alt={profile.display_name || profile.handle}
-                        className="w-32 h-32 rounded-full border-4 border-gray-900 object-cover bg-gray-700"
+                        className="w-24 h-24 rounded-full border-4 border-gray-900 object-cover bg-gray-700 shadow-lg"
                       />
                     ) : (
-                      <div className="w-32 h-32 rounded-full border-4 border-gray-900 bg-gray-700" />
+                      <div className="w-24 h-24 rounded-full border-4 border-gray-900 bg-gray-700" />
                     )}
                   </div>
                 </div>
                 {/* Profile details */}
-                <div className="pt-20 pb-8 px-8">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="pt-16 pb-8 px-8 flex flex-col items-center">
+                  <div className="flex items-center gap-2 mb-1 w-full">
                     <span className="text-2xl font-bold text-white">{profile.display_name || profile.handle}</span>
                     <div className="ml-auto">
                       <button
@@ -119,14 +119,14 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   </div>
-                  <div className="text-gray-400 text-lg mb-2">@{profile.handle}</div>
+                  <div className="text-gray-400 text-lg mb-2 w-full text-left">@{profile.handle}</div>
                   {profile.tagline && (
-                    <div className="text-gray-200 mb-2">{profile.tagline}</div>
+                    <div className="text-gray-200 mb-2 w-full text-left">{profile.tagline}</div>
                   )}
                   {profile.bio && (
-                    <div className="text-gray-300 mb-4 whitespace-pre-line">{profile.bio}</div>
+                    <div className="text-gray-300 mb-4 whitespace-pre-line w-full text-left">{profile.bio}</div>
                   )}
-                  <div className="flex items-center gap-4 text-gray-400 text-sm mb-4">
+                  <div className="flex items-center gap-4 text-gray-400 text-sm mb-4 w-full">
                     {profile.location && (
                       <span className="flex items-center gap-1">
                         <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className="inline-block"><circle cx="8" cy="8" r="7" /></svg>
@@ -139,7 +139,7 @@ export default function ProfilePage() {
                     </span>
                   </div>
                   {/* Social stats */}
-                  <div className="flex gap-6 text-gray-300 text-sm mb-4">
+                  <div className="flex gap-6 text-gray-300 text-sm mb-4 w-full">
                     <span>
                       <span className="font-bold">0</span> Following
                     </span>
