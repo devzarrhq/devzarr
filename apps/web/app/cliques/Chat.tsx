@@ -127,10 +127,9 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     return data?.user_id ?? null;
   }
 
-  // Force member list refresh by sending a dummy update (for real-time fallback)
-  async function forceMemberListRefresh() {
-    // This is a no-op, but triggers the real-time subscription
-    // Optionally, you could refetch members in the MembersClient via a context or event
+  // Manual member list refresh: trigger a custom event
+  function forceMemberListRefresh() {
+    window.dispatchEvent(new CustomEvent("clique-members-refresh"));
   }
 
   // Command parser and executor
@@ -177,24 +176,29 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     // Command actions
     if (command === "/kick") {
       // Remove from clique_members
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from("clique_members")
         .delete()
         .eq("clique_id", cliqueId)
-        .eq("user_id", targetUserId);
+        .eq("user_id", targetUserId)
+        .select("user_id", { count: "exact" });
       if (error) {
         setToast(`Failed to kick @${targetHandle}: ${error.message}`);
+        console.error("Kick error:", error);
+      } else if (count === 0) {
+        setToast(`@${targetHandle} was not found in this clique.`);
       } else {
         setToast(`@${targetHandle} has been kicked.`);
         forceMemberListRefresh();
       }
     } else if (command === "/ban") {
       // Remove from clique_members and add to clique_bans
-      const { error: delError } = await supabase
+      const { error: delError, count } = await supabase
         .from("clique_members")
         .delete()
         .eq("clique_id", cliqueId)
-        .eq("user_id", targetUserId);
+        .eq("user_id", targetUserId)
+        .select("user_id", { count: "exact" });
       const { error: banError } = await supabase
         .from("clique_bans")
         .insert({
@@ -204,6 +208,9 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         });
       if (delError || banError) {
         setToast(`Failed to ban @${targetHandle}: ${(delError || banError)?.message}`);
+        console.error("Ban error:", delError, banError);
+      } else if (count === 0) {
+        setToast(`@${targetHandle} was not found in this clique.`);
       } else {
         setToast(`@${targetHandle} has been banned.`);
         forceMemberListRefresh();
