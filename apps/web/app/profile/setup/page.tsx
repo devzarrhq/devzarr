@@ -59,7 +59,7 @@ export default function ProfileSetupPage() {
     setError(null);
     const supabase = supabaseBrowser();
     const fileExt = file.name.split('.').pop();
-    const filePath = `${handle || user.id}.avatar.${fileExt}`;
+    const filePath = `${user.id}/avatar.${fileExt}`;
     const { error } = await supabase.storage.from("avatars").upload(filePath, file, {
       upsert: true,
       cacheControl: "3600",
@@ -82,7 +82,7 @@ export default function ProfileSetupPage() {
     setError(null);
     const supabase = supabaseBrowser();
     const fileExt = file.name.split('.').pop();
-    const filePath = `${handle || user.id}.background.${fileExt}`;
+    const filePath = `${user.id}/background.${fileExt}`;
     const { error } = await supabase.storage.from("avatars").upload(filePath, file, {
       upsert: true,
       cacheControl: "3600",
