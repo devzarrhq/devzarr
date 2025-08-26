@@ -134,12 +134,14 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
 
   // Command parser and executor
   async function handleCommand(cmd: string) {
-    const [command, arg] = cmd.trim().split(/\s+/, 2);
-    if (!arg || !arg.startsWith("@")) {
-      setToast("Please specify a user handle, e.g. /kick @handle");
+    // Parse: /kick @handle reason...
+    const [command, handle, ...reasonParts] = cmd.trim().split(/\s+/);
+    if (!handle || !handle.startsWith("@")) {
+      setToast("Please specify a user handle, e.g. /kick @handle [reason]");
       return;
     }
-    const targetHandle = arg.replace(/^@/, "");
+    const targetHandle = handle.replace(/^@/, "");
+    const reason = reasonParts.join(" ").trim();
     const { user, role } = await getCurrentUserAndRole();
     if (!user) {
       setToast("You must be signed in.");
@@ -167,22 +169,9 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
       .eq("user_id", targetUserId)
       .single();
 
-    // Debug output
-    console.log("[/kick debug]", {
-      cliqueId,
-      targetHandle,
-      targetUserId,
-      targetMember,
-      memberError,
-    });
-
-    // Show debug info in the toast for now
     if (!targetMember) {
       setToast(
-        `User @${targetHandle} is not a member of this clique.
-cliqueId: ${cliqueId}
-targetUserId: ${targetUserId}
-memberError: ${memberError ? memberError.message : "none"}`
+        `User @${targetHandle} is not a member of this clique.`
       );
       return;
     }
@@ -206,12 +195,9 @@ memberError: ${memberError ? memberError.message : "none"}`
         setToast(`Failed to kick @${targetHandle}: ${error.message}`);
         console.error("Kick error:", error);
       } else if (!data || data.length === 0) {
-        setToast(`User @${targetHandle} is not a member of this clique.
-cliqueId: ${cliqueId}
-targetUserId: ${targetUserId}
-delete returned: ${JSON.stringify(data)}`);
+        setToast(`User @${targetHandle} is not a member of this clique.`);
       } else {
-        setToast(`@${targetHandle} has been kicked.`);
+        setToast(`@${targetHandle} has been kicked.${reason ? `\nReason: ${reason}` : ""}`);
         forceMemberListRefresh();
       }
     } else if (command === "/ban") {
@@ -222,23 +208,22 @@ delete returned: ${JSON.stringify(data)}`);
         .eq("clique_id", cliqueId)
         .eq("user_id", targetUserId)
         .select("user_id");
+      // Insert ban with reason
       const { error: banError } = await supabase
         .from("clique_bans")
         .insert({
           clique_id: cliqueId,
           user_id: targetUserId,
           banned_by: user.id,
+          reason: reason || null,
         });
       if (delError || banError) {
         setToast(`Failed to ban @${targetHandle}: ${(delError || banError)?.message}`);
         console.error("Ban error:", delError, banError);
       } else if (!data || data.length === 0) {
-        setToast(`User @${targetHandle} is not a member of this clique.
-cliqueId: ${cliqueId}
-targetUserId: ${targetUserId}
-delete returned: ${JSON.stringify(data)}`);
+        setToast(`User @${targetHandle} is not a member of this clique.`);
       } else {
-        setToast(`@${targetHandle} has been banned.`);
+        setToast(`@${targetHandle} has been banned.${reason ? `\nReason: ${reason}` : ""}`);
         forceMemberListRefresh();
       }
     } else if (command === "/promote") {
@@ -342,7 +327,7 @@ delete returned: ${JSON.stringify(data)}`);
           onChange={(e)=>setText(e.target.value)}
           onKeyDown={handleKeyDown}
           className="flex-1 rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10 resize-none"
-          placeholder="Say something nice… or use /kick @handle"
+          placeholder="Say something nice… or use /kick @handle [reason]"
           rows={2}
         />
         <button onClick={send} className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500">
