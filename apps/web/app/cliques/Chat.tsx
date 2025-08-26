@@ -176,16 +176,16 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     // Command actions
     if (command === "/kick") {
       // Remove from clique_members
-      const { error, count } = await supabase
+      const { error, data } = await supabase
         .from("clique_members")
         .delete()
         .eq("clique_id", cliqueId)
         .eq("user_id", targetUserId)
-        .select("user_id", { count: "exact" });
+        .select("user_id");
       if (error) {
         setToast(`Failed to kick @${targetHandle}: ${error.message}`);
         console.error("Kick error:", error);
-      } else if (count === 0) {
+      } else if (!data || data.length === 0) {
         setToast(`@${targetHandle} was not found in this clique.`);
       } else {
         setToast(`@${targetHandle} has been kicked.`);
@@ -193,12 +193,12 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
       }
     } else if (command === "/ban") {
       // Remove from clique_members and add to clique_bans
-      const { error: delError, count } = await supabase
+      const { error: delError, data } = await supabase
         .from("clique_members")
         .delete()
         .eq("clique_id", cliqueId)
         .eq("user_id", targetUserId)
-        .select("user_id", { count: "exact" });
+        .select("user_id");
       const { error: banError } = await supabase
         .from("clique_bans")
         .insert({
@@ -209,7 +209,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
       if (delError || banError) {
         setToast(`Failed to ban @${targetHandle}: ${(delError || banError)?.message}`);
         console.error("Ban error:", delError, banError);
-      } else if (count === 0) {
+      } else if (!data || data.length === 0) {
         setToast(`@${targetHandle} was not found in this clique.`);
       } else {
         setToast(`@${targetHandle} has been banned.`);
