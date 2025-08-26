@@ -160,15 +160,30 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
     }
 
     // Check target's current role
-    const { data: targetMember } = await supabase
+    const { data: targetMember, error: memberError } = await supabase
       .from("clique_members")
-      .select("role")
+      .select("role, clique_id, user_id")
       .eq("clique_id", cliqueId)
       .eq("user_id", targetUserId)
       .single();
 
+    // Debug output
+    console.log("[/kick debug]", {
+      cliqueId,
+      targetHandle,
+      targetUserId,
+      targetMember,
+      memberError,
+    });
+
+    // Show debug info in the toast for now
     if (!targetMember) {
-      setToast(`User @${targetHandle} is not a member of this clique.`);
+      setToast(
+        `User @${targetHandle} is not a member of this clique.
+cliqueId: ${cliqueId}
+targetUserId: ${targetUserId}
+memberError: ${memberError ? memberError.message : "none"}`
+      );
       return;
     }
 
@@ -191,7 +206,10 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         setToast(`Failed to kick @${targetHandle}: ${error.message}`);
         console.error("Kick error:", error);
       } else if (!data || data.length === 0) {
-        setToast(`User @${targetHandle} is not a member of this clique.`);
+        setToast(`User @${targetHandle} is not a member of this clique.
+cliqueId: ${cliqueId}
+targetUserId: ${targetUserId}
+delete returned: ${JSON.stringify(data)}`);
       } else {
         setToast(`@${targetHandle} has been kicked.`);
         forceMemberListRefresh();
@@ -215,7 +233,10 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
         setToast(`Failed to ban @${targetHandle}: ${(delError || banError)?.message}`);
         console.error("Ban error:", delError, banError);
       } else if (!data || data.length === 0) {
-        setToast(`User @${targetHandle} is not a member of this clique.`);
+        setToast(`User @${targetHandle} is not a member of this clique.
+cliqueId: ${cliqueId}
+targetUserId: ${targetUserId}
+delete returned: ${JSON.stringify(data)}`);
       } else {
         setToast(`@${targetHandle} has been banned.`);
         forceMemberListRefresh();
@@ -331,7 +352,7 @@ export default function Chat({ cliqueId }: { cliqueId: string }) {
       {/* Toast/snackbar */}
       {toast && (
         <div className="absolute left-1/2 -translate-x-1/2 bottom-6 z-50">
-          <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg border border-emerald-400 font-semibold animate-fade-in-out">
+          <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg border border-emerald-400 font-semibold animate-fade-in-out" style={{ whiteSpace: "pre-line" }}>
             {toast}
           </div>
         </div>
