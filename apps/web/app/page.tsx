@@ -1,6 +1,7 @@
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Feed from "./components/Feed";
+import RightSidebarWidgets from "./components/RightSidebarWidgets";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -83,10 +84,8 @@ export default async function HomePage() {
               <Feed initialPosts={postsWithRelations} />
             </div>
           </section>
-          {/* Right column: reserved for widgets */}
-          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 sticky top-16">
-            {/* Future: Latest Projects, Featured Projects, etc. */}
-          </aside>
+          {/* Right column: widgets */}
+          <RightSidebarWidgets />
         </main>
       </div>
     </div>
