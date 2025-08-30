@@ -18,12 +18,12 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800 border-r border-gray-800 px-4 py-6 fixed left-0 top-0 z-20">
-      <div className="mb-12 flex items-center justify-center" style={{ minHeight: 140 }}>
+      <div className="mb-12 flex items-center justify-center" style={{ minHeight: 260 }}>
         <Link href="/" className="flex items-center justify-center">
           <img
             src="/images/devzarr_logo.png"
             alt="Devzarr Logo"
-            className="h-24 w-24 object-contain"
+            className="h-48 w-48 object-contain"
             style={{ background: "transparent" }}
           />
         </Link>
