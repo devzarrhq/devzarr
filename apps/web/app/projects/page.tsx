@@ -7,13 +7,28 @@ import { Rocket, Users } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
+type Project = {
+  id: string;
+  name: string;
+  slug: string;
+  summary: string | null;
+  cover_url: string | null;
+  created_at: string;
+};
+
+type FollowersMap = Record<string, number>;
+
 const SORT_OPTIONS = [
   { label: "Most Recent", value: "recent" },
   { label: "Alphabetical (A–Z)", value: "az" },
   { label: "Most Popular", value: "popular" },
 ];
 
-function sortProjects(projects, sort, followersMap) {
+function sortProjects(
+  projects: Project[],
+  sort: string,
+  followersMap: FollowersMap
+): Project[] {
   if (sort === "az") {
     return [...projects].sort((a, b) =>
       (a.name || "").localeCompare(b.name || "")
@@ -41,7 +56,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams?: { 
     .eq("is_public", true);
 
   // Fetch follower counts for popularity sort
-  let followersMap: Record<string, number> = {};
+  let followersMap: FollowersMap = {};
   if (projects && projects.length > 0) {
     const ids = projects.map((p) => p.id);
     const { data: follows } = await supabase
