@@ -19,7 +19,20 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800 border-r border-gray-800 px-4 py-6 fixed left-0 top-0 z-20">
       <div className="mb-8 flex items-center gap-2">
-        <span className={`text-2xl font-bold`} style={{ color: `var(--tw-color-accent-${accent})` }}>🏛️ Devzarr</span>
+        <Link href="/" className="flex items-center gap-2">
+          <img
+            src="/devzarr_logo_transparent.png"
+            alt="Devzarr Logo"
+            className="h-10 w-10 object-contain"
+            style={{ background: "transparent" }}
+          />
+          <span
+            className="text-2xl font-bold"
+            style={{ color: `var(--tw-color-accent-${accent})` }}
+          >
+            Devzarr
+          </span>
+        </Link>
       </div>
       <nav className="flex-1">
         <ul className="space-y-2">
