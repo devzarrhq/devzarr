@@ -50,19 +50,39 @@ export default async function ProjectsPage({ searchParams }: { searchParams?: { 
   const supabase = createSupabaseServer();
 
   // Fetch all public projects
-  const { data: projects } = await supabase
+  const { data: projects, error: projectsError } = await supabase
     .from("projects")
     .select("id, name, slug, summary, cover_url, created_at")
     .eq("is_public", true);
 
+  if (projectsError) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+          <Topbar />
+          <main className="flex-1 flex items-center justify-center">
+            <div className="text-center text-gray-400 mt-16">
+              <p className="text-xl font-semibold">Error loading projects.</p>
+              <p className="text-sm mt-2">{projectsError.message}</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Defensive: if projects is null, treat as empty array
+  const safeProjects = Array.isArray(projects) ? projects : [];
+
   // Fetch follower counts for popularity sort
   let followersMap: FollowersMap = {};
-  if (projects && projects.length > 0) {
-    const ids = projects.map((p) => p.id);
+  if (safeProjects.length > 0) {
+    const ids = safeProjects.map((p) => p.id);
     const { data: follows } = await supabase
       .from("project_follows")
       .select("project_id");
-    if (follows) {
+    if (Array.isArray(follows)) {
       for (const id of ids) {
         followersMap[id] = follows.filter((f) => f.project_id === id).length;
       }
@@ -70,7 +90,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams?: { 
   }
 
   const sort = searchParams?.sort || "recent";
-  const sortedProjects = projects ? sortProjects(projects, sort, followersMap) : [];
+  const sortedProjects = sortProjects(safeProjects, sort, followersMap);
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
