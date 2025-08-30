@@ -23,8 +23,7 @@ export default function TrendingProjectsWidget() {
       // Get projects with most posts in last 7 days
       const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const { data, error } = await supabase
-        .rpc("trending_projects", { since })
-        .limit(5);
+        .rpc("trending_projects", { since }); // Removed .limit(5)
       if (!error && data) setProjects(data);
       setLoading(false);
     })();

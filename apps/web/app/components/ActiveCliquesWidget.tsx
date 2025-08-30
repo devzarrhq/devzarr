@@ -23,8 +23,7 @@ export default function ActiveCliquesWidget() {
       // Get cliques with most messages in last 30 min
       const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
       const { data, error } = await supabase
-        .rpc("active_cliques", { since })
-        .limit(5);
+        .rpc("active_cliques", { since }); // Removed .limit(5)
       if (!error && data) setCliques(data);
       setLoading(false);
     })();
