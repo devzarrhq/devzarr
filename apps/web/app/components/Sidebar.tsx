@@ -21,7 +21,7 @@ export default function Sidebar() {
       <div className="mb-8 flex items-center gap-2">
         <Link href="/" className="flex items-center gap-2">
           <img
-            src="/devzarr_logo_transparent.png"
+            src="/images/devzarr_logo.png"
             alt="Devzarr Logo"
             className="h-10 w-10 object-contain"
             style={{ background: "transparent" }}
