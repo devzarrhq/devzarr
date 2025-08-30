@@ -18,12 +18,6 @@ export default function Topbar() {
         >
           <Menu className="w-6 h-6" style={{ color: `var(--tw-color-accent-${accent})` }} />
         </button>
-        <img
-          src="/images/devzarr_logo.png"
-          alt="Devzarr logo"
-          className="h-8 w-auto mr-2"
-          style={{ background: "transparent" }}
-        />
         <span className="text-lg font-bold" style={{ color: `var(--tw-color-accent-${accent})` }}>Devzarr</span>
       </div>
       <div className="flex-1" />
