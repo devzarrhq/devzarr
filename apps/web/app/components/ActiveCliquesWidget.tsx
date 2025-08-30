@@ -15,16 +15,23 @@ type Clique = {
 export default function ActiveCliquesWidget() {
   const [cliques, setCliques] = useState<Clique[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const supabase = supabaseBrowser();
-      // Get cliques with most messages in last 30 min
-      const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
-      const { data, error } = await supabase
-        .rpc("active_cliques", { since }); // Removed .limit(5)
-      if (!error && data) setCliques(data);
+      setError(null);
+      try {
+        const supabase = supabaseBrowser();
+        const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+        const { data, error } = await supabase
+          .rpc("active_cliques", { since });
+        if (error) throw error;
+        setCliques(data ?? []);
+      } catch (err: any) {
+        setError("Could not load active cliques.");
+        setCliques([]);
+      }
       setLoading(false);
     })();
   }, []);
@@ -35,6 +42,18 @@ export default function ActiveCliquesWidget() {
         <div className="h-6 w-2/3 bg-gray-700 rounded mb-2 animate-pulse" />
         <div className="h-4 w-1/2 bg-gray-700 rounded mb-1 animate-pulse" />
         <div className="h-4 w-1/3 bg-gray-700 rounded animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white/5 rounded-xl border border-gray-800 p-5 mb-6">
+        <div className="font-bold text-white mb-2 flex items-center gap-2">
+          <Users className="w-5 h-5 text-emerald-300" />
+          Active Cliques
+        </div>
+        <div className="text-red-400 text-sm">{error}</div>
       </div>
     );
   }

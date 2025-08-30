@@ -15,16 +15,23 @@ type Project = {
 export default function TrendingProjectsWidget() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const supabase = supabaseBrowser();
-      // Get projects with most posts in last 7 days
-      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await supabase
-        .rpc("trending_projects", { since }); // Removed .limit(5)
-      if (!error && data) setProjects(data);
+      setError(null);
+      try {
+        const supabase = supabaseBrowser();
+        const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const { data, error } = await supabase
+          .rpc("trending_projects", { since });
+        if (error) throw error;
+        setProjects(data ?? []);
+      } catch (err: any) {
+        setError("Could not load trending projects.");
+        setProjects([]);
+      }
       setLoading(false);
     })();
   }, []);
@@ -35,6 +42,18 @@ export default function TrendingProjectsWidget() {
         <div className="h-6 w-2/3 bg-gray-700 rounded mb-2 animate-pulse" />
         <div className="h-4 w-1/2 bg-gray-700 rounded mb-1 animate-pulse" />
         <div className="h-4 w-1/3 bg-gray-700 rounded animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white/5 rounded-xl border border-gray-800 p-5 mb-6">
+        <div className="font-bold text-white mb-2 flex items-center gap-2">
+          <Rocket className="w-5 h-5 text-emerald-300" />
+          Trending Projects
+        </div>
+        <div className="text-red-400 text-sm">{error}</div>
       </div>
     );
   }
