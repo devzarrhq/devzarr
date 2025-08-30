@@ -2,6 +2,7 @@ import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import MessagesPageClient from "./MessagesPageClient";
+import RightSidebarWidgets from "../components/RightSidebarWidgets";
 
 export default async function MessagesPage() {
   const supabase = createSupabaseServer();
@@ -50,10 +51,8 @@ export default async function MessagesPage() {
               <MessagesPageClient rows={rows} />
             </div>
           </section>
-          {/* Right column: reserved for widgets */}
-          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 sticky top-16 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800">
-            {/* Future: Latest Contacts, Suggestions, etc. */}
-          </aside>
+          {/* Right column: widgets */}
+          <RightSidebarWidgets />
         </main>
       </div>
     </div>

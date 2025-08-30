@@ -1,5 +1,6 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { CliquesPageClient } from "./CliquesPageClient";
+import RightSidebarWidgets from "../components/RightSidebarWidgets";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,9 @@ export default async function CliquesPage() {
 
   // Use accent color in client
   return (
-    <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+      <RightSidebarWidgets />
+    </div>
   );
 }

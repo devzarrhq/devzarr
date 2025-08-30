@@ -1,6 +1,7 @@
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import ParallaxBackground from "../components/ParallaxBackground";
+import RightSidebarWidgets from "../components/RightSidebarWidgets";
 
 export const metadata = {
   title: "About • Devzarr",
@@ -113,10 +114,8 @@ export default function AboutPage() {
               </Section>
             </div>
           </section>
-          {/* Right column: reserved for widgets, always solid dark bg */}
-          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800">
-            {/* Future: Latest Projects, Featured Projects, etc. */}
-          </aside>
+          {/* Right column: widgets */}
+          <RightSidebarWidgets />
         </main>
       </div>
     </div>

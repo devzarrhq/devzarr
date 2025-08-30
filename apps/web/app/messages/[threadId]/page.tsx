@@ -2,6 +2,7 @@ import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import DMChat from "./ui/DMChat";
+import RightSidebarWidgets from "../../components/RightSidebarWidgets";
 
 export default async function ThreadPage({ params }: { params: { threadId: string } }) {
   const supabase = createSupabaseServer();
@@ -79,10 +80,8 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
               </div>
             </div>
           </section>
-          {/* Right column: reserved for widgets */}
-          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800">
-            {/* Future: Latest Contacts, Suggestions, etc. */}
-          </aside>
+          {/* Right column: widgets */}
+          <RightSidebarWidgets />
         </main>
       </div>
     </div>

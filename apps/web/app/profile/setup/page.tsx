@@ -7,6 +7,7 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { useTheme } from "../../theme-context";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
+import RightSidebarWidgets from "../../components/RightSidebarWidgets";
 
 // Helper: check file header for common image types
 async function isValidImageFile(file: File): Promise<boolean> {
@@ -184,7 +185,7 @@ export default function ProfileSetupPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
         <Topbar />
-        <main className="flex-1 flex flex-col md:flex-row gap-0">
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
           {/* Center column: Profile setup form */}
           <section className="flex-1 flex flex-col items-center justify-start py-10">
             <div className="w-full max-w-xl px-4">
@@ -316,10 +317,8 @@ export default function ProfileSetupPage() {
               </form>
             </div>
           </section>
-          {/* Right column: reserved for widgets */}
-          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10">
-            {/* Future: Latest Projects, Featured Projects, etc. */}
-          </aside>
+          {/* Right column: widgets */}
+          <RightSidebarWidgets />
         </main>
       </div>
     </div>

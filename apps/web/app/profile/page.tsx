@@ -7,6 +7,7 @@ import { Pencil } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import { useTheme } from "../theme-context";
+import RightSidebarWidgets from "../components/RightSidebarWidgets";
 
 type Profile = {
   user_id: string;
@@ -66,7 +67,7 @@ export default function ProfilePage() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
         <Topbar />
-        <main className="flex-1 flex flex-col md:flex-row gap-0">
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
           {/* Center column: Profile */}
           <section className="flex-1 flex flex-col items-center justify-start py-10">
             <div className="w-full max-w-xl px-4">
@@ -154,10 +155,8 @@ export default function ProfilePage() {
               </div>
             </div>
           </section>
-          {/* Right column: reserved for widgets */}
-          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10">
-            {/* Future: Latest Projects, Featured Projects, etc. */}
-          </aside>
+          {/* Right column: widgets */}
+          <RightSidebarWidgets />
         </main>
       </div>
     </div>

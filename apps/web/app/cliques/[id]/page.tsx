@@ -7,6 +7,7 @@ import Chat from "../Chat";
 import dynamic from "next/dynamic";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import MembersClient from "./MembersClient";
+import RightSidebarWidgets from "../../components/RightSidebarWidgets";
 
 export default function CliquePage({ params }: { params: { id: string } }) {
   const { accent } = useTheme();
@@ -95,31 +96,34 @@ export default function CliquePage({ params }: { params: { id: string } }) {
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
         <Topbar />
-        <main className="flex-1 flex flex-col px-4">
-          {/* Title and description */}
-          <div className="w-full max-w-2xl">
-            <h1
-              className="text-4xl font-extrabold mb-2"
-              style={{ color: `var(--tw-color-accent-${accent})` }}
-            >
-              {clique.name}
-            </h1>
-            {clique.description && (
-              <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
-            )}
-            <div className="mb-8 text-xs text-gray-500">
-              Created: {new Date(clique.created_at).toLocaleString()}
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <section className="w-full flex flex-col px-4">
+            {/* Title and description */}
+            <div className="w-full max-w-2xl">
+              <h1
+                className="text-4xl font-extrabold mb-2"
+                style={{ color: `var(--tw-color-accent-${accent})` }}
+              >
+                {clique.name}
+              </h1>
+              {clique.description && (
+                <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
+              )}
+              <div className="mb-8 text-xs text-gray-500">
+                Created: {new Date(clique.created_at).toLocaleString()}
+              </div>
             </div>
-          </div>
-          {/* Chat and members list side by side */}
-          <div className="flex flex-row gap-8 w-full max-w-6xl">
-            <div className="flex-1">
-              <Chat cliqueId={clique.id} />
+            {/* Chat and members list side by side */}
+            <div className="flex flex-row gap-8 w-full max-w-6xl">
+              <div className="flex-1">
+                <Chat cliqueId={clique.id} />
+              </div>
+              <div className="flex-shrink-0 flex flex-col justify-start">
+                <MembersClient cliqueId={clique.id} initial={members} />
+              </div>
             </div>
-            <div className="flex-shrink-0 flex flex-col justify-start">
-              <MembersClient cliqueId={clique.id} initial={members} />
-            </div>
-          </div>
+          </section>
+          <RightSidebarWidgets />
         </main>
       </div>
     </div>
