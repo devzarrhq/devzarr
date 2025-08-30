@@ -1,11 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState, FormEvent } from "react";
+import { useEffect, useMemo, useState, FormEvent, ChangeEvent } from "react";
 import { Dialog } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useTheme } from "../theme-context";
 import { useAuth } from "../providers/AuthProvider";
+
+// Helper: check file header for common image types
+async function isValidImageFile(file: File): Promise<boolean> {
+  const signatures: { [key: string]: number[][] } = {
+    jpg: [[0xFF, 0xD8, 0xFF]],
+    png: [[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]],
+    gif: [[0x47, 0x49, 0x46, 0x38]],
+    webp: [[0x52, 0x49, 0x46, 0x46]],
+    bmp: [[0x42, 0x4D]],
+    svg: [[0x3C, 0x73, 0x76, 0x67]], // "<svg"
+  };
+  const buf = await file.slice(0, 12).arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  for (const sigs of Object.values(signatures)) {
+    for (const sig of sigs) {
+      if (bytes.length >= sig.length && sig.every((b, i) => bytes[i] === b)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 type Props = {
   open: boolean;
@@ -54,6 +76,9 @@ export default function AddProjectModal({ open, onClose, onCreated, wide }: Prop
   const [checkingSlug, setCheckingSlug] = useState(false);
   const [slugTaken, setSlugTaken] = useState(false);
 
+  // For upload progress
+  const [uploadingCover, setUploadingCover] = useState(false);
+
   // auto-generate slug as you type the name (unless user overrides)
   useEffect(() => {
     if (!open) return;
@@ -96,6 +121,46 @@ export default function AddProjectModal({ open, onClose, onCreated, wide }: Prop
     const n = Math.floor(Math.random() * 9000 + 1000);
     setSlug((s) => (s ? `${s}-${n}` : `project-${n}`));
   };
+
+  // --- Cover image upload handler ---
+  async function handleCoverUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingCover(true);
+    setError(null);
+
+    // Check MIME type
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      setUploadingCover(false);
+      return;
+    }
+    // Check file header
+    if (!(await isValidImageFile(file))) {
+      setError("File does not appear to be a valid image.");
+      setUploadingCover(false);
+      return;
+    }
+
+    const supabase = supabaseBrowser();
+    const fileExt = file.name.split('.').pop();
+    // Use slug or random string for filename
+    const safeSlug = slug || `project-${Math.random().toString(36).slice(2, 8)}`;
+    const filePath = `${user.id}/${safeSlug}-cover.${fileExt}`;
+    // Upload to 'project-covers' bucket
+    const { error: uploadError } = await supabase.storage.from("project-covers").upload(filePath, file, {
+      upsert: true,
+      cacheControl: "3600",
+    });
+    if (uploadError) {
+      setError("Failed to upload cover image: " + uploadError.message);
+      setUploadingCover(false);
+      return;
+    }
+    const { data } = supabase.storage.from("project-covers").getPublicUrl(filePath);
+    setCoverUrl(data.publicUrl);
+    setUploadingCover(false);
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -255,17 +320,36 @@ export default function AddProjectModal({ open, onClose, onCreated, wide }: Prop
                 />
               </div>
               <div>
-                <label htmlFor="cover" className="block text-gray-200 font-medium mb-1">Cover Image URL</label>
+                <label htmlFor="cover" className="block text-gray-200 font-medium mb-1">Cover Image</label>
+                <div className="flex items-center gap-3">
+                  {coverUrl ? (
+                    <img
+                      src={coverUrl}
+                      alt="cover"
+                      className="w-20 h-12 rounded object-cover border border-gray-700"
+                    />
+                  ) : (
+                    <div className="w-20 h-12 rounded bg-gray-700" />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverUpload}
+                    disabled={uploadingCover}
+                    className="block text-sm text-gray-400"
+                  />
+                  {uploadingCover && <span className="text-xs text-gray-400">Uploading…</span>}
+                </div>
                 <input
-                  id="cover"
-                  className={`w-full px-3 py-2 rounded bg-gray-800 text-white border focus:outline-none focus:ring-2 ${
+                  id="coverUrl"
+                  className={`mt-2 w-full px-3 py-2 rounded bg-gray-800 text-white border focus:outline-none focus:ring-2 ${
                     isValidUrl(coverUrl) ? "border-gray-700" : "border-red-500"
                   }`}
                   style={{ ["--tw-ring-color" as any]: `var(--tw-color-accent-${accent})` }}
                   value={coverUrl}
                   onChange={(e) => setCoverUrl(e.target.value)}
                   type="url"
-                  placeholder="https://image.host/cover.webp"
+                  placeholder="Or paste an image URL"
                 />
               </div>
             </div>
