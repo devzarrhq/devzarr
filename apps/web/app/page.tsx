@@ -44,14 +44,12 @@ export default async function HomePage() {
       <div className="flex flex-1 flex-col min-h-screen">
         <Topbar />
         <div className="flex flex-1 flex-row">
-          <div className="flex-1 flex flex-col">
-            <main className="flex-1 px-6 py-8">
-              <div className="mx-auto w-full max-w-4xl xl:max-w-5xl 2xl:max-w-6xl">
-                <Feed initialPosts={postsWithRelations} />
-              </div>
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px]">
+            <main className="flex-1 px-6 py-8 max-w-5xl mx-auto">
+              <Feed initialPosts={postsWithRelations} />
             </main>
           </div>
-          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10">
+          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
             <RightSidebarWidgets />
           </aside>
         </div>
