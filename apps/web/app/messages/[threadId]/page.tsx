@@ -56,9 +56,9 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
       <Sidebar />
       <div className="flex flex-1 flex-col min-h-screen">
         <Topbar />
-        <div className="flex flex-1 flex-row">
-          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px]">
-            <main className="w-full py-10">
+        <div className="flex flex-1 flex-row min-h-0">
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] min-h-0">
+            <main className="w-full py-10 flex flex-col flex-1 min-h-0">
               <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8 flex flex-col flex-1 min-h-0">
                 <div className="flex items-center gap-3 mb-6">
                   {other?.avatar_url ? (
