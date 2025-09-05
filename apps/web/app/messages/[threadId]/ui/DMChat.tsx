@@ -31,14 +31,17 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const box = useRef<HTMLDivElement>(null);
 
-  // Always scroll to bottom when messages change
+  // Auto-scroll to bottom (if user is near the bottom)
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+    if (isNearBottom) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
   }, [messages.length]);
 
-  // Fetch current user and author profiles
+  // Fetch user & message author profiles
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -56,10 +59,9 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
       (profs ?? []).forEach((p: any) => { map[p.user_id] = p; });
       setProfiles(map);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
-  // Real-time updates
+  // Live updates via Supabase channel
   useEffect(() => {
     const ch = supabase
       .channel(`dm:${threadId}`)
@@ -76,11 +78,10 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   const send = async () => {
     const body = text.trim();
     if (!body) return;
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert("Sign in first");
 
-    setText(""); // clear input immediately
+    setText("");
     setShowToast(true);
     setTimeout(() => setShowToast(false), 1500);
 
@@ -115,13 +116,16 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   return (
     <div className="w-full flex justify-center flex-1 min-h-0">
       <div className="w-full max-w-2xl flex flex-col flex-1 min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
-        {/* Scrollable message area */}
+        {/* Scrollable message box */}
         <div
           ref={box}
-          className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth"
+          className="flex-1 overflow-y-auto w-full px-2 py-4 relative scroll-smooth"
           style={{
-            maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
+            minHeight: 0,
+            maxHeight: "100%",
+            overflowY: "auto",
+            maskImage: "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
           }}
         >
           <div className="flex flex-col gap-4 w-full">
@@ -178,7 +182,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           </div>
         </div>
 
-        {/* Input bar */}
+        {/* Input area */}
         <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent">
           <textarea
             value={text}
@@ -205,7 +209,6 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           </div>
         )}
 
-        {/* Animations */}
         <style>{`
           @keyframes fade-in-out {
             0% { opacity: 0; transform: translateY(10px);}
