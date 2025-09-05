@@ -92,39 +92,43 @@ export default function CliquePage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+    <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+      <div className="flex flex-1 flex-col min-h-screen">
         <Topbar />
-        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
-          <section className="w-full flex flex-col px-4">
-            {/* Title and description */}
-            <div className="w-full max-w-2xl">
-              <h1
-                className="text-4xl font-extrabold mb-2"
-                style={{ color: `var(--tw-color-accent-${accent})` }}
-              >
-                {clique.name}
-              </h1>
-              {clique.description && (
-                <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
-              )}
-              <div className="mb-8 text-xs text-gray-500">
-                Created: {new Date(clique.created_at).toLocaleString()}
+        <div className="flex flex-1 flex-row">
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4">
+            <main className="flex-1 flex flex-col">
+              {/* Title and description */}
+              <div className="w-full max-w-2xl">
+                <h1
+                  className="text-4xl font-extrabold mb-2"
+                  style={{ color: `var(--tw-color-accent-${accent})` }}
+                >
+                  {clique.name}
+                </h1>
+                {clique.description && (
+                  <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
+                )}
+                <div className="mb-8 text-xs text-gray-500">
+                  Created: {new Date(clique.created_at).toLocaleString()}
+                </div>
               </div>
-            </div>
-            {/* Chat and members list side by side */}
-            <div className="flex flex-row gap-8 w-full max-w-6xl">
-              <div className="flex-1">
-                <Chat cliqueId={clique.id} />
+              {/* Chat and members list side by side */}
+              <div className="flex flex-row gap-8 w-full max-w-6xl">
+                <div className="flex-1">
+                  <Chat cliqueId={clique.id} />
+                </div>
+                <div className="flex-shrink-0 flex flex-col justify-start">
+                  <MembersClient cliqueId={clique.id} initial={members} />
+                </div>
               </div>
-              <div className="flex-shrink-0 flex flex-col justify-start">
-                <MembersClient cliqueId={clique.id} initial={members} />
-              </div>
-            </div>
-          </section>
-          <RightSidebarWidgets />
-        </main>
+            </main>
+          </div>
+          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
+            <RightSidebarWidgets />
+          </aside>
+        </div>
       </div>
     </div>
   );
