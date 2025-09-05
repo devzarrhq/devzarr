@@ -31,8 +31,14 @@ export default function AboutPage() {
                   </ParallaxBackground>
                 </div>
                 <div className="mx-auto w-full max-w-4xl px-6 pt-12 pb-8 text-white relative z-10">
-                  <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-emerald-300 drop-shadow-lg text-left mb-4">
-                    🏛️ Devzarr — The Indie Bazaar for Developers
+                  <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-emerald-300 drop-shadow-lg text-left mb-4 flex items-center gap-4">
+                    <img
+                      src="/images/devzarr_logo.png"
+                      alt="Devzarr Logo"
+                      className="w-14 h-14 md:w-20 md:h-20 object-contain"
+                      style={{ background: "transparent" }}
+                    />
+                    Devzarr — The Indie Bazaar for Developers
                   </h1>
                   <p className="mt-2 text-gray-200 md:text-lg drop-shadow text-left mb-2">
                     Welcome to <strong>Devzarr</strong>, a vibrant, open platform where indie developers showcase their freshest tools, gather around digital campfires, and amplify their launches with real community, not algorithms.
