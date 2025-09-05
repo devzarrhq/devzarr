@@ -1,12 +1,12 @@
+export const dynamic = "force-dynamic";
+
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import RightSidebarWidgets from "../components/RightSidebarWidgets";
 import { createSupabaseServer } from "@/lib/supabase/server";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const ProjectsClient = dynamic(() => import("./ProjectsClient"), { ssr: false });
-
-export const dynamic = "force-dynamic";
+const ProjectsClient = dynamicImport(() => import("./ProjectsClient"), { ssr: false });
 
 type Project = {
   id: string;
