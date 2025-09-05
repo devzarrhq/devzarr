@@ -33,13 +33,14 @@ export default async function CliquesPage() {
     <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
       <div className="flex flex-1 flex-col min-h-screen">
-        {/* Topbar spans the full width (except sidebar) */}
         <Topbar />
         <div className="flex flex-1 flex-row">
-          <div className="flex-1 flex flex-col min-h-screen">
-            <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px]">
+            <main className="flex-1 px-6 py-8 max-w-5xl mx-auto">
+              <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+            </main>
           </div>
-          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10">
+          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
             <RightSidebarWidgets />
           </aside>
         </div>
