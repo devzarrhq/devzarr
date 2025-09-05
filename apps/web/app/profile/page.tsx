@@ -79,12 +79,14 @@ export default function ProfilePage() {
       return;
     }
     const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    setHeaderUrl(data.publicUrl);
+    // Add cache-busting query param
+    const cacheBustedUrl = data.publicUrl + "?t=" + Date.now();
+    setHeaderUrl(cacheBustedUrl);
 
     // Save to profile
-    await supabase.from("profiles").update({ background_url: data.publicUrl }).eq("user_id", user.id);
+    await supabase.from("profiles").update({ background_url: cacheBustedUrl }).eq("user_id", user.id);
     setUploadingHeader(false);
-    setProfile((p) => p ? { ...p, background_url: data.publicUrl } : p);
+    setProfile((p) => p ? { ...p, background_url: cacheBustedUrl } : p);
   }
 
   // Accent color change

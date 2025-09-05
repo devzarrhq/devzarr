@@ -108,7 +108,9 @@ export default function ProfileSetupPage() {
       return;
     }
     const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    setAvatarUrl(data.publicUrl);
+    // Add cache-busting query param
+    const cacheBustedUrl = data.publicUrl + "?t=" + Date.now();
+    setAvatarUrl(cacheBustedUrl);
     setUploadingAvatar(false);
   }
 
@@ -145,7 +147,9 @@ export default function ProfileSetupPage() {
       return;
     }
     const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    setBackgroundUrl(data.publicUrl);
+    // Add cache-busting query param
+    const cacheBustedUrl = data.publicUrl + "?t=" + Date.now();
+    setBackgroundUrl(cacheBustedUrl);
     setUploadingBg(false);
   }
 
