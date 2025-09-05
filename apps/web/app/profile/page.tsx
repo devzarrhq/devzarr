@@ -53,7 +53,7 @@ export default function ProfilePage() {
     fetchProfile();
   }, [user, setAccent]);
 
-  // Header image upload
+  // Header image upload (still needed for the top header, but not in Site Settings)
   async function handleHeaderUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -208,6 +208,8 @@ export default function ProfilePage() {
                   </span>
                 </div>
               </section>
+              {/* Add space between Profile and Site Settings */}
+              <div className="h-8" />
               {/* Site Settings section */}
               <section className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-8 mb-8">
                 <h2 className="text-2xl font-bold mb-4" style={{ color: `var(--tw-color-accent-${accent})` }}>
@@ -218,6 +220,7 @@ export default function ProfilePage() {
                     <Palette size={18} />
                     <span style={{ color: `var(--tw-color-accent-${accent})` }}>Accent Color</span>
                   </div>
+                  {/* Color bubbles */}
                   <div className="flex flex-wrap gap-3 mb-2">
                     {ACCENT_COLORS.map((c) => (
                       <button
@@ -232,31 +235,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="text-xs text-gray-400">Choose your site accent color.</div>
                 </div>
-                <div>
-                  <div className="font-medium mb-2">Header Image</div>
-                  <div className="flex items-center gap-3">
-                    {headerUrl ? (
-                      <img
-                        src={headerUrl}
-                        alt="header"
-                        className="w-32 h-20 rounded object-cover border border-gray-700"
-                      />
-                    ) : (
-                      <div className="w-32 h-20 rounded bg-gray-700" />
-                    )}
-                    <label className="px-4 py-2 rounded bg-gray-800 text-gray-200 hover:bg-gray-700 cursor-pointer text-sm font-semibold">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleHeaderUpload}
-                        disabled={uploadingHeader}
-                        className="hidden"
-                      />
-                      {uploadingHeader ? "Uploading…" : "Change Header"}
-                    </label>
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1">This image appears at the top of your profile.</div>
-                </div>
+                {/* Header image preview/upload removed as requested */}
               </section>
               {error && <div className="text-red-400 text-sm text-center mb-2">{error}</div>}
             </main>
