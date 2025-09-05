@@ -128,12 +128,12 @@ export default function ProfilePage() {
       <div className="flex flex-1 flex-col min-h-screen">
         <Topbar />
         <div className="flex flex-1 flex-row">
-          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px]">
+          {/* Add gap between sidebar and main content */}
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4 sm:px-8">
             <main className="flex-1 flex flex-col items-center justify-start py-0">
-              {/* Twitter-style header and avatar */}
+              {/* Header image */}
               <div className="w-full max-w-2xl relative">
-                {/* Header image */}
-                <div className="h-48 sm:h-56 w-full bg-gray-800 relative">
+                <div className="h-48 sm:h-56 w-full bg-gray-800 relative rounded-t-2xl overflow-hidden">
                   {headerUrl ? (
                     <img
                       src={headerUrl}
@@ -155,34 +155,31 @@ export default function ProfilePage() {
                     {uploadingHeader ? "Uploading…" : "Change Header"}
                   </label>
                 </div>
-                {/* Avatar - smaller and overlaps header */}
-                <div className="absolute left-6 -bottom-8 sm:-bottom-10 z-10">
+                {/* Avatar and Edit button below header */}
+                <div className="flex items-center gap-4 mt-[-40px] ml-6">
                   {profile.avatar_url ? (
                     <img
                       src={profile.avatar_url}
                       alt="avatar"
-                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-gray-900 shadow-lg"
-                      style={{ background: "#222" }}
+                      className="w-20 h-20 rounded-full object-cover border-4 border-gray-900 shadow-lg bg-gray-800"
                     />
                   ) : (
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-700 border-4 border-gray-900 shadow-lg flex items-center justify-center text-3xl text-gray-400">
+                    <div className="w-20 h-20 rounded-full bg-gray-700 border-4 border-gray-900 shadow-lg flex items-center justify-center text-3xl text-gray-400">
                       ?
                     </div>
                   )}
-                </div>
-                {/* Edit Profile button */}
-                <div className="absolute right-6 -bottom-6 sm:-bottom-8 z-10">
                   <a
                     href="/profile/setup"
-                    className="flex items-center gap-2 px-5 py-2 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-bold text-base shadow transition"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-bold text-base shadow transition"
+                    style={{ marginTop: "24px" }}
                   >
                     <Pencil size={18} />
                     Edit Profile
                   </a>
                 </div>
               </div>
-              {/* Spacer for avatar overlap */}
-              <div className="h-12 sm:h-16" />
+              {/* Spacer for avatar */}
+              <div className="h-8" />
               {/* Profile section */}
               <section className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-8 mb-8">
                 <h2 className="text-2xl font-bold mb-2" style={{ color: `var(--tw-color-accent-${accent})` }}>
@@ -216,7 +213,8 @@ export default function ProfilePage() {
                 </h2>
                 <div className="mb-6">
                   <div className="font-medium mb-2 flex items-center gap-2">
-                    <Palette size={18} /> Accent Color
+                    <Palette size={18} />
+                    <span style={{ color: `var(--tw-color-accent-${accent})` }}>Accent Color</span>
                   </div>
                   <div className="flex flex-wrap gap-3 mb-2">
                     {ACCENT_COLORS.map((c) => (
