@@ -30,19 +30,21 @@ export default async function CliquesPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
-      <Sidebar />
-      <div className="flex flex-1 flex-col min-h-screen">
-        <Topbar />
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] min-h-screen w-full relative">
-          <div className="flex flex-col md:ml-64 px-6 py-8">
-            <div className="max-w-5xl w-full mx-auto">
-              <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-h-screen">
+          <Topbar />
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] w-full flex-1 md:ml-64">
+            <div className="flex flex-col px-6 py-8">
+              <div className="max-w-5xl w-full mx-auto">
+                <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+              </div>
             </div>
+            <aside className="hidden lg:block px-6 py-10 border-l border-gray-800">
+              <RightSidebarWidgets />
+            </aside>
           </div>
-          <aside className="hidden lg:block px-6 py-10 border-l border-gray-800">
-            <RightSidebarWidgets />
-          </aside>
         </div>
       </div>
     </div>
