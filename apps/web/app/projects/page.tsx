@@ -5,6 +5,7 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Rocket, Users } from "lucide-react";
 import ProjectsSortDropdown from "../components/ProjectsSortDropdown";
+import { useTheme } from "../theme-context";
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +71,21 @@ export default async function ProjectsPage({ searchParams }: { searchParams?: { 
   const sort = searchParams?.sort || "recent";
   const sortedProjects = sortProjects(safeProjects, sort, followersMap);
 
+  // Accent color for heading
+  // Use dynamic import for useTheme (client hook in server component)
+  // We'll use a client component for the heading
+  function ProjectsHeading() {
+    const { accent } = useTheme();
+    return (
+      <h1
+        className="text-4xl md:text-5xl font-extrabold"
+        style={{ color: `var(--tw-color-accent-${accent})` }}
+      >
+        Projects
+      </h1>
+    );
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
@@ -80,9 +96,8 @@ export default async function ProjectsPage({ searchParams }: { searchParams?: { 
             <main className="w-full py-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
-                  <h1 className="text-4xl md:text-5xl font-extrabold text-accent">
-                    Projects
-                  </h1>
+                  {/* Accent heading */}
+                  <ProjectsHeading />
                   <p className="text-gray-300 text-lg max-w-2xl mt-1">
                     Discover indie dev tools and open projects.
                   </p>
