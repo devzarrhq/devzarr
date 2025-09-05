@@ -2,13 +2,33 @@
 import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
-type Msg = { id: string; author_id: string; body: string; created_at: string };
+type Profile = {
+  user_id: string;
+  handle: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
+type Msg = {
+  id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+  author?: Profile | null;
+};
+
+function formatTime(ts: string) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
 export default function DMChat({ threadId, initialMessages }: { threadId: string; initialMessages: Msg[] }) {
   const supabase = supabaseBrowser();
   const [messages, setMessages] = useState<Msg[]>(initialMessages);
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [text, setText] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const box = useRef<HTMLDivElement>(null);
 
   // Always scroll to bottom when messages change
@@ -17,6 +37,28 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
       box.current.scrollTop = box.current.scrollHeight;
     }
   }, [messages]);
+
+  // Fetch current user and all message authors' profiles
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id ?? null);
+
+      // Get all unique author_ids
+      const authorIds = Array.from(new Set(messages.map(m => m.author_id)));
+      if (authorIds.length === 0) return;
+
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, handle, display_name, avatar_url")
+        .in("user_id", authorIds);
+
+      const map: Record<string, Profile> = {};
+      (profs ?? []).forEach((p: any) => { map[p.user_id] = p; });
+      setProfiles(map);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length]);
 
   // Real-time updates
   useEffect(() => {
@@ -76,6 +118,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
     // Shift+Enter: allow newline (do nothing)
   };
 
+  // Grouping logic: only show avatar/name if previous message is from a different sender
   return (
     <div className="w-full flex justify-center">
       <div className="w-full max-w-2xl h-[600px] flex flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
@@ -84,12 +127,58 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           ref={box}
           className="flex-1 min-h-0 overflow-y-auto p-4 space-y-2"
         >
-          {messages.map(m => (
-            <div key={m.id} className="max-w-[70%] rounded-md px-3 py-2 bg-white/10 text-gray-100">
-              <div className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleTimeString()}</div>
-              <div className="whitespace-pre-wrap">{m.body}</div>
-            </div>
-          ))}
+          <div className="space-y-4">
+            {messages.map((msg, idx) => {
+              const isMe = msg.author_id === currentUserId;
+              const prev = messages[idx - 1];
+              const showAvatar = idx === 0 || prev?.author_id !== msg.author_id;
+              const profile = profiles[msg.author_id];
+              const displayName = profile?.display_name || profile?.handle || "User";
+              const avatarUrl = profile?.avatar_url || "/images/default-avatar.png";
+
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex ${isMe ? "justify-end" : "justify-start"} items-end`}
+                >
+                  {/* Left: Other user */}
+                  {!isMe && showAvatar && (
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="w-8 h-8 rounded-full mr-3 self-start"
+                    />
+                  )}
+                  {/* Message bubble */}
+                  <div
+                    className={`max-w-[60%] px-4 py-2 rounded-lg text-sm shadow
+                      ${isMe
+                        ? "bg-blue-600 text-white rounded-br-none ml-12"
+                        : "bg-gray-800 text-gray-100 rounded-bl-none mr-12"
+                      }
+                    `}
+                  >
+                    {/* Name only on first in group, for other user */}
+                    {!isMe && showAvatar && (
+                      <div className="font-semibold text-xs mb-1 text-teal-400">
+                        {displayName}
+                      </div>
+                    )}
+                    <div className="whitespace-pre-line">{msg.body}</div>
+                    <div className="text-xs text-gray-400 mt-1 text-right">{formatTime(msg.created_at)}</div>
+                  </div>
+                  {/* Right: My avatar */}
+                  {isMe && showAvatar && (
+                    <img
+                      src={avatarUrl}
+                      alt="You"
+                      className="w-8 h-8 rounded-full ml-3 self-start"
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
         {/* Input area is always visible at the bottom */}
         <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent">
@@ -105,26 +194,26 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
             Send
           </button>
         </div>
-      </div>
-      {/* Toast: below the chat card, centered, green, readable */}
-      {showToast && (
-        <div className="w-full flex justify-center mt-3">
-          <div className="text-emerald-400 font-semibold text-base animate-fade-in-out">
-            Message sent!
+        {/* Toast: below the chat card, centered, green, readable */}
+        {showToast && (
+          <div className="w-full flex justify-center mt-3">
+            <div className="text-emerald-400 font-semibold text-base animate-fade-in-out">
+              Message sent!
+            </div>
           </div>
-        </div>
-      )}
-      <style>{`
-        @keyframes fade-in-out {
-          0% { opacity: 0; transform: translateY(10px);}
-          10% { opacity: 1; transform: translateY(0);}
-          90% { opacity: 1; transform: translateY(0);}
-          100% { opacity: 0; transform: translateY(-10px);}
-        }
-        .animate-fade-in-out {
-          animation: fade-in-out 1.5s both;
-        }
-      `}</style>
+        )}
+        <style>{`
+          @keyframes fade-in-out {
+            0% { opacity: 0; transform: translateY(10px);}
+            10% { opacity: 1; transform: translateY(0);}
+            90% { opacity: 1; transform: translateY(0);}
+            100% { opacity: 0; transform: translateY(-10px);}
+          }
+          .animate-fade-in-out {
+            animation: fade-in-out 1.5s both;
+          }
+        `}</style>
+      </div>
     </div>
   );
 }
