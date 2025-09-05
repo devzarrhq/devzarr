@@ -1,6 +1,7 @@
+import Sidebar from "../components/Sidebar";
+import RightSidebarWidgets from "../components/RightSidebarWidgets";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { CliquesPageClient } from "./CliquesPageClient";
-import RightSidebarWidgets from "../components/RightSidebarWidgets";
 
 export const dynamic = "force-dynamic";
 
@@ -28,11 +29,16 @@ export default async function CliquesPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col lg:flex-row">
-      <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
-      <aside className="hidden lg:block lg:w-1/4 xl:w-1/5 px-4 py-8">
-        <RightSidebarWidgets />
-      </aside>
+    <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex flex-1 flex-row">
+        <div className="flex-1 flex flex-col min-h-screen">
+          <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+        </div>
+        <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10">
+          <RightSidebarWidgets />
+        </aside>
+      </div>
     </div>
   );
 }
