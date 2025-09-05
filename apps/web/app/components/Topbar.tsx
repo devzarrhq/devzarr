@@ -33,7 +33,6 @@ export default function Topbar() {
   useEffect(() => {
     if (!showSettings) return;
     function handle(e: MouseEvent | KeyboardEvent) {
-      // If click is inside the menu or button, do nothing
       if (
         e instanceof MouseEvent &&
         (menuRef.current?.contains(e.target as Node) ||
@@ -57,7 +56,7 @@ export default function Topbar() {
   }, [showSettings]);
 
   return (
-    <header className="sticky top-0 z-10 bg-gradient-to-r from-gray-950 via-gray-900 to-gray-800 border-b border-gray-800 flex items-center justify-between px-6 py-3 md:ml-64">
+    <header className="sticky top-0 z-40 bg-gradient-to-r from-gray-950 via-gray-900 to-gray-800 border-b border-gray-800 flex items-center justify-between px-6 py-3 md:ml-64">
       <div className="flex items-center gap-2 md:hidden">
         <button
           className="p-2 rounded-md hover:bg-gray-900"
@@ -68,10 +67,11 @@ export default function Topbar() {
         <span className="text-lg font-bold" style={{ color: `var(--tw-color-accent-${accent})` }}>Devzarr</span>
       </div>
       <div className="flex-1" />
-      <div className="relative" ref={menuRef}>
+      <div className="relative z-50" ref={menuRef}>
         <button
           ref={buttonRef}
           className="flex items-center gap-2 px-1 py-1 rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2"
+          style={{ zIndex: 100, position: "relative" }}
           onClick={(e) => {
             e.stopPropagation();
             setShowSettings((v) => !v);
