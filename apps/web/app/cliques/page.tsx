@@ -1,4 +1,5 @@
 import Sidebar from "../components/Sidebar";
+import Topbar from "../components/Topbar";
 import RightSidebarWidgets from "../components/RightSidebarWidgets";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { CliquesPageClient } from "./CliquesPageClient";
@@ -31,13 +32,17 @@ export default async function CliquesPage() {
   return (
     <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
-      <div className="flex flex-1 flex-row">
-        <div className="flex-1 flex flex-col min-h-screen">
-          <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+      <div className="flex flex-1 flex-col min-h-screen">
+        {/* Topbar spans the full width (except sidebar) */}
+        <Topbar />
+        <div className="flex flex-1 flex-row">
+          <div className="flex-1 flex flex-col min-h-screen">
+            <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+          </div>
+          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10">
+            <RightSidebarWidgets />
+          </aside>
         </div>
-        <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10">
-          <RightSidebarWidgets />
-        </aside>
       </div>
     </div>
   );
