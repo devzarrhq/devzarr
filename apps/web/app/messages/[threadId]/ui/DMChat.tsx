@@ -121,14 +121,14 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   // Grouping logic: only show avatar/name if previous message is from a different sender
   return (
     <div className="w-full flex justify-center flex-1 min-h-0">
-      <div className="w-full max-w-2xl flex flex-col h-[600px] min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
+      <div className="w-full max-w-2xl flex flex-col flex-1 min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
         {/* Scrollable message area fills available space */}
         <div
           ref={box}
-          className="flex-1 min-h-0 h-0 overflow-y-auto p-4 space-y-2"
-          style={{ minHeight: 0, maxHeight: "100%" }}
+          className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4"
+          style={{ minHeight: 0 }}
         >
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4 w-full">
             {messages.map((msg, idx) => {
               const isMe = msg.author_id === currentUserId;
               const prev = messages[idx - 1];
@@ -140,7 +140,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
               return (
                 <div
                   key={msg.id}
-                  className={`flex ${isMe ? "justify-end" : "justify-start"} items-end`}
+                  className={`flex ${isMe ? "justify-end" : "justify-start"} items-end w-full`}
                 >
                   {/* Left: Other user */}
                   {!isMe && showAvatar && (
@@ -153,7 +153,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
                   {/* Message bubble */}
                   <div
                     className={`
-                      w-1/2 max-w-full overflow-x-auto
+                      max-w-[70%] w-auto
                       px-4 py-2 rounded-lg text-sm shadow
                       break-words
                       ${isMe
@@ -161,6 +161,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
                         : "bg-gray-800 text-gray-100 rounded-bl-none mr-12"
                       }
                     `}
+                    style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}
                   >
                     {/* Name only on first in group, for other user */}
                     {!isMe && showAvatar && (
