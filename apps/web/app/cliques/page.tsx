@@ -36,8 +36,10 @@ export default async function CliquesPage() {
         <Topbar />
         <div className="flex flex-1 flex-row">
           <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px]">
-            <main className="flex-1 w-full px-6 py-8">
-              <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+            <main className="flex-1 px-6 py-8">
+              <div className="max-w-5xl mx-auto w-full">
+                <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
+              </div>
             </main>
           </div>
           <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
