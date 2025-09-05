@@ -123,8 +123,8 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           style={{
             height: "calc(100vh - 220px)", // Adjust as needed for your header/input bar
             overflowY: "auto",
-            maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
           }}
         >
           <div className="flex flex-col gap-4 w-full pb-24">
