@@ -7,6 +7,7 @@ import { Pencil, Palette } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import { useTheme, ACCENT_COLORS } from "../theme-context";
+import type { AccentColor } from "../theme-context";
 import RightSidebarWidgets from "../components/RightSidebarWidgets";
 
 type Profile = {
@@ -45,7 +46,7 @@ export default function ProfilePage() {
       if (data) {
         setProfile(data);
         setHeaderUrl(data.background_url || null);
-        if (data.accent && ACCENT_COLORS.includes(data.accent)) setAccent(data.accent);
+        if (data.accent && ACCENT_COLORS.includes(data.accent as AccentColor)) setAccent(data.accent as AccentColor);
       }
       setLoading(false);
     };
@@ -87,7 +88,7 @@ export default function ProfilePage() {
   }
 
   // Accent color change
-  async function handleAccentChange(newAccent: string) {
+  async function handleAccentChange(newAccent: AccentColor) {
     setAccent(newAccent);
     if (user) {
       await supabaseBrowser().from("profiles").update({ accent: newAccent }).eq("user_id", user.id);
