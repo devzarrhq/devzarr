@@ -35,7 +35,7 @@ export default function AboutPage() {
                     <img
                       src="/images/devzarr_logo.png"
                       alt="Devzarr Logo"
-                      className="w-14 h-14 md:w-20 md:h-20 object-contain"
+                      className="w-10 h-10 md:w-12 md:h-12 object-contain inline-block"
                       style={{ background: "transparent" }}
                     />
                     Devzarr — The Indie Bazaar for Developers
