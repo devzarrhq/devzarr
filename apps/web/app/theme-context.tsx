@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-type AccentColor =
+export type AccentColor =
   | "blue"
   | "green"
   | "purple"
