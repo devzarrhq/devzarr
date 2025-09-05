@@ -36,7 +36,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
     if (box.current) {
       box.current.scrollTop = box.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages.length]);
 
   // Fetch current user and all message authors' profiles
   useEffect(() => {
@@ -120,12 +120,13 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
 
   // Grouping logic: only show avatar/name if previous message is from a different sender
   return (
-    <div className="w-full flex justify-center">
-      <div className="w-full max-w-2xl h-[600px] flex flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
-        {/* Only this area scrolls */}
+    <div className="w-full flex justify-center flex-1 min-h-0">
+      <div className="w-full max-w-2xl flex flex-col h-full min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
+        {/* Scrollable message area fills available space */}
         <div
           ref={box}
           className="flex-1 min-h-0 overflow-y-auto p-4 space-y-2"
+          style={{ maxHeight: "calc(100vh - 260px)" }} // Responsive: fits under topbar and input
         >
           <div className="space-y-4">
             {messages.map((msg, idx) => {
@@ -152,8 +153,9 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
                   {/* Message bubble */}
                   <div
                     className={`
-                      w-1/2
+                      w-1/2 max-w-full
                       px-4 py-2 rounded-lg text-sm shadow
+                      break-words
                       ${isMe
                         ? "bg-blue-600 text-white rounded-br-none ml-12"
                         : "bg-gray-800 text-gray-100 rounded-bl-none mr-12"
