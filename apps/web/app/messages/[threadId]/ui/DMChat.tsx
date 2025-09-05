@@ -31,13 +31,13 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const box = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom (if user is near the bottom)
+  // Auto-scroll to bottom (with buffer)
   useEffect(() => {
     const el = box.current;
     if (!el) return;
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     if (isNearBottom) {
-      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      el.scrollTo({ top: el.scrollHeight + 100, behavior: "smooth" });
     }
   }, [messages.length]);
 
@@ -116,10 +116,10 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   return (
     <div className="w-full flex justify-center flex-1 min-h-0">
       <div className="w-full max-w-2xl flex flex-col flex-1 min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
-        {/* Scrollable message box with explicit height */}
+        {/* Scrollable message box with explicit height and modern scrollbar */}
         <div
           ref={box}
-          className="overflow-y-auto w-full px-2 py-4 relative scroll-smooth"
+          className="overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
           style={{
             height: "calc(100vh - 220px)", // Adjust as needed for your header/input bar
             overflowY: "auto",
@@ -127,7 +127,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
             WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
           }}
         >
-          <div className="flex flex-col gap-4 w-full">
+          <div className="flex flex-col gap-4 w-full pb-24">
             {messages.map((msg, idx) => {
               const isMe = msg.author_id === currentUserId;
               const prev = messages[idx - 1];
@@ -217,6 +217,24 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           }
           .animate-fade-in-out {
             animation: fade-in-out 1.5s both;
+          }
+          /* Modern custom scrollbar */
+          .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #38bdf8 #23272f;
+          }
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            background: #23272f;
+            border-radius: 8px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #38bdf8 0%, #06d6a0 100%);
+            border-radius: 8px;
+            min-height: 40px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #06d6a0 0%, #38bdf8 100%);
           }
         `}</style>
       </div>
