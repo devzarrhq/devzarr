@@ -121,12 +121,12 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   // Grouping logic: only show avatar/name if previous message is from a different sender
   return (
     <div className="w-full flex justify-center flex-1 min-h-0">
-      <div className="w-full max-w-2xl flex flex-col h-full min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
+      <div className="w-full max-w-2xl flex flex-col h-[600px] min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
         {/* Scrollable message area fills available space */}
         <div
           ref={box}
-          className="flex-1 min-h-0 overflow-y-auto p-4 space-y-2"
-          style={{ maxHeight: "calc(100vh - 260px)" }} // Responsive: fits under topbar and input
+          className="flex-1 min-h-0 h-0 overflow-y-auto p-4 space-y-2"
+          style={{ minHeight: 0, maxHeight: "100%" }}
         >
           <div className="space-y-4">
             {messages.map((msg, idx) => {
@@ -153,7 +153,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
                   {/* Message bubble */}
                   <div
                     className={`
-                      w-1/2 max-w-full
+                      w-1/2 max-w-full overflow-x-auto
                       px-4 py-2 rounded-lg text-sm shadow
                       break-words
                       ${isMe
@@ -168,7 +168,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
                         {displayName}
                       </div>
                     )}
-                    <div className="whitespace-pre-line">{msg.body}</div>
+                    <div className="whitespace-pre-line break-words">{msg.body}</div>
                     <div className="text-xs text-gray-400 mt-1 text-right">{formatTime(msg.created_at)}</div>
                   </div>
                   {/* Right: My avatar */}
