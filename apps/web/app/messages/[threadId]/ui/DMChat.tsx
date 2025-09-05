@@ -116,16 +116,15 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   return (
     <div className="w-full flex justify-center flex-1 min-h-0">
       <div className="w-full max-w-2xl flex flex-col flex-1 min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
-        {/* Scrollable message box */}
+        {/* Scrollable message box with explicit height */}
         <div
           ref={box}
-          className="flex-1 overflow-y-auto w-full px-2 py-4 relative scroll-smooth"
+          className="overflow-y-auto w-full px-2 py-4 relative scroll-smooth"
           style={{
-            minHeight: 0,
-            maxHeight: "100%",
+            height: "calc(100vh - 220px)", // Adjust as needed for your header/input bar
             overflowY: "auto",
-            maskImage: "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
+            maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
           }}
         >
           <div className="flex flex-col gap-4 w-full">
