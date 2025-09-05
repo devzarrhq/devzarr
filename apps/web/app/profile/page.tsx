@@ -221,11 +221,11 @@ export default function ProfilePage() {
                     <span style={{ color: `var(--tw-color-accent-${accent})` }}>Accent Color</span>
                   </div>
                   {/* Color bubbles */}
-                  <div className="flex flex-wrap gap-3 mb-2">
+                  <div className="flex flex-row gap-3 mb-2">
                     {ACCENT_COLORS.map((c) => (
                       <button
                         key={c}
-                        className={`w-7 h-7 rounded-full border-2 transition-colors duration-150 ${accent === c ? "border-white scale-110" : "border-gray-700"}`}
+                        className={`w-7 h-7 rounded-full border-2 transition-colors duration-150 focus:outline-none ${accent === c ? "border-white scale-110" : "border-gray-700"}`}
                         style={{ backgroundColor: `var(--tw-color-accent-${c})` }}
                         onClick={() => handleAccentChange(c as AccentColor)}
                         aria-label={c}
