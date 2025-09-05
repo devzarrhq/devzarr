@@ -129,108 +129,135 @@ export default function ProfilePage() {
         <Topbar />
         <div className="flex flex-1 flex-row">
           <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px]">
-            <main className="flex-1 flex flex-col items-center justify-start py-10">
-              <div className="w-full max-w-xl px-4">
-                <h1
-                  className="text-4xl font-extrabold mb-2"
-                  style={{ color: `var(--tw-color-accent-${accent})` }}
-                >
+            <main className="flex-1 flex flex-col items-center justify-start py-0">
+              {/* Twitter-style header and avatar */}
+              <div className="w-full max-w-2xl relative">
+                {/* Header image */}
+                <div className="h-48 sm:h-56 w-full bg-gray-800 relative">
+                  {headerUrl ? (
+                    <img
+                      src={headerUrl}
+                      alt="Header"
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800" />
+                  )}
+                  {/* Header image upload (only for self) */}
+                  <label className="absolute right-4 bottom-4 bg-black/60 px-3 py-1.5 rounded-lg text-white text-xs font-semibold cursor-pointer hover:bg-black/80">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleHeaderUpload}
+                      disabled={uploadingHeader}
+                    />
+                    {uploadingHeader ? "Uploading…" : "Change Header"}
+                  </label>
+                </div>
+                {/* Avatar - overlaps header */}
+                <div className="absolute left-6 -bottom-14 sm:-bottom-16 z-10">
+                  {profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt="avatar"
+                      className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-gray-900 shadow-lg"
+                      style={{ background: "#222" }}
+                    />
+                  ) : (
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gray-700 border-4 border-gray-900 shadow-lg flex items-center justify-center text-4xl text-gray-400">
+                      ?
+                    </div>
+                  )}
+                </div>
+                {/* Edit Profile button */}
+                <div className="absolute right-6 -bottom-10 sm:-bottom-12 z-10">
+                  <a
+                    href="/profile/setup"
+                    className="flex items-center gap-2 px-6 py-2 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-bold text-lg shadow transition"
+                  >
+                    <Pencil size={20} />
+                    Edit Profile
+                  </a>
+                </div>
+              </div>
+              {/* Spacer for avatar overlap */}
+              <div className="h-20 sm:h-24" />
+              {/* Profile section */}
+              <section className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-8 mb-8">
+                <h2 className="text-2xl font-bold mb-2" style={{ color: `var(--tw-color-accent-${accent})` }}>
                   Profile
-                </h1>
-                <p className="text-gray-300 text-lg mb-6">
-                  View and edit your profile and site options.
-                </p>
-                <div className="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
-                  {/* Header image */}
-                  <div className="relative h-40 sm:h-48 bg-gray-800 flex items-end justify-center">
+                </h2>
+                <div className="mb-2 text-gray-400 text-lg">@{profile.handle}</div>
+                <div className="mb-2 text-white text-xl font-semibold">{profile.display_name}</div>
+                {profile.tagline && (
+                  <div className="text-gray-200 mb-2">{profile.tagline}</div>
+                )}
+                {profile.bio && (
+                  <div className="text-gray-300 mb-4 whitespace-pre-line">{profile.bio}</div>
+                )}
+                <div className="flex items-center gap-4 text-gray-400 text-sm mb-4">
+                  {profile.location && (
+                    <span className="flex items-center gap-1">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className="inline-block"><circle cx="8" cy="8" r="7" /></svg>
+                      {profile.location}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className="inline-block"><path d="M8 2v6l4 2" /></svg>
+                    Joined {new Date(profile.created_at).toLocaleString("default", { month: "long", year: "numeric" })}
+                  </span>
+                </div>
+              </section>
+              {/* Site Settings section */}
+              <section className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-8 mb-8">
+                <h2 className="text-2xl font-bold mb-4" style={{ color: `var(--tw-color-accent-${accent})` }}>
+                  Site Settings
+                </h2>
+                <div className="mb-6">
+                  <div className="font-medium mb-2 flex items-center gap-2">
+                    <Palette size={18} /> Accent Color
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {ACCENT_COLORS.map((c) => (
+                      <button
+                        key={c}
+                        className={`w-7 h-7 rounded-full border-2 ${accent === c ? "border-white" : "border-gray-700"}`}
+                        style={{ backgroundColor: `var(--tw-color-accent-${c})` }}
+                        onClick={() => handleAccentChange(c as AccentColor)}
+                        aria-label={c}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-400">Choose your site accent color.</div>
+                </div>
+                <div>
+                  <div className="font-medium mb-2">Header Image</div>
+                  <div className="flex items-center gap-3">
                     {headerUrl ? (
                       <img
                         src={headerUrl}
-                        alt="Header"
-                        className="object-cover w-full h-full"
+                        alt="header"
+                        className="w-32 h-20 rounded object-cover border border-gray-700"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800" />
+                      <div className="w-32 h-20 rounded bg-gray-700" />
                     )}
-                    {/* Header image upload */}
-                    <label className="absolute right-4 bottom-4 bg-black/60 px-3 py-1.5 rounded-lg text-white text-xs font-semibold cursor-pointer hover:bg-black/80">
+                    <label className="px-4 py-2 rounded bg-gray-800 text-gray-200 hover:bg-gray-700 cursor-pointer text-sm font-semibold">
                       <input
                         type="file"
                         accept="image/*"
-                        className="hidden"
                         onChange={handleHeaderUpload}
                         disabled={uploadingHeader}
+                        className="hidden"
                       />
                       {uploadingHeader ? "Uploading…" : "Change Header"}
                     </label>
                   </div>
-                  {/* Profile details */}
-                  <div className="pt-16 pb-8 px-8 flex flex-col items-center">
-                    <div className="flex items-center gap-2 mb-1 w-full">
-                      <span className="text-2xl font-bold text-white">{profile.display_name || profile.handle}</span>
-                      <div className="ml-auto">
-                        <a
-                          href="/profile/setup"
-                          className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-medium shadow transition"
-                        >
-                          <Pencil size={16} />
-                          Edit Profile
-                        </a>
-                      </div>
-                    </div>
-                    <div className="text-gray-400 text-lg mb-2 w-full text-left">@{profile.handle}</div>
-                    {profile.tagline && (
-                      <div className="text-gray-200 mb-2 w-full text-left">{profile.tagline}</div>
-                    )}
-                    {profile.bio && (
-                      <div className="text-gray-300 mb-4 whitespace-pre-line w-full text-left">{profile.bio}</div>
-                    )}
-                    <div className="flex items-center gap-4 text-gray-400 text-sm mb-4 w-full">
-                      {profile.location && (
-                        <span className="flex items-center gap-1">
-                          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className="inline-block"><circle cx="8" cy="8" r="7" /></svg>
-                          {profile.location}
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className="inline-block"><path d="M8 2v6l4 2" /></svg>
-                        Joined {new Date(profile.created_at).toLocaleString("default", { month: "long", year: "numeric" })}
-                      </span>
-                    </div>
-                    {/* Social stats */}
-                    <div className="flex gap-6 text-gray-300 text-sm mb-4 w-full">
-                      <span>
-                        <span className="font-bold">0</span> Following
-                      </span>
-                      <span>
-                        <span className="font-bold">0</span> Followers
-                      </span>
-                      <span>
-                        <span className="font-bold">0</span> Cliques
-                      </span>
-                    </div>
-                    {/* Accent color picker */}
-                    <div className="w-full mt-6">
-                      <div className="font-medium mb-2 flex items-center gap-2">
-                        <Palette size={18} /> Accent Color
-                      </div>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {ACCENT_COLORS.map((c) => (
-                          <button
-                            key={c}
-                            className={`w-7 h-7 rounded-full border-2 ${accent === c ? "border-white" : "border-gray-700"}`}
-                            style={{ backgroundColor: `var(--tw-color-accent-${c})` }}
-                            onClick={() => handleAccentChange(c)}
-                            aria-label={c}
-                          />
-                        ))}
-                      </div>
-                      <div className="text-xs text-gray-400">Choose your site accent color.</div>
-                    </div>
-                  </div>
-                  {error && <div className="text-red-400 text-sm text-center mb-2">{error}</div>}
+                  <div className="text-xs text-gray-400 mt-1">This image appears at the top of your profile.</div>
                 </div>
-              </div>
+              </section>
+              {error && <div className="text-red-400 text-sm text-center mb-2">{error}</div>}
             </main>
           </div>
           <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">

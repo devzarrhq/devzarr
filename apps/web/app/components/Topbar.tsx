@@ -4,11 +4,29 @@ import { useRef, useState, useEffect } from "react";
 import { UserCircle, Menu } from "lucide-react";
 import SettingsMenu from "./SettingsMenu";
 import { useTheme } from "../theme-context";
+import { useAuth } from "../providers/AuthProvider";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 export default function Topbar() {
   const [showSettings, setShowSettings] = useState(false);
   const { accent } = useTheme();
   const menuRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  // Fetch avatar
+  useEffect(() => {
+    if (!user) return setAvatarUrl(null);
+    (async () => {
+      const supabase = supabaseBrowser();
+      const { data } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("user_id", user.id)
+        .single();
+      setAvatarUrl(data?.avatar_url ?? null);
+    })();
+  }, [user]);
 
   // Close menu on outside click or ESC
   useEffect(() => {
@@ -53,7 +71,16 @@ export default function Topbar() {
           aria-haspopup="true"
           aria-expanded={showSettings}
         >
-          <UserCircle className="w-8 h-8" style={{ color: `var(--tw-color-accent-${accent})` }} />
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="avatar"
+              className="w-8 h-8 rounded-full object-cover border-2"
+              style={{ borderColor: `var(--tw-color-accent-${accent})` }}
+            />
+          ) : (
+            <UserCircle className="w-8 h-8" style={{ color: `var(--tw-color-accent-${accent})` }} />
+          )}
         </button>
         {showSettings && (
           <div className="absolute right-0 mt-2 z-50">
