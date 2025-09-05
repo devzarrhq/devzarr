@@ -151,7 +151,9 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
                   )}
                   {/* Message bubble */}
                   <div
-                    className={`max-w-[60%] px-4 py-2 rounded-lg text-sm shadow
+                    className={`
+                      w-1/2
+                      px-4 py-2 rounded-lg text-sm shadow
                       ${isMe
                         ? "bg-blue-600 text-white rounded-br-none ml-12"
                         : "bg-gray-800 text-gray-100 rounded-bl-none mr-12"
