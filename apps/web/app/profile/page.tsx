@@ -156,33 +156,33 @@ export default function ProfilePage() {
                   </label>
                 </div>
                 {/* Avatar - overlaps header */}
-                <div className="absolute left-6 -bottom-14 sm:-bottom-16 z-10">
+                <div className="absolute left-6 -bottom-12 sm:-bottom-14 z-10">
                   {profile.avatar_url ? (
                     <img
                       src={profile.avatar_url}
                       alt="avatar"
-                      className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-gray-900 shadow-lg"
+                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-gray-900 shadow-lg"
                       style={{ background: "#222" }}
                     />
                   ) : (
-                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gray-700 border-4 border-gray-900 shadow-lg flex items-center justify-center text-4xl text-gray-400">
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gray-700 border-4 border-gray-900 shadow-lg flex items-center justify-center text-4xl text-gray-400">
                       ?
                     </div>
                   )}
                 </div>
                 {/* Edit Profile button */}
-                <div className="absolute right-6 -bottom-10 sm:-bottom-12 z-10">
+                <div className="absolute right-6 -bottom-8 sm:-bottom-10 z-10">
                   <a
                     href="/profile/setup"
-                    className="flex items-center gap-2 px-6 py-2 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-bold text-lg shadow transition"
+                    className="flex items-center gap-2 px-5 py-2 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-bold text-base shadow transition"
                   >
-                    <Pencil size={20} />
+                    <Pencil size={18} />
                     Edit Profile
                   </a>
                 </div>
               </div>
               {/* Spacer for avatar overlap */}
-              <div className="h-20 sm:h-24" />
+              <div className="h-16 sm:h-20" />
               {/* Profile section */}
               <section className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-8 mb-8">
                 <h2 className="text-2xl font-bold mb-2" style={{ color: `var(--tw-color-accent-${accent})` }}>
@@ -218,14 +218,15 @@ export default function ProfilePage() {
                   <div className="font-medium mb-2 flex items-center gap-2">
                     <Palette size={18} /> Accent Color
                   </div>
-                  <div className="flex flex-wrap gap-2 mb-2">
+                  <div className="flex flex-wrap gap-3 mb-2">
                     {ACCENT_COLORS.map((c) => (
                       <button
                         key={c}
-                        className={`w-7 h-7 rounded-full border-2 ${accent === c ? "border-white" : "border-gray-700"}`}
+                        className={`w-7 h-7 rounded-full border-2 transition-colors duration-150 ${accent === c ? "border-white scale-110" : "border-gray-700"}`}
                         style={{ backgroundColor: `var(--tw-color-accent-${c})` }}
                         onClick={() => handleAccentChange(c as AccentColor)}
                         aria-label={c}
+                        type="button"
                       />
                     ))}
                   </div>

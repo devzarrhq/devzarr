@@ -65,7 +65,7 @@ export default function Topbar() {
       <div className="flex-1" />
       <div className="relative" ref={menuRef}>
         <button
-          className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2"
+          className="flex items-center gap-2 px-1 py-1 rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2"
           onClick={() => setShowSettings((v) => !v)}
           aria-label="Open settings"
           aria-haspopup="true"
@@ -76,7 +76,7 @@ export default function Topbar() {
               src={avatarUrl}
               alt="avatar"
               className="w-8 h-8 rounded-full object-cover border-2"
-              style={{ borderColor: `var(--tw-color-accent-${accent})` }}
+              style={{ borderColor: `var(--tw-color-accent-${accent})`, width: 32, height: 32 }}
             />
           ) : (
             <UserCircle className="w-8 h-8" style={{ color: `var(--tw-color-accent-${accent})` }} />
