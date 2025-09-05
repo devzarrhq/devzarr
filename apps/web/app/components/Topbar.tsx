@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { UserCircle, Menu } from "lucide-react";
 import SettingsMenu from "./SettingsMenu";
 import { useTheme } from "../theme-context";
@@ -8,6 +8,30 @@ import { useTheme } from "../theme-context";
 export default function Topbar() {
   const [showSettings, setShowSettings] = useState(false);
   const { accent } = useTheme();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click or ESC
+  useEffect(() => {
+    if (!showSettings) return;
+    function handle(e: MouseEvent | KeyboardEvent) {
+      if (
+        e instanceof MouseEvent &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node)
+      ) {
+        setShowSettings(false);
+      }
+      if (e instanceof KeyboardEvent && e.key === "Escape") {
+        setShowSettings(false);
+      }
+    }
+    document.addEventListener("mousedown", handle);
+    document.addEventListener("keydown", handle);
+    return () => {
+      document.removeEventListener("mousedown", handle);
+      document.removeEventListener("keydown", handle);
+    };
+  }, [showSettings]);
 
   return (
     <header className="sticky top-0 z-10 bg-gradient-to-r from-gray-950 via-gray-900 to-gray-800 border-b border-gray-800 flex items-center justify-between px-6 py-3 md:ml-64">
@@ -21,17 +45,19 @@ export default function Topbar() {
         <span className="text-lg font-bold" style={{ color: `var(--tw-color-accent-${accent})` }}>Devzarr</span>
       </div>
       <div className="flex-1" />
-      <div className="relative">
+      <div className="relative" ref={menuRef}>
         <button
-          className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-900"
+          className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2"
           onClick={() => setShowSettings((v) => !v)}
           aria-label="Open settings"
+          aria-haspopup="true"
+          aria-expanded={showSettings}
         >
           <UserCircle className="w-8 h-8" style={{ color: `var(--tw-color-accent-${accent})` }} />
         </button>
         {showSettings && (
           <div className="absolute right-0 mt-2 z-50">
-            <SettingsMenu />
+            <SettingsMenu onClose={() => setShowSettings(false)} />
           </div>
         )}
       </div>

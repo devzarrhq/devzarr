@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../providers/AuthProvider";
 
-export default function SettingsMenu() {
+export default function SettingsMenu({ onClose }: { onClose?: () => void }) {
   const { theme, setTheme, accent, setAccent } = useTheme();
   const router = useRouter();
   const { user } = useAuth();
@@ -35,6 +35,7 @@ export default function SettingsMenu() {
   const handleLogout = async () => {
     await supabaseBrowser().auth.signOut();
     router.replace("/login");
+    onClose?.();
   };
 
   return (
@@ -102,6 +103,7 @@ export default function SettingsMenu() {
       <Link
         href="/profile/setup"
         className="w-full flex items-center gap-2 px-4 py-2 mt-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition"
+        onClick={onClose}
       >
         <Pencil className="w-5 h-5" />
         Edit Profile

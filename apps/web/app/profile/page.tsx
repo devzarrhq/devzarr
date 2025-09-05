@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import { useAuth } from "../providers/AuthProvider";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { Pencil } from "lucide-react";
+import { Pencil, Palette } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
-import { useTheme } from "../theme-context";
+import { useTheme, ACCENT_COLORS } from "../theme-context";
 import RightSidebarWidgets from "../components/RightSidebarWidgets";
 
 type Profile = {
@@ -18,15 +18,20 @@ type Profile = {
   tagline: string | null;
   bio: string | null;
   location: string | null;
+  accent?: string | null;
   created_at: string;
 };
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { accent } = useTheme();
+  const { accent, setAccent } = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploadingHeader, setUploadingHeader] = useState(false);
+  const [headerUrl, setHeaderUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  // Load profile
   useEffect(() => {
     if (!user) return;
     const fetchProfile = async () => {
@@ -37,11 +42,58 @@ export default function ProfilePage() {
         .select("*")
         .eq("user_id", user.id)
         .single();
-      if (data) setProfile(data);
+      if (data) {
+        setProfile(data);
+        setHeaderUrl(data.background_url || null);
+        if (data.accent && ACCENT_COLORS.includes(data.accent)) setAccent(data.accent);
+      }
       setLoading(false);
     };
     fetchProfile();
-  }, [user]);
+  }, [user, setAccent]);
+
+  // Header image upload
+  async function handleHeaderUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingHeader(true);
+    setError(null);
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      setUploadingHeader(false);
+      return;
+    }
+
+    const supabase = supabaseBrowser();
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${user.id}/header.${fileExt}`;
+    const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, {
+      upsert: true,
+      cacheControl: "3600",
+    });
+    if (uploadError) {
+      setError("Failed to upload header image: " + uploadError.message);
+      setUploadingHeader(false);
+      return;
+    }
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    setHeaderUrl(data.publicUrl);
+
+    // Save to profile
+    await supabase.from("profiles").update({ background_url: data.publicUrl }).eq("user_id", user.id);
+    setUploadingHeader(false);
+    setProfile((p) => p ? { ...p, background_url: data.publicUrl } : p);
+  }
+
+  // Accent color change
+  async function handleAccentChange(newAccent: string) {
+    setAccent(newAccent);
+    if (user) {
+      await supabaseBrowser().from("profiles").update({ accent: newAccent }).eq("user_id", user.id);
+      setProfile((p) => p ? { ...p, accent: newAccent } : p);
+    }
+  }
 
   // Loading skeleton
   if (loading || !profile) {
@@ -85,46 +137,44 @@ export default function ProfilePage() {
                   Profile
                 </h1>
                 <p className="text-gray-300 text-lg mb-6">
-                  View and edit your profile.
+                  View and edit your profile and site options.
                 </p>
                 <div className="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
-                  {/* Background image */}
+                  {/* Header image */}
                   <div className="relative h-40 sm:h-48 bg-gray-800 flex items-end justify-center">
-                    {profile.background_url ? (
+                    {headerUrl ? (
                       <img
-                        src={profile.background_url}
-                        alt="Background"
+                        src={headerUrl}
+                        alt="Header"
                         className="object-cover w-full h-full"
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800" />
                     )}
-                    {/* Avatar */}
-                    <div className="absolute left-1/2 -bottom-12 transform -translate-x-1/2">
-                      {profile.avatar_url ? (
-                        <img
-                          src={profile.avatar_url}
-                          alt={profile.display_name || profile.handle}
-                          className="w-24 h-24 rounded-full border-4 border-gray-900 object-cover bg-gray-700 shadow-lg"
-                        />
-                      ) : (
-                        <div className="w-24 h-24 rounded-full border-4 border-gray-900 bg-gray-700" />
-                      )}
-                    </div>
+                    {/* Header image upload */}
+                    <label className="absolute right-4 bottom-4 bg-black/60 px-3 py-1.5 rounded-lg text-white text-xs font-semibold cursor-pointer hover:bg-black/80">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleHeaderUpload}
+                        disabled={uploadingHeader}
+                      />
+                      {uploadingHeader ? "Uploading…" : "Change Header"}
+                    </label>
                   </div>
                   {/* Profile details */}
                   <div className="pt-16 pb-8 px-8 flex flex-col items-center">
                     <div className="flex items-center gap-2 mb-1 w-full">
                       <span className="text-2xl font-bold text-white">{profile.display_name || profile.handle}</span>
                       <div className="ml-auto">
-                        <button
+                        <a
+                          href="/profile/setup"
                           className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-medium shadow transition"
-                          // onClick={openEditModal} // To be implemented
-                          type="button"
                         >
                           <Pencil size={16} />
                           Edit Profile
-                        </button>
+                        </a>
                       </div>
                     </div>
                     <div className="text-gray-400 text-lg mb-2 w-full text-left">@{profile.handle}</div>
@@ -158,7 +208,26 @@ export default function ProfilePage() {
                         <span className="font-bold">0</span> Cliques
                       </span>
                     </div>
+                    {/* Accent color picker */}
+                    <div className="w-full mt-6">
+                      <div className="font-medium mb-2 flex items-center gap-2">
+                        <Palette size={18} /> Accent Color
+                      </div>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {ACCENT_COLORS.map((c) => (
+                          <button
+                            key={c}
+                            className={`w-7 h-7 rounded-full border-2 ${accent === c ? "border-white" : "border-gray-700"}`}
+                            style={{ backgroundColor: `var(--tw-color-accent-${c})` }}
+                            onClick={() => handleAccentChange(c)}
+                            aria-label={c}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-xs text-gray-400">Choose your site accent color.</div>
+                    </div>
                   </div>
+                  {error && <div className="text-red-400 text-sm text-center mb-2">{error}</div>}
                 </div>
               </div>
             </main>
