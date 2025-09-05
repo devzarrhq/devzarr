@@ -155,23 +155,23 @@ export default function ProfilePage() {
                     {uploadingHeader ? "Uploading…" : "Change Header"}
                   </label>
                 </div>
-                {/* Avatar - overlaps header */}
-                <div className="absolute left-6 -bottom-12 sm:-bottom-14 z-10">
+                {/* Avatar - smaller and overlaps header */}
+                <div className="absolute left-6 -bottom-8 sm:-bottom-10 z-10">
                   {profile.avatar_url ? (
                     <img
                       src={profile.avatar_url}
                       alt="avatar"
-                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-gray-900 shadow-lg"
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-gray-900 shadow-lg"
                       style={{ background: "#222" }}
                     />
                   ) : (
-                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gray-700 border-4 border-gray-900 shadow-lg flex items-center justify-center text-4xl text-gray-400">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-700 border-4 border-gray-900 shadow-lg flex items-center justify-center text-3xl text-gray-400">
                       ?
                     </div>
                   )}
                 </div>
                 {/* Edit Profile button */}
-                <div className="absolute right-6 -bottom-8 sm:-bottom-10 z-10">
+                <div className="absolute right-6 -bottom-6 sm:-bottom-8 z-10">
                   <a
                     href="/profile/setup"
                     className="flex items-center gap-2 px-5 py-2 rounded-full bg-accent-blue hover:bg-accent-blue/80 text-white font-bold text-base shadow transition"
@@ -182,7 +182,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               {/* Spacer for avatar overlap */}
-              <div className="h-16 sm:h-20" />
+              <div className="h-12 sm:h-16" />
               {/* Profile section */}
               <section className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-8 mb-8">
                 <h2 className="text-2xl font-bold mb-2" style={{ color: `var(--tw-color-accent-${accent})` }}>
