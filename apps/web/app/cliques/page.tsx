@@ -27,11 +27,12 @@ export default async function CliquesPage() {
     }
   }
 
-  // Use accent color in client
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+    <div className="flex min-h-screen w-full flex-col lg:flex-row">
       <CliquesPageClient cliques={cliques ?? []} memberCounts={memberCounts} />
-      <RightSidebarWidgets />
+      <aside className="hidden lg:block lg:w-1/4 xl:w-1/5 px-4 py-8">
+        <RightSidebarWidgets />
+      </aside>
     </div>
   );
 }
