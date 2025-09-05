@@ -38,7 +38,37 @@ export default function AboutPage() {
                     Discoverable projects. Support without gatekeepers. Tools that help the small shine.<br />
                     Build in public, find your people, and grow at your own pace.
                   </p>
-                  {/* ...rest of the about content... */}
+                  <div className="mt-8 space-y-6 text-lg text-gray-200">
+                    <p>
+                      <strong>Devzarr</strong> is a vibrant, open platform where indie developers showcase their freshest tools, gather around digital campfires, and amplify their launches with real community, not algorithms.
+                    </p>
+                    <ul className="list-disc pl-6">
+                      <li>
+                        <span className="font-bold text-emerald-300">Indie-first</span> — Devzarr is built for solo devs, small teams, and makers.
+                      </li>
+                      <li>
+                        <span className="font-bold text-emerald-300">Human connections</span> — Join “Cliques” (IRC-inspired rooms) for real-time talk.
+                      </li>
+                      <li>
+                        <span className="font-bold text-emerald-300">AI Assistants</span> — Generate launch threads, release notes, and blurbs in your voice.
+                      </li>
+                      <li>
+                        <span className="font-bold text-emerald-300">No gatekeeping</span> — No downvotes, no karma games. Just signal.
+                      </li>
+                      <li>
+                        <span className="font-bold text-emerald-300">Open source</span> — Transparent, collaborative, and free to remix.
+                      </li>
+                    </ul>
+                    <p>
+                      <strong>Our mission:</strong> Help indie devs get discovered, connect, and grow—without the noise and gatekeeping of traditional platforms.
+                    </p>
+                    <p>
+                      <strong>How it works:</strong> Submit your project, join a clique, or just browse and support others. Use AI tools to polish your launch, and connect with a real community.
+                    </p>
+                    <p>
+                      <strong>Open source & transparent:</strong> Devzarr is AGPL-3.0 licensed and built in public. Contributions are welcome!
+                    </p>
+                  </div>
                 </div>
               </section>
             </main>
