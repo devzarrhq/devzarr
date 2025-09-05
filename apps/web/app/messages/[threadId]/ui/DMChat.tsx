@@ -31,15 +31,11 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const box = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom (if near bottom) when messages change
+  // Always scroll to bottom when messages change
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-
-    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
-    if (isNearBottom) {
-      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-    }
+    el.scrollTop = el.scrollHeight;
   }, [messages.length]);
 
   // Fetch current user and author profiles
@@ -122,9 +118,8 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
         {/* Scrollable message area */}
         <div
           ref={box}
-          className="flex-1 overflow-y-auto w-full px-2 py-4 relative scroll-smooth"
+          className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth"
           style={{
-            maxHeight: "calc(100vh - 180px)",
             maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
             WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
           }}
