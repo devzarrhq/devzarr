@@ -225,11 +225,15 @@ export default function ProfilePage() {
                     {ACCENT_COLORS.map((c) => (
                       <button
                         key={c}
-                        className={`w-7 h-7 rounded-full border-2 transition-colors duration-150 focus:outline-none ${accent === c ? "border-white scale-110" : "border-gray-700"}`}
-                        style={{ backgroundColor: `var(--tw-color-accent-${c})` }}
-                        onClick={() => handleAccentChange(c as AccentColor)}
-                        aria-label={c}
                         type="button"
+                        aria-label={c}
+                        onClick={() => handleAccentChange(c as AccentColor)}
+                        className={`accent-bubble ${accent === c ? "accent-bubble-selected" : ""}`}
+                        style={{
+                          backgroundColor: `var(--tw-color-accent-${c})`,
+                          border: accent === c ? "2px solid #fff" : "2px solid #444",
+                          transform: accent === c ? "scale(1.18)" : "scale(1)",
+                        }}
                       />
                     ))}
                   </div>
@@ -238,6 +242,25 @@ export default function ProfilePage() {
                 {/* Header image preview/upload removed as requested */}
               </section>
               {error && <div className="text-red-400 text-sm text-center mb-2">{error}</div>}
+              {/* Color bubble styles */}
+              <style>{`
+                .accent-bubble {
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 9999px;
+                  display: inline-block;
+                  cursor: pointer;
+                  transition: border 0.15s, transform 0.15s;
+                  outline: none;
+                }
+                .accent-bubble-selected {
+                  box-shadow: 0 0 0 2px #fff;
+                  z-index: 1;
+                }
+                .accent-bubble:focus {
+                  outline: 2px solid #fff;
+                }
+              `}</style>
             </main>
           </div>
           <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
