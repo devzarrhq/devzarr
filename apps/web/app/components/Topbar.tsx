@@ -11,6 +11,7 @@ export default function Topbar() {
   const [showSettings, setShowSettings] = useState(false);
   const { accent } = useTheme();
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const { user } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -32,14 +33,18 @@ export default function Topbar() {
   useEffect(() => {
     if (!showSettings) return;
     function handle(e: MouseEvent | KeyboardEvent) {
+      // If click is inside the menu or button, do nothing
       if (
         e instanceof MouseEvent &&
-        menuRef.current &&
-        !menuRef.current.contains(e.target as Node)
+        (menuRef.current?.contains(e.target as Node) ||
+         buttonRef.current?.contains(e.target as Node))
       ) {
-        setShowSettings(false);
+        return;
       }
-      if (e instanceof KeyboardEvent && e.key === "Escape") {
+      if (
+        (e instanceof MouseEvent && !menuRef.current?.contains(e.target as Node)) ||
+        (e instanceof KeyboardEvent && e.key === "Escape")
+      ) {
         setShowSettings(false);
       }
     }
@@ -65,8 +70,12 @@ export default function Topbar() {
       <div className="flex-1" />
       <div className="relative" ref={menuRef}>
         <button
+          ref={buttonRef}
           className="flex items-center gap-2 px-1 py-1 rounded-full hover:bg-gray-900 focus:outline-none focus:ring-2"
-          onClick={() => setShowSettings((v) => !v)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowSettings((v) => !v);
+          }}
           aria-label="Open settings"
           aria-haspopup="true"
           aria-expanded={showSettings}
