@@ -51,7 +51,7 @@ export default function ProfilePage() {
         <div className="flex flex-1 flex-col min-h-screen">
           <Topbar />
           <div className="flex flex-1 flex-row">
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px]">
               <main className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 rounded-full bg-gray-800 animate-pulse mb-4" />
@@ -60,7 +60,7 @@ export default function ProfilePage() {
                 </div>
               </main>
             </div>
-            <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10">
+            <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
               <RightSidebarWidgets />
             </aside>
           </div>
@@ -75,7 +75,7 @@ export default function ProfilePage() {
       <div className="flex flex-1 flex-col min-h-screen">
         <Topbar />
         <div className="flex flex-1 flex-row">
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px]">
             <main className="flex-1 flex flex-col items-center justify-start py-10">
               <div className="w-full max-w-xl px-4">
                 <h1
@@ -163,7 +163,7 @@ export default function ProfilePage() {
               </div>
             </main>
           </div>
-          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10">
+          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
             <RightSidebarWidgets />
           </aside>
         </div>
