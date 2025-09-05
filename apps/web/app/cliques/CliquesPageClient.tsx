@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Sidebar from "../components/Sidebar";
-import Topbar from "../components/Topbar";
+// import Topbar from "../components/Topbar"; // REMOVE this import
 import { useTheme } from "../theme-context";
 import AddCliqueModal from "./AddCliqueModal";
 import CliquesSearch from "./CliquesSearch";
@@ -10,9 +10,9 @@ export function CliquesPageClient({ cliques, memberCounts }: { cliques: any[]; m
   const { accent } = useTheme();
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
-      <Sidebar />
+      {/* Sidebar is handled at the page level */}
       <div className="flex-1 flex flex-col min-h-screen md:ml-64">
-        <Topbar />
+        {/* Topbar is handled at the page level */}
         <main className="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px]">
           {/* Center column: Cliques */}
           <section className="w-full py-10">
@@ -33,9 +33,7 @@ export function CliquesPageClient({ cliques, memberCounts }: { cliques: any[]; m
             </div>
           </section>
           {/* Right column: reserved for widgets */}
-          <aside className="hidden lg:block w-[340px] flex-shrink-0 px-6 py-10 sticky top-16">
-            {/* Future: Featured Cliques, etc. */}
-          </aside>
+          {/* The right sidebar is handled at the page level */}
         </main>
       </div>
     </div>
