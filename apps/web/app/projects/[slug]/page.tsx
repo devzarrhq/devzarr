@@ -4,12 +4,11 @@ import FollowButton from "./FollowButton";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import RightSidebarWidgets from "../../components/RightSidebarWidgets";
-import { Users, Plus } from "lucide-react";
+import { Users } from "lucide-react";
 import dynamic from "next/dynamic";
 import ProjectEditButton from "./ProjectEditButton";
 import FundraisingGoal from "./FundraisingGoal";
-import AddUpdateModal from "./AddUpdateModal";
-import { useState } from "react";
+import AddUpdateButton from "./AddUpdateButton";
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
@@ -77,30 +76,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
           <span className="text-gray-200">{value}</span>
         )}
       </div>
-    );
-  }
-
-  // --- Add Update Modal state (client only) ---
-  // This is a workaround for Next.js SSR/CSR: use a client component for the button/modal
-  function AddUpdateButton() {
-    "use client";
-    const [open, setOpen] = useState(false);
-    return (
-      <>
-        <button
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm mb-4"
-          onClick={() => setOpen(true)}
-        >
-          <Plus className="w-4 h-4" />
-          Add Update
-        </button>
-        <AddUpdateModal
-          open={open}
-          onClose={() => setOpen(false)}
-          projectId={project.id}
-          onCreated={() => setOpen(false)}
-        />
-      </>
     );
   }
 
@@ -223,7 +198,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                 <div className="flex items-center gap-4 mb-2">
                   <h2 className="text-xl font-semibold text-white flex-1">Recent Updates</h2>
                   {/* Only show Add Update button for project owner */}
-                  {user && user.id === project.owner_id && <AddUpdateButton />}
+                  {user && user.id === project.owner_id && <AddUpdateButton projectId={project.id} />}
                 </div>
                 {posts?.length ? posts.map(p => (
                   <article key={p.id} className="rounded-xl bg-white/5 ring-1 ring-white/10 p-5">
