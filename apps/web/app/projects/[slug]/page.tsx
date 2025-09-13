@@ -80,13 +80,13 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         <div className="flex flex-1 flex-row">
           <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4">
             <main className="flex-1 flex flex-col">
-              {/* Banner/Header - much shorter */}
+              {/* Banner/Header - balanced height */}
               {project.banner_url ? (
-                <div className="w-full h-12 sm:h-16 rounded-t-2xl overflow-hidden mb-4">
+                <div className="w-full h-24 sm:h-32 rounded-t-2xl overflow-hidden mb-4">
                   <img src={project.banner_url} alt="Banner" className="object-cover w-full h-full" />
                 </div>
               ) : (
-                <div className="h-8 bg-white/5 rounded-t-2xl mb-4" />
+                <div className="h-16 bg-white/5 rounded-t-2xl mb-4" />
               )}
 
               {/* Project Icon, Title, Tagline, Owner, Edit button */}
