@@ -81,17 +81,17 @@ export default async function ProjectPage({ params }: { params: { slug: string }
           <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4">
             <main className="flex-1 flex flex-col">
               {/* Social-style banner */}
-              {project.banner_url ? (
-                <div className="w-full h-48 sm:h-56 md:h-64 rounded-2xl overflow-hidden mb-6">
+              <div className="w-full h-48 sm:h-56 md:h-64 rounded-2xl overflow-hidden mb-6">
+                {project.banner_url ? (
                   <img
                     src={project.banner_url}
                     alt="Banner"
-                    className="object-cover w-full h-full"
+                    className="object-cover w-full h-full block"
                   />
-                </div>
-              ) : (
-                <div className="h-24 bg-white/5 rounded-2xl mb-6" />
-              )}
+                ) : (
+                  <div className="w-full h-full bg-white/10" />
+                )}
+              </div>
 
               {/* Project Icon, Title, Tagline, Owner, Edit button */}
               <div className="flex items-center gap-8 mb-6">
