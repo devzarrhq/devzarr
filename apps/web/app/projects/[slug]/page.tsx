@@ -238,7 +238,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                       </div>
                       {p.title && <h3 className="mt-1 font-semibold text-gray-100">{p.title}</h3>}
                       {p.body && (
-                        <div className="prose prose-invert max-w-none mt-1">
+                        <div className="prose prose-invert max-w-none mt-1" style={{ color: "#fff" }}>
                           <ReactMarkdown>{p.body}</ReactMarkdown>
                         </div>
                       )}
