@@ -19,6 +19,28 @@ const STATUS_OPTIONS = [
   "Alpha", "Beta", "Production", "Paused"
 ];
 
+// Helper: check file header for common image types
+async function isValidImageFile(file: File): Promise<boolean> {
+  const signatures: { [key: string]: number[][] } = {
+    jpg: [[0xFF, 0xD8, 0xFF]],
+    png: [[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]],
+    gif: [[0x47, 0x49, 0x46, 0x38]],
+    webp: [[0x52, 0x49, 0x46, 0x46]],
+    bmp: [[0x42, 0x4D]],
+    svg: [[0x3C, 0x73, 0x76, 0x67]], // "<svg"
+  };
+  const buf = await file.slice(0, 12).arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  for (const sigs of Object.values(signatures)) {
+    for (const sig of sigs) {
+      if (bytes.length >= sig.length && sig.every((b, i) => bytes[i] === b)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export default function ProjectEditPage({ params }: { params: { slug: string } }) {
   const { user } = useAuth();
   const { accent } = useTheme();
@@ -49,6 +71,10 @@ export default function ProjectEditPage({ params }: { params: { slug: string } }
   const [supportBmac, setSupportBmac] = useState("");
   const [supportGithub, setSupportGithub] = useState("");
   const [fundingGoalNote, setFundingGoalNote] = useState("");
+
+  // Upload state
+  const [uploadingIcon, setUploadingIcon] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -123,6 +149,76 @@ export default function ProjectEditPage({ params }: { params: { slug: string } }
       </div>
     </div>
   );
+
+  // --- Icon upload handler ---
+  async function handleIconUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingIcon(true);
+    setError(null);
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      setUploadingIcon(false);
+      return;
+    }
+    if (!(await isValidImageFile(file))) {
+      setError("File does not appear to be a valid image.");
+      setUploadingIcon(false);
+      return;
+    }
+
+    const supabase = supabaseBrowser();
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${user.id}/${project.slug}-icon.${fileExt}`;
+    const { error: uploadError } = await supabase.storage.from("project-assets").upload(filePath, file, {
+      upsert: true,
+      cacheControl: "3600",
+    });
+    if (uploadError) {
+      setError("Failed to upload icon: " + uploadError.message);
+      setUploadingIcon(false);
+      return;
+    }
+    const { data } = supabase.storage.from("project-assets").getPublicUrl(filePath);
+    setIconUrl(data.publicUrl + "?t=" + Date.now());
+    setUploadingIcon(false);
+  }
+
+  // --- Banner upload handler ---
+  async function handleBannerUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingBanner(true);
+    setError(null);
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      setUploadingBanner(false);
+      return;
+    }
+    if (!(await isValidImageFile(file))) {
+      setError("File does not appear to be a valid image.");
+      setUploadingBanner(false);
+      return;
+    }
+
+    const supabase = supabaseBrowser();
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${user.id}/${project.slug}-banner.${fileExt}`;
+    const { error: uploadError } = await supabase.storage.from("project-assets").upload(filePath, file, {
+      upsert: true,
+      cacheControl: "3600",
+    });
+    if (uploadError) {
+      setError("Failed to upload banner: " + uploadError.message);
+      setUploadingBanner(false);
+      return;
+    }
+    const { data } = supabase.storage.from("project-assets").getPublicUrl(filePath);
+    setBannerUrl(data.publicUrl + "?t=" + Date.now());
+    setUploadingBanner(false);
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -211,15 +307,55 @@ export default function ProjectEditPage({ params }: { params: { slug: string } }
                       </select>
                     </div>
                   </div>
+                  {/* Icon upload */}
                   <div>
-                    <label className="block text-gray-200 font-medium mb-1">Icon URL</label>
-                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-                      value={iconUrl} onChange={e => setIconUrl(e.target.value)} />
+                    <label className="block text-gray-200 font-medium mb-1">Icon</label>
+                    <div className="flex items-center gap-3">
+                      {iconUrl ? (
+                        <img src={iconUrl} alt="icon" className="w-12 h-12 rounded object-cover border border-gray-700" />
+                      ) : (
+                        <div className="w-12 h-12 rounded bg-gray-700" />
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleIconUpload}
+                        disabled={uploadingIcon}
+                        className="block text-sm text-gray-400"
+                      />
+                      {uploadingIcon && <span className="text-xs text-gray-400">Uploading…</span>}
+                    </div>
+                    <input
+                      className="mt-2 w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={iconUrl}
+                      onChange={e => setIconUrl(e.target.value)}
+                      placeholder="Or paste an image URL"
+                    />
                   </div>
+                  {/* Banner upload */}
                   <div>
-                    <label className="block text-gray-200 font-medium mb-1">Banner URL</label>
-                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-                      value={bannerUrl} onChange={e => setBannerUrl(e.target.value)} />
+                    <label className="block text-gray-200 font-medium mb-1">Banner</label>
+                    <div className="flex items-center gap-3">
+                      {bannerUrl ? (
+                        <img src={bannerUrl} alt="banner" className="w-24 h-12 rounded object-cover border border-gray-700" />
+                      ) : (
+                        <div className="w-24 h-12 rounded bg-gray-700" />
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleBannerUpload}
+                        disabled={uploadingBanner}
+                        className="block text-sm text-gray-400"
+                      />
+                      {uploadingBanner && <span className="text-xs text-gray-400">Uploading…</span>}
+                    </div>
+                    <input
+                      className="mt-2 w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={bannerUrl}
+                      onChange={e => setBannerUrl(e.target.value)}
+                      placeholder="Or paste an image URL"
+                    />
                   </div>
                   <div>
                     <label className="block text-gray-200 font-medium mb-1">Homepage / Live Demo</label>
