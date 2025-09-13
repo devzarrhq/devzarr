@@ -5,6 +5,9 @@ import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import RightSidebarWidgets from "../../components/RightSidebarWidgets";
 import { Users } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const supabase = createSupabaseServer();
@@ -102,10 +105,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                   )}
                 </div>
                 {project.description && (
-                  <div className="prose prose-invert max-w-none mb-4">
-                    {/* Markdown rendering will be added in next step */}
-                    {project.description}
-                  </div>
+                  <ProjectDescription description={project.description} />
                 )}
                 <div className="flex flex-wrap gap-3 mb-4">
                   {project.homepage_url && (
