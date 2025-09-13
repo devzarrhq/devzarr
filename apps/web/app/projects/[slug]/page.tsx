@@ -45,6 +45,23 @@ export default async function ProjectPage({ params }: { params: { slug: string }
     supabase.from("posts").select("id, title, body, created_at, author_id").eq("project_id", project.id).order("created_at", { ascending: false }).limit(10),
   ]);
 
+  // Helper: Render a labeled link or value if present
+  function InfoRow({ label, value, href, color }: { label: string, value?: string, href?: string, color?: string }) {
+    if (!value) return null;
+    return (
+      <div className="flex items-center gap-2 mb-1">
+        <span className="font-semibold text-gray-300 min-w-[120px]">{label}:</span>
+        {href ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" className={`underline font-semibold ${color || "text-emerald-300"}`}>
+            {value}
+          </a>
+        ) : (
+          <span className="text-gray-200">{value}</span>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
       <Sidebar />
@@ -112,44 +129,20 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                 {project.description && (
                   <ProjectDescription description={project.description} />
                 )}
-                <div className="flex flex-wrap gap-3 mb-4">
-                  {project.homepage_url && (
-                    <a href={project.homepage_url} target="_blank" rel="noopener noreferrer" className="text-emerald-300 underline font-semibold">Homepage</a>
-                  )}
-                  {project.repo_url && (
-                    <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="text-emerald-300 underline font-semibold">Repository</a>
-                  )}
-                  {project.docs_url && (
-                    <a href={project.docs_url} target="_blank" rel="noopener noreferrer" className="text-emerald-300 underline font-semibold">Docs</a>
-                  )}
-                  {project.package_url && (
-                    <a href={project.package_url} target="_blank" rel="noopener noreferrer" className="text-emerald-300 underline font-semibold">Package</a>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-3 mb-4">
-                  {project.contact_email && (
-                    <a href={`mailto:${project.contact_email}`} className="text-gray-300 underline">Email</a>
-                  )}
-                  {project.contact_discord && (
-                    <a href={project.contact_discord} target="_blank" rel="noopener noreferrer" className="text-gray-300 underline">Discord</a>
-                  )}
-                  {project.contact_matrix && (
-                    <a href={project.contact_matrix} target="_blank" rel="noopener noreferrer" className="text-gray-300 underline">Matrix</a>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-3 mb-4">
-                  {project.support_kofi && (
-                    <a href={project.support_kofi} target="_blank" rel="noopener noreferrer" className="text-pink-400 underline">Ko-fi</a>
-                  )}
-                  {project.support_patreon && (
-                    <a href={project.support_patreon} target="_blank" rel="noopener noreferrer" className="text-pink-400 underline">Patreon</a>
-                  )}
-                  {project.support_bmac && (
-                    <a href={project.support_bmac} target="_blank" rel="noopener noreferrer" className="text-pink-400 underline">BuyMeACoffee</a>
-                  )}
-                  {project.support_github && (
-                    <a href={project.support_github} target="_blank" rel="noopener noreferrer" className="text-pink-400 underline">GitHub Sponsors</a>
-                  )}
+
+                {/* --- All Project Links and Details --- */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mb-4">
+                  <InfoRow label="Homepage" value={project.homepage_url} href={project.homepage_url} />
+                  <InfoRow label="Repository" value={project.repo_url} href={project.repo_url} />
+                  <InfoRow label="Docs" value={project.docs_url} href={project.docs_url} />
+                  <InfoRow label="Package" value={project.package_url} href={project.package_url} />
+                  <InfoRow label="Contact Email" value={project.contact_email} href={project.contact_email ? `mailto:${project.contact_email}` : undefined} color="text-gray-300" />
+                  <InfoRow label="Discord" value={project.contact_discord} href={project.contact_discord} color="text-indigo-400" />
+                  <InfoRow label="Matrix" value={project.contact_matrix} href={project.contact_matrix} color="text-indigo-400" />
+                  <InfoRow label="Ko-fi" value={project.support_kofi} href={project.support_kofi} color="text-pink-400" />
+                  <InfoRow label="Patreon" value={project.support_patreon} href={project.support_patreon} color="text-pink-400" />
+                  <InfoRow label="BuyMeACoffee" value={project.support_bmac} href={project.support_bmac} color="text-pink-400" />
+                  <InfoRow label="GitHub Sponsors" value={project.support_github} href={project.support_github} color="text-pink-400" />
                 </div>
                 {project.funding_goal_note && (
                   <div className="text-yellow-300 font-semibold mt-2">{project.funding_goal_note}</div>
