@@ -80,52 +80,57 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         <div className="flex flex-1 flex-row min-h-0">
           <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4 min-h-0">
             <main className="flex-1 flex flex-col min-h-0">
-              {/* Social-style banner with aspect ratio and debug border */}
-              <div className="w-full aspect-[3/1] rounded-2xl overflow-hidden mb-6 border border-emerald-700/30 bg-white/10">
-                {project.banner_url ? (
-                  <img
-                    src={project.banner_url}
-                    alt="Banner"
-                    className="object-cover w-full h-full block"
-                  />
-                ) : (
-                  <div className="w-full h-full" />
-                )}
-              </div>
-
-              {/* Project Icon, Title, Tagline, Owner, Edit button */}
-              <div className="flex items-center gap-8 mb-6">
-                {project.icon_url ? (
-                  <img src={project.icon_url} alt="Project Icon" className="w-20 h-20 rounded-xl object-cover border-4 border-gray-900 bg-gray-800" />
-                ) : (
-                  <div className="w-20 h-20 rounded-xl bg-gray-700 border-4 border-gray-900 flex items-center justify-center text-3xl text-gray-400">
-                    <Users className="w-10 h-10" />
-                  </div>
-                )}
-                <div className="flex-1 min-w-0 flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-3xl font-bold text-white">{project.name}</h1>
-                    <ProjectEditButton ownerId={project.owner_id} slug={project.slug} />
-                  </div>
-                  {project.tagline && (
-                    <div className="text-lg text-emerald-300 font-medium mt-1">{project.tagline}</div>
+              {/* Banner + Overlapping Project Card */}
+              <div className="relative w-full max-w-4xl mx-auto">
+                {/* Banner */}
+                <div className="w-full aspect-[3/1] rounded-2xl overflow-hidden border border-emerald-700/30 bg-white/10">
+                  {project.banner_url ? (
+                    <img
+                      src={project.banner_url}
+                      alt="Banner"
+                      className="object-cover w-full h-full block"
+                    />
+                  ) : (
+                    <div className="w-full h-full" />
                   )}
-                  <div className="flex items-center gap-2 mt-2">
-                    {owner?.avatar_url ? (
-                      <img src={owner.avatar_url} alt={owner.display_name || owner.handle} className="w-8 h-8 rounded-full object-cover" />
+                </div>
+                {/* Project Card overlaps banner */}
+                <div className="absolute left-0 right-0 -bottom-12 flex items-end px-8">
+                  <div className="flex items-center gap-8 bg-gray-900/95 rounded-2xl shadow-xl px-8 py-6 border border-gray-800 w-full">
+                    {project.icon_url ? (
+                      <img src={project.icon_url} alt="Project Icon" className="w-20 h-20 rounded-xl object-cover border-4 border-gray-900 bg-gray-800" />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-700" />
+                      <div className="w-20 h-20 rounded-xl bg-gray-700 border-4 border-gray-900 flex items-center justify-center text-3xl text-gray-400">
+                        <Users className="w-10 h-10" />
+                      </div>
                     )}
-                    <Link href={`/profile/${owner?.handle || owner?.user_id}`} className="text-gray-200 font-semibold hover:underline">
-                      {owner?.display_name || owner?.handle || "Owner"}
-                    </Link>
+                    <div className="flex-1 min-w-0 flex flex-col gap-2">
+                      <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-white">{project.name}</h1>
+                        <ProjectEditButton ownerId={project.owner_id} slug={project.slug} />
+                      </div>
+                      {project.tagline && (
+                        <div className="text-lg text-emerald-300 font-medium mt-1">{project.tagline}</div>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        {owner?.avatar_url ? (
+                          <img src={owner.avatar_url} alt={owner.display_name || owner.handle} className="w-8 h-8 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gray-700" />
+                        )}
+                        <Link href={`/profile/${owner?.handle || owner?.user_id}`} className="text-gray-200 font-semibold hover:underline">
+                          {owner?.display_name || owner?.handle || "Owner"}
+                        </Link>
+                      </div>
+                    </div>
+                    <FollowButton projectId={project.id} followerCount={followerCount ?? 0} />
                   </div>
                 </div>
-                <FollowButton projectId={project.id} followerCount={followerCount ?? 0} />
               </div>
-
+              {/* Spacer for overlap */}
+              <div className="mt-20" />
               {/* Project Details */}
-              <section className="mb-8">
+              <section className="mb-8 max-w-4xl mx-auto w-full">
                 <div className="flex flex-wrap gap-4 mb-4">
                   {project.type && (
                     <span className="px-3 py-1 rounded-full bg-emerald-700/20 text-emerald-300 text-xs font-semibold">
@@ -186,7 +191,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
               </section>
 
               {/* Recent Updates */}
-              <section className="mt-10 space-y-4">
+              <section className="mt-10 space-y-4 max-w-4xl mx-auto w-full">
                 <h2 className="text-xl font-semibold text-white">Recent Updates</h2>
                 {posts?.length ? posts.map(p => (
                   <article key={p.id} className="rounded-xl bg-white/5 ring-1 ring-white/10 p-5">
