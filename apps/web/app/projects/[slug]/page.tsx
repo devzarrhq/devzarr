@@ -7,6 +7,7 @@ import RightSidebarWidgets from "../../components/RightSidebarWidgets";
 import { Users } from "lucide-react";
 import dynamic from "next/dynamic";
 import ProjectEditButton from "./ProjectEditButton";
+import FundraisingGoal from "./FundraisingGoal";
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
@@ -55,12 +56,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
 
   const goalAmount = parseGoalAmount(project.funding_goal_note);
   const progress = goalAmount ? Math.min(100, Math.round((amountRaised / goalAmount) * 100)) : 0;
-
-  // Get accent color from theme context (client-side)
-  let accent = "emerald";
-  if (typeof window !== "undefined") {
-    accent = localStorage.getItem("accent") || "emerald";
-  }
 
   function InfoRow({ label, value, href, color }: { label: string, value?: string, href?: string, color?: string }) {
     if (!value) return null;
@@ -166,20 +161,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                 {/* Fundraising Goal */}
                 {goalAmount && (
                   <div className="mb-4">
-                    <div className="flex items-center gap-4">
-                      <span
-                        className="text-lg font-semibold"
-                        style={{ color: `var(--tw-color-accent-${accent})` }}
-                      >
-                        Fundraising Goal:
-                      </span>
-                      <span
-                        className="text-lg font-bold"
-                        style={{ color: `var(--tw-color-accent-${accent})` }}
-                      >
-                        ${goalAmount.toLocaleString()}
-                      </span>
-                    </div>
+                    <FundraisingGoal goalAmount={goalAmount} />
                     <div className="mt-2 flex items-center gap-2">
                       <div className="flex-1 h-4 bg-gray-800 rounded-full overflow-hidden">
                         <div
@@ -191,7 +173,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                         ${amountRaised.toLocaleString()} raised
                       </span>
                     </div>
-                    {/* Removed duplicate goal amount below progress bar */}
                   </div>
                 )}
                 {project.funding_goal_note && (
