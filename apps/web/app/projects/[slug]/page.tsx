@@ -163,10 +163,14 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                   <div className="mb-4">
                     <FundraisingGoal goalAmount={goalAmount} />
                     <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 h-4 bg-gray-800 rounded-full overflow-hidden">
+                      <div className="flex-1 h-4 bg-gray-800 rounded-full overflow-hidden relative">
                         <div
-                          className="h-4 bg-emerald-400 rounded-full transition-all"
-                          style={{ width: `${progress}%` }}
+                          className="h-4 rounded-full transition-all absolute left-0 top-0"
+                          style={{
+                            width: `${progress}%`,
+                            background: "var(--tw-color-accent-emerald, #10b981)",
+                            minWidth: progress > 0 ? "8px" : "0"
+                          }}
                         />
                       </div>
                       <span className="text-sm text-gray-200 font-semibold ml-2">
