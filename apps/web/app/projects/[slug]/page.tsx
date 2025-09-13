@@ -4,10 +4,12 @@ import FollowButton from "./FollowButton";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import RightSidebarWidgets from "../../components/RightSidebarWidgets";
-import { Users } from "lucide-react";
+import { Users, Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 import ProjectEditButton from "./ProjectEditButton";
 import FundraisingGoal from "./FundraisingGoal";
+import AddUpdateModal from "./AddUpdateModal";
+import { useState } from "react";
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
@@ -20,7 +22,6 @@ function parseGoalAmount(note?: string): number | null {
   return null;
 }
 
-// Helper: check if note is just a dollar amount (e.g. "$2000" or "2000")
 function isJustDollarAmount(note?: string): boolean {
   if (!note) return false;
   return /^\$?\d[\d,]*$/.test(note.trim());
@@ -78,6 +79,33 @@ export default async function ProjectPage({ params }: { params: { slug: string }
       </div>
     );
   }
+
+  // --- Add Update Modal state (client only) ---
+  // This is a workaround for Next.js SSR/CSR: use a client component for the button/modal
+  function AddUpdateButton() {
+    "use client";
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <button
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm mb-4"
+          onClick={() => setOpen(true)}
+        >
+          <Plus className="w-4 h-4" />
+          Add Update
+        </button>
+        <AddUpdateModal
+          open={open}
+          onClose={() => setOpen(false)}
+          projectId={project.id}
+          onCreated={() => setOpen(false)}
+        />
+      </>
+    );
+  }
+
+  // Get current user id for owner check (SSR-safe)
+  const { data: { user } } = await supabase.auth.getUser();
 
   return (
     <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
@@ -185,7 +213,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                     </div>
                   </div>
                 )}
-                {/* Only show funding_goal_note if it's not just a dollar amount */}
                 {project.funding_goal_note && !isJustDollarAmount(project.funding_goal_note) && (
                   <div className="text-yellow-200 font-medium mt-2">{project.funding_goal_note}</div>
                 )}
@@ -193,7 +220,11 @@ export default async function ProjectPage({ params }: { params: { slug: string }
 
               {/* Recent Updates */}
               <section className="mt-10 space-y-4">
-                <h2 className="text-xl font-semibold text-white">Recent Updates</h2>
+                <div className="flex items-center gap-4 mb-2">
+                  <h2 className="text-xl font-semibold text-white flex-1">Recent Updates</h2>
+                  {/* Only show Add Update button for project owner */}
+                  {user && user.id === project.owner_id && <AddUpdateButton />}
+                </div>
                 {posts?.length ? posts.map(p => (
                   <article key={p.id} className="rounded-xl bg-white/5 ring-1 ring-white/10 p-5">
                     <div className="text-xs text-gray-400">{new Date(p.created_at).toLocaleString()}</div>
