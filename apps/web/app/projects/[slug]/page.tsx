@@ -10,6 +10,19 @@ import ProjectEditButton from "./ProjectEditButton";
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
+// Helper: extract fundraising goal from note (e.g., "$2000" or "2000")
+function parseGoalAmount(note?: string): number | null {
+  if (!note) return null;
+  const match = note.match(/\$?([\d,]+)/);
+  if (match) {
+    return parseInt(match[1].replace(/,/g, ""), 10);
+  }
+  return null;
+}
+
+// Placeholder: you can replace this with a real value from your DB
+const amountRaised = 500; // Example: $500 raised
+
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const supabase = createSupabaseServer();
 
@@ -45,6 +58,10 @@ export default async function ProjectPage({ params }: { params: { slug: string }
     supabase.from("posts").select("id, title, body, created_at, author_id").eq("project_id", project.id).order("created_at", { ascending: false }).limit(10),
   ]);
 
+  // Fundraising goal logic
+  const goalAmount = parseGoalAmount(project.funding_goal_note);
+  const progress = goalAmount ? Math.min(100, Math.round((amountRaised / goalAmount) * 100)) : 0;
+
   // Helper: Render a labeled link or value if present
   function InfoRow({ label, value, href, color }: { label: string, value?: string, href?: string, color?: string }) {
     if (!value) return null;
@@ -70,17 +87,17 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         <div className="flex flex-1 flex-row">
           <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4">
             <main className="flex-1 flex flex-col">
-              {/* Banner/Header */}
+              {/* Banner/Header - reduced height */}
               {project.banner_url ? (
-                <div className="w-full h-48 sm:h-56 rounded-t-2xl overflow-hidden mb-4">
+                <div className="w-full h-24 sm:h-28 rounded-t-2xl overflow-hidden mb-4">
                   <img src={project.banner_url} alt="Banner" className="object-cover w-full h-full" />
                 </div>
               ) : (
-                <div className="h-24 bg-white/5 rounded-t-2xl mb-4" />
+                <div className="h-12 bg-white/5 rounded-t-2xl mb-4" />
               )}
 
               {/* Project Icon, Title, Tagline, Owner, Edit button */}
-              <div className="flex items-center gap-6 mb-6">
+              <div className="flex items-center gap-8 mb-6">
                 {project.icon_url ? (
                   <img src={project.icon_url} alt="Project Icon" className="w-20 h-20 rounded-xl object-cover border-4 border-gray-900 bg-gray-800" />
                 ) : (
@@ -88,7 +105,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                     <Users className="w-10 h-10" />
                   </div>
                 )}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex flex-col gap-2">
                   <div className="flex items-center gap-3">
                     <h1 className="text-3xl font-bold text-white">{project.name}</h1>
                     {/* Edit button for owner (client component) */}
@@ -144,8 +161,33 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                   <InfoRow label="BuyMeACoffee" value={project.support_bmac} href={project.support_bmac} color="text-pink-400" />
                   <InfoRow label="GitHub Sponsors" value={project.support_github} href={project.support_github} color="text-pink-400" />
                 </div>
+                {/* Fundraising Goal */}
+                {goalAmount && (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-4">
+                      <span className="text-lg font-semibold text-yellow-300">
+                        Fundraising Goal:
+                      </span>
+                      <span className="text-lg font-bold text-white">
+                        ${goalAmount.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="flex-1 h-4 bg-gray-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-4 bg-emerald-400 rounded-full transition-all"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <span className="text-sm text-gray-200 font-semibold ml-2">
+                        ${amountRaised.toLocaleString()} raised
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {/* Funding note (if present and not just the amount) */}
                 {project.funding_goal_note && (
-                  <div className="text-yellow-300 font-semibold mt-2">{project.funding_goal_note}</div>
+                  <div className="text-yellow-200 font-medium mt-2">{project.funding_goal_note}</div>
                 )}
               </section>
 
