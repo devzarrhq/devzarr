@@ -7,6 +7,7 @@ import RightSidebarWidgets from "../../components/RightSidebarWidgets";
 import { Users } from "lucide-react";
 import dynamic from "next/dynamic";
 import ProjectEditButton from "./ProjectEditButton";
+import { useTheme } from "../../theme-context";
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
@@ -55,6 +56,13 @@ export default async function ProjectPage({ params }: { params: { slug: string }
 
   const goalAmount = parseGoalAmount(project.funding_goal_note);
   const progress = goalAmount ? Math.min(100, Math.round((amountRaised / goalAmount) * 100)) : 0;
+
+  // Get accent color from theme context (client-side)
+  // Fallback to emerald if not available (SSR)
+  let accent = "emerald";
+  if (typeof window !== "undefined") {
+    accent = localStorage.getItem("accent") || "emerald";
+  }
 
   function InfoRow({ label, value, href, color }: { label: string, value?: string, href?: string, color?: string }) {
     if (!value) return null;
@@ -161,7 +169,10 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                 {goalAmount && (
                   <div className="mb-4">
                     <div className="flex items-center gap-4">
-                      <span className="text-lg font-semibold text-yellow-300">
+                      <span
+                        className="text-lg font-semibold"
+                        style={{ color: `var(--tw-color-accent-${accent})` }}
+                      >
                         Fundraising Goal:
                       </span>
                       <span className="text-lg font-bold text-white">
@@ -178,6 +189,12 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                       <span className="text-sm text-gray-200 font-semibold ml-2">
                         ${amountRaised.toLocaleString()} raised
                       </span>
+                    </div>
+                    <div
+                      className="mt-2 font-bold"
+                      style={{ color: `var(--tw-color-accent-${accent})` }}
+                    >
+                      ${goalAmount.toLocaleString()}
                     </div>
                   </div>
                 )}
