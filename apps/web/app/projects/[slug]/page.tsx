@@ -20,6 +20,12 @@ function parseGoalAmount(note?: string): number | null {
   return null;
 }
 
+// Helper: check if note is just a dollar amount (e.g. "$2000" or "2000")
+function isJustDollarAmount(note?: string): boolean {
+  if (!note) return false;
+  return /^\$?\d[\d,]*$/.test(note.trim());
+}
+
 const amountRaised = 500; // Example: $500 raised
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
@@ -179,7 +185,8 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                     </div>
                   </div>
                 )}
-                {project.funding_goal_note && (
+                {/* Only show funding_goal_note if it's not just a dollar amount */}
+                {project.funding_goal_note && !isJustDollarAmount(project.funding_goal_note) && (
                   <div className="text-yellow-200 font-medium mt-2">{project.funding_goal_note}</div>
                 )}
               </section>
