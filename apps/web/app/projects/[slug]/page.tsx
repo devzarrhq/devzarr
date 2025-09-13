@@ -9,6 +9,19 @@ import dynamic from "next/dynamic";
 import ProjectEditButton from "./ProjectEditButton";
 import FundraisingGoal from "./FundraisingGoal";
 import AddUpdateButton from "./AddUpdateButton";
+import ReactMarkdown from "react-markdown";
+
+// --- Relative time utility ---
+function timeAgo(date: string | Date) {
+  const now = new Date();
+  const then = new Date(date);
+  const diff = Math.floor((now.getTime() - then.getTime()) / 1000);
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr${Math.floor(diff / 3600) === 1 ? "" : "s"} ago`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) === 1 ? "" : "s"} ago`;
+  return then.toLocaleDateString();
+}
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
@@ -201,10 +214,35 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                   {user && user.id === project.owner_id && <AddUpdateButton projectId={project.id} />}
                 </div>
                 {posts?.length ? posts.map(p => (
-                  <article key={p.id} className="rounded-xl bg-white/5 ring-1 ring-white/10 p-5">
-                    <div className="text-xs text-gray-400">{new Date(p.created_at).toLocaleString()}</div>
-                    {p.title && <h3 className="mt-1 font-semibold text-gray-100">{p.title}</h3>}
-                    {p.body && <p className="text-gray-300 mt-1 whitespace-pre-wrap">{p.body}</p>}
+                  <article key={p.id} className="rounded-xl bg-white/5 ring-1 ring-white/10 p-5 flex items-start gap-4">
+                    {/* Project icon/avatar */}
+                    {project.icon_url ? (
+                      <img src={project.icon_url} alt="Project Icon" className="w-10 h-10 rounded-lg object-cover border border-gray-800 bg-gray-800 flex-shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
+                        <Users className="w-5 h-5 text-emerald-300" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {/* Owner badge */}
+                        {owner?.avatar_url ? (
+                          <img src={owner.avatar_url} alt={owner.display_name || owner.handle} className="w-7 h-7 rounded-full object-cover border border-gray-800" />
+                        ) : (
+                          <div className="w-7 h-7 rounded-full bg-gray-700" />
+                        )}
+                        <span className="font-semibold text-gray-200 text-sm">
+                          {owner?.display_name || owner?.handle || "Owner"}
+                        </span>
+                        <span className="text-xs text-gray-400 ml-2">{timeAgo(p.created_at)}</span>
+                      </div>
+                      {p.title && <h3 className="mt-1 font-semibold text-gray-100">{p.title}</h3>}
+                      {p.body && (
+                        <div className="prose prose-invert max-w-none mt-1">
+                          <ReactMarkdown>{p.body}</ReactMarkdown>
+                        </div>
+                      )}
+                    </div>
                   </article>
                 )) : <div className="text-gray-400">No updates yet.</div>}
               </section>
