@@ -7,7 +7,6 @@ import RightSidebarWidgets from "../../components/RightSidebarWidgets";
 import { Users } from "lucide-react";
 import dynamic from "next/dynamic";
 import ProjectEditButton from "./ProjectEditButton";
-import { useTheme } from "../../theme-context";
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
@@ -58,7 +57,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
   const progress = goalAmount ? Math.min(100, Math.round((amountRaised / goalAmount) * 100)) : 0;
 
   // Get accent color from theme context (client-side)
-  // Fallback to emerald if not available (SSR)
   let accent = "emerald";
   if (typeof window !== "undefined") {
     accent = localStorage.getItem("accent") || "emerald";
@@ -175,7 +173,10 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                       >
                         Fundraising Goal:
                       </span>
-                      <span className="text-lg font-bold text-white">
+                      <span
+                        className="text-lg font-bold"
+                        style={{ color: `var(--tw-color-accent-${accent})` }}
+                      >
                         ${goalAmount.toLocaleString()}
                       </span>
                     </div>
@@ -190,12 +191,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                         ${amountRaised.toLocaleString()} raised
                       </span>
                     </div>
-                    <div
-                      className="mt-2 font-bold"
-                      style={{ color: `var(--tw-color-accent-${accent})` }}
-                    >
-                      ${goalAmount.toLocaleString()}
-                    </div>
+                    {/* Removed duplicate goal amount below progress bar */}
                   </div>
                 )}
                 {project.funding_goal_note && (
