@@ -77,11 +77,11 @@ export default async function ProjectPage({ params }: { params: { slug: string }
       <Sidebar />
       <div className="flex flex-1 flex-col min-h-screen">
         <Topbar />
-        <div className="flex flex-1 flex-row">
-          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4">
-            <main className="flex-1 flex flex-col">
-              {/* Social-style banner */}
-              <div className="w-full h-48 sm:h-56 md:h-64 rounded-2xl overflow-hidden mb-6">
+        <div className="flex flex-1 flex-row min-h-0">
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4 min-h-0">
+            <main className="flex-1 flex flex-col min-h-0">
+              {/* Social-style banner with aspect ratio and debug border */}
+              <div className="w-full aspect-[3/1] rounded-2xl overflow-hidden mb-6 border border-emerald-700/30 bg-white/10">
                 {project.banner_url ? (
                   <img
                     src={project.banner_url}
@@ -89,7 +89,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                     className="object-cover w-full h-full block"
                   />
                 ) : (
-                  <div className="w-full h-full bg-white/10" />
+                  <div className="w-full h-full" />
                 )}
               </div>
 
