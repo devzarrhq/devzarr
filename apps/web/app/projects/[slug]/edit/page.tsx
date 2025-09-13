@@ -6,6 +6,9 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { useAuth } from "../../../providers/AuthProvider";
 import { useTheme } from "../../../theme-context";
 import dynamic from "next/dynamic";
+import Sidebar from "../../../components/Sidebar";
+import Topbar from "../../../components/Topbar";
+import RightSidebarWidgets from "../../../components/RightSidebarWidgets";
 
 const ReactMarkdown = dynamic(() => import("react-markdown"), { ssr: false });
 
@@ -87,9 +90,39 @@ export default function ProjectEditPage({ params }: { params: { slug: string } }
   }, [params.slug]);
 
   // Only owner can edit
-  if (loading) return <div className="p-8 text-gray-300">Loading…</div>;
-  if (error) return <div className="p-8 text-red-400">{error}</div>;
-  if (!user || user.id !== project.owner_id) return <div className="p-8 text-gray-300">You do not have permission to edit this project.</div>;
+  if (loading) return (
+    <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex flex-1 flex-col min-h-screen">
+        <Topbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="p-8 text-gray-300">Loading…</div>
+        </main>
+      </div>
+    </div>
+  );
+  if (error) return (
+    <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex flex-1 flex-col min-h-screen">
+        <Topbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="p-8 text-red-400">{error}</div>
+        </main>
+      </div>
+    </div>
+  );
+  if (!user || user.id !== project.owner_id) return (
+    <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex flex-1 flex-col min-h-screen">
+        <Topbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="p-8 text-gray-300">You do not have permission to edit this project.</div>
+        </main>
+      </div>
+    </div>
+  );
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -129,128 +162,143 @@ export default function ProjectEditPage({ params }: { params: { slug: string } }
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-6" style={{ color: `var(--tw-color-accent-${accent})` }}>
-        Edit Project
-      </h1>
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Name</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={name} onChange={e => setName(e.target.value)} maxLength={100} required />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Tagline</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={tagline} onChange={e => setTagline(e.target.value)} maxLength={120} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Description (Markdown supported)</label>
-          <textarea className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={description} onChange={e => setDescription(e.target.value)} rows={6} />
-          <div className="mt-2 text-xs text-gray-400">Preview:</div>
-          <div className="prose prose-invert max-w-none border border-gray-700 rounded p-2 bg-gray-900">
-            <ReactMarkdown>{description}</ReactMarkdown>
+    <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
+      <div className="flex flex-1 flex-col min-h-screen">
+        <Topbar />
+        <div className="flex flex-1 flex-row">
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4">
+            <main className="flex-1 flex flex-col items-center justify-start py-10">
+              <div className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-8 mb-8">
+                <h1 className="text-3xl font-bold mb-6 text-center" style={{ color: `var(--tw-color-accent-${accent})` }}>
+                  Edit Project
+                </h1>
+                <form className="space-y-5" onSubmit={handleSubmit}>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Name</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={name} onChange={e => setName(e.target.value)} maxLength={100} required />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Tagline</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={tagline} onChange={e => setTagline(e.target.value)} maxLength={120} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Description (Markdown supported)</label>
+                    <textarea className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={description} onChange={e => setDescription(e.target.value)} rows={6} />
+                    <div className="mt-2 text-xs text-gray-400">Preview:</div>
+                    <div className="prose prose-invert max-w-none border border-gray-700 rounded p-2 bg-gray-900">
+                      <ReactMarkdown>{description}</ReactMarkdown>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="block text-gray-200 font-medium mb-1">Type</label>
+                      <select className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                        value={type} onChange={e => setType(e.target.value)}>
+                        <option value="">Select type</option>
+                        {TYPE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-gray-200 font-medium mb-1">Status</label>
+                      <select className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                        value={status} onChange={e => setStatus(e.target.value)}>
+                        <option value="">Select status</option>
+                        {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Icon URL</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={iconUrl} onChange={e => setIconUrl(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Banner URL</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={bannerUrl} onChange={e => setBannerUrl(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Homepage / Live Demo</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={homepageUrl} onChange={e => setHomepageUrl(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Repository (GitHub, GitLab, etc.)</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={repoUrl} onChange={e => setRepoUrl(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Docs / Wiki</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={docsUrl} onChange={e => setDocsUrl(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Package Registry (npm, Docker, etc.)</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={packageUrl} onChange={e => setPackageUrl(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Contact Email</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={contactEmail} onChange={e => setContactEmail(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Contact Discord</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={contactDiscord} onChange={e => setContactDiscord(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Contact Matrix</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={contactMatrix} onChange={e => setContactMatrix(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Ko-fi</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={supportKofi} onChange={e => setSupportKofi(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Patreon</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={supportPatreon} onChange={e => setSupportPatreon(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">BuyMeACoffee</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={supportBmac} onChange={e => setSupportBmac(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">GitHub Sponsors</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={supportGithub} onChange={e => setSupportGithub(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-200 font-medium mb-1">Funding Goal Note</label>
+                    <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+                      value={fundingGoalNote} onChange={e => setFundingGoalNote(e.target.value)} />
+                  </div>
+                  {error && <div className="text-red-400 text-sm">{error}</div>}
+                  <button
+                    type="submit"
+                    className="w-full px-4 py-2 rounded font-semibold text-white disabled:opacity-50"
+                    style={{ background: `var(--tw-color-accent-${accent})` }}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </form>
+              </div>
+            </main>
           </div>
+          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
+            <RightSidebarWidgets />
+          </aside>
         </div>
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="block text-gray-200 font-medium mb-1">Type</label>
-            <select className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-              value={type} onChange={e => setType(e.target.value)}>
-              <option value="">Select type</option>
-              {TYPE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-            </select>
-          </div>
-          <div className="flex-1">
-            <label className="block text-gray-200 font-medium mb-1">Status</label>
-            <select className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-              value={status} onChange={e => setStatus(e.target.value)}>
-              <option value="">Select status</option>
-              {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-            </select>
-          </div>
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Icon URL</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={iconUrl} onChange={e => setIconUrl(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Banner URL</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={bannerUrl} onChange={e => setBannerUrl(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Homepage / Live Demo</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={homepageUrl} onChange={e => setHomepageUrl(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Repository (GitHub, GitLab, etc.)</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={repoUrl} onChange={e => setRepoUrl(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Docs / Wiki</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={docsUrl} onChange={e => setDocsUrl(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Package Registry (npm, Docker, etc.)</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={packageUrl} onChange={e => setPackageUrl(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Contact Email</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={contactEmail} onChange={e => setContactEmail(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Contact Discord</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={contactDiscord} onChange={e => setContactDiscord(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Contact Matrix</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={contactMatrix} onChange={e => setContactMatrix(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Ko-fi</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={supportKofi} onChange={e => setSupportKofi(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Patreon</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={supportPatreon} onChange={e => setSupportPatreon(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">BuyMeACoffee</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={supportBmac} onChange={e => setSupportBmac(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">GitHub Sponsors</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={supportGithub} onChange={e => setSupportGithub(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-gray-200 font-medium mb-1">Funding Goal Note</label>
-          <input className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
-            value={fundingGoalNote} onChange={e => setFundingGoalNote(e.target.value)} />
-        </div>
-        {error && <div className="text-red-400 text-sm">{error}</div>}
-        <button
-          type="submit"
-          className="w-full px-4 py-2 rounded font-semibold text-white disabled:opacity-50"
-          style={{ background: `var(--tw-color-accent-${accent})` }}
-          disabled={saving}
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
