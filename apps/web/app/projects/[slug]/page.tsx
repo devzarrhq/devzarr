@@ -4,8 +4,9 @@ import FollowButton from "./FollowButton";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import RightSidebarWidgets from "../../components/RightSidebarWidgets";
-import { Users, Pencil } from "lucide-react";
+import { Users } from "lucide-react";
 import dynamic from "next/dynamic";
+import ProjectEditButton from "./ProjectEditButton";
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
@@ -38,17 +39,11 @@ export default async function ProjectPage({ params }: { params: { slug: string }
     .eq("user_id", project.owner_id)
     .single();
 
-  // Get current user
-  const { data: { user: currentUser } } = await supabase.auth.getUser();
-
   // Followers count
   const [{ count: followerCount }, { data: posts }] = await Promise.all([
     supabase.from("project_follows").select("*", { count: "exact", head: true }).eq("project_id", project.id),
     supabase.from("posts").select("id, title, body, created_at, author_id").eq("project_id", project.id).order("created_at", { ascending: false }).limit(10),
   ]);
-
-  // Is current user the owner?
-  const isOwner = currentUser && currentUser.id === project.owner_id;
 
   return (
     <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
@@ -79,16 +74,8 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
                     <h1 className="text-3xl font-bold text-white">{project.name}</h1>
-                    {isOwner && (
-                      <Link
-                        href={`/projects/${project.slug}/edit`}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition ml-2"
-                        title="Edit Project"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        Edit
-                      </Link>
-                    )}
+                    {/* Edit button for owner (client component) */}
+                    <ProjectEditButton ownerId={project.owner_id} slug={project.slug} />
                   </div>
                   {project.tagline && (
                     <div className="text-lg text-emerald-300 font-medium mt-1">{project.tagline}</div>
