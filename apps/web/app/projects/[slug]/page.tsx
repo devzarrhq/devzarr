@@ -10,7 +10,6 @@ import ProjectEditButton from "./ProjectEditButton";
 
 const ProjectDescription = dynamic(() => import("../../components/ProjectDescription"), { ssr: false });
 
-// Helper: extract fundraising goal from note (e.g., "$2000" or "2000")
 function parseGoalAmount(note?: string): number | null {
   if (!note) return null;
   const match = note.match(/\$?([\d,]+)/);
@@ -20,13 +19,11 @@ function parseGoalAmount(note?: string): number | null {
   return null;
 }
 
-// Placeholder: you can replace this with a real value from your DB
 const amountRaised = 500; // Example: $500 raised
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const supabase = createSupabaseServer();
 
-  // project + owner
   const { data: project } = await supabase
     .from("projects")
     .select("id, name, slug, summary, url, cover_url, owner_id, icon_url, banner_url, tagline, description, type, status, homepage_url, repo_url, docs_url, package_url, contact_email, contact_discord, contact_matrix, support_kofi, support_patreon, support_bmac, support_github, funding_goal_note")
@@ -45,24 +42,20 @@ export default async function ProjectPage({ params }: { params: { slug: string }
     </div>
   );
 
-  // Fetch owner profile
   const { data: owner } = await supabase
     .from("profiles")
     .select("user_id, handle, display_name, avatar_url")
     .eq("user_id", project.owner_id)
     .single();
 
-  // Followers count
   const [{ count: followerCount }, { data: posts }] = await Promise.all([
     supabase.from("project_follows").select("*", { count: "exact", head: true }).eq("project_id", project.id),
     supabase.from("posts").select("id, title, body, created_at, author_id").eq("project_id", project.id).order("created_at", { ascending: false }).limit(10),
   ]);
 
-  // Fundraising goal logic
   const goalAmount = parseGoalAmount(project.funding_goal_note);
   const progress = goalAmount ? Math.min(100, Math.round((amountRaised / goalAmount) * 100)) : 0;
 
-  // Helper: Render a labeled link or value if present
   function InfoRow({ label, value, href, color }: { label: string, value?: string, href?: string, color?: string }) {
     if (!value) return null;
     return (
@@ -87,13 +80,13 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         <div className="flex flex-1 flex-row">
           <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4">
             <main className="flex-1 flex flex-col">
-              {/* Banner/Header - reduced height */}
+              {/* Banner/Header - much shorter */}
               {project.banner_url ? (
-                <div className="w-full h-24 sm:h-28 rounded-t-2xl overflow-hidden mb-4">
+                <div className="w-full h-12 sm:h-16 rounded-t-2xl overflow-hidden mb-4">
                   <img src={project.banner_url} alt="Banner" className="object-cover w-full h-full" />
                 </div>
               ) : (
-                <div className="h-12 bg-white/5 rounded-t-2xl mb-4" />
+                <div className="h-8 bg-white/5 rounded-t-2xl mb-4" />
               )}
 
               {/* Project Icon, Title, Tagline, Owner, Edit button */}
@@ -108,7 +101,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                 <div className="flex-1 min-w-0 flex flex-col gap-2">
                   <div className="flex items-center gap-3">
                     <h1 className="text-3xl font-bold text-white">{project.name}</h1>
-                    {/* Edit button for owner (client component) */}
                     <ProjectEditButton ownerId={project.owner_id} slug={project.slug} />
                   </div>
                   {project.tagline && (
@@ -125,7 +117,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                     </Link>
                   </div>
                 </div>
-                {/* Follow button */}
                 <FollowButton projectId={project.id} followerCount={followerCount ?? 0} />
               </div>
 
@@ -185,7 +176,6 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                     </div>
                   </div>
                 )}
-                {/* Funding note (if present and not just the amount) */}
                 {project.funding_goal_note && (
                   <div className="text-yellow-200 font-medium mt-2">{project.funding_goal_note}</div>
                 )}
