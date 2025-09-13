@@ -9,8 +9,9 @@ export default function AddUpdateButton({ projectId }: { projectId: string }) {
   return (
     <>
       <button
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm mb-4"
+        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition ml-2"
         onClick={() => setOpen(true)}
+        title="Add Update"
       >
         <Plus className="w-4 h-4" />
         Add Update
