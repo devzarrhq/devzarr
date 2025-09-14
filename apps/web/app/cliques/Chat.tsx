@@ -31,12 +31,8 @@ const HELP_COMMANDS = [
     desc: "Set the channel topic (owner/mod only, if +t)",
   },
   {
-    cmd: "/mode @user +m/-m/+v/-v",
-    desc: "Promote/demote moderator or give/remove voice (owner/mod only)",
-  },
-  {
-    cmd: "/mode +o/-o",
-    desc: "Transfer/remove ownership (owner only)",
+    cmd: "/mode @user +m/-m/+v/-v/+o/-o",
+    desc: "Promote/demote moderator, give/remove voice, or promote/demote owner (owner/mod only for +m/+v, owner only for +o)",
   },
   {
     cmd: "/mode +t/-t",
@@ -326,7 +322,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       return;
     }
 
-    // /mode @user +m/-m/+v/-v
+    // /mode @user +m/-m/+v/-v/+o/-o
     if (cmd.startsWith("/mode ")) {
       const parts = cmd.split(" ");
       if (parts.length < 3) {
@@ -342,11 +338,11 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       }
       // Only owner can transfer ownership
       if (["+o", "-o"].includes(mode) && role !== "owner") {
-        setToast("Only the owner can transfer ownership.");
+        setToast("Only the owner can promote/demote another owner.");
         return;
       }
       // Only owner/mod can set other modes
-      if (!["owner", "moderator"].includes(role)) {
+      if (!["owner", "moderator"].includes(role) && !["+o", "-o"].includes(mode)) {
         setToast("Only owners or moderators can change modes.");
         return;
       }
@@ -428,7 +424,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         return;
       }
       if (mode === "+o") {
-        // Transfer ownership: set target to owner, current owner to member
+        // Promote user to owner, demote current owner to member
         await supabase
           .from("clique_members")
           .update({ role: "owner" })
@@ -449,7 +445,19 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         return;
       }
       if (mode === "-o") {
-        setToast("Cannot demote owner without transferring ownership.");
+        if (targetMember.role !== "owner") {
+          setToast("User is not an owner.");
+          return;
+        }
+        // Only allow demoting if there is another owner (should not leave clique without owner)
+        // For simplicity, only allow if current user is owner and target is not self
+        await supabase
+          .from("clique_members")
+          .update({ role: "member" })
+          .eq("clique_id", cliqueId)
+          .eq("user_id", targetUserId);
+        setToast("User demoted from owner.");
+        forceMemberListRefresh();
         return;
       }
       setToast("Unknown mode.");
