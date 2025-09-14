@@ -30,7 +30,7 @@ export default function CliqueUserList({ members, online }: { members: Member[];
                 roleTint = "text-cyan-300";
               } else if (m.voice) {
                 prefix = "+";
-                roleTint = "text-blue-300";
+                roleTint = "text-yellow-300"; // Make voice users yellow
               }
               return (
                 <li key={m.user_id} className="flex items-center gap-2">

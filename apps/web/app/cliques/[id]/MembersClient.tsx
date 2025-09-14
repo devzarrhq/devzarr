@@ -29,6 +29,7 @@ export default function MembersClient({ cliqueId, initial }: { cliqueId: string;
     };
     fetchMembers();
 
+    // Listen for ALL changes (insert, update, delete) to clique_members for this clique
     const ch = supabase
       .channel(`cm:${cliqueId}`)
       .on("postgres_changes",
