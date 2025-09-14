@@ -34,7 +34,7 @@ export default function MembersClient({ cliqueId, initial }: { cliqueId: string;
       .channel(`cm:${cliqueId}`)
       .on("postgres_changes",
         { schema: "public", table: "clique_members", event: "*", filter: `clique_id=eq.${cliqueId}` },
-        fetchMembers
+        () => fetchMembers()
       )
       .subscribe();
 
