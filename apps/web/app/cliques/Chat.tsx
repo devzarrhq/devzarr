@@ -25,12 +25,12 @@ type Message = {
 };
 
 const HELP_TEXT = `
-<b>Available Commands:</b>
+<b>Available Commands:</b><br/>
 /topic &lt;new topic&gt; — Set the channel topic (owner/mod only)<br/>
 /mode @user +m/-m/+o — Promote/demote moderator or transfer ownership (owner/mod only)<br/>
 /kick @user — Remove a user from the clique (owner/mod only)<br/>
 /ban @user — Ban a user from the clique (owner/mod only)<br/>
-/help — Show this help popup<br/>
+/help — Show this help popup
 `;
 
 export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: string }) {
@@ -382,12 +382,25 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       {/* Help Modal */}
       {showHelp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md w-full border border-emerald-400">
-            <h2 className="text-xl font-bold mb-4 text-emerald-300">Clique Chat Commands</h2>
-            <div className="text-gray-200 text-sm mb-4" dangerouslySetInnerHTML={{ __html: HELP_TEXT }} />
+          <div
+            className="bg-gray-900 rounded-2xl shadow-2xl p-6 border border-emerald-400 flex flex-col items-center"
+            style={{
+              width: "100%",
+              maxWidth: 420,
+              minWidth: 0,
+              margin: "0 auto",
+            }}
+          >
+            <h2 className="text-lg font-bold mb-3 text-emerald-300 text-center">Clique Chat Commands</h2>
+            <div
+              className="text-gray-200 text-sm mb-4 text-left"
+              style={{ wordBreak: "break-word" }}
+              dangerouslySetInnerHTML={{ __html: HELP_TEXT }}
+            />
             <button
               className="mt-2 px-4 py-2 rounded bg-emerald-500/90 text-white font-semibold"
               onClick={() => setShowHelp(false)}
+              autoFocus
             >
               Close
             </button>
