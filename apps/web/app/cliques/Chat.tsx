@@ -224,7 +224,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("You must be signed in.");
         return;
       }
-      if (topicLocked && !["owner", "moderator"].includes(role)) {
+      if (topicLocked && !["owner", "moderator"].includes(role ?? "")) {
         setToast("Only owners or moderators can change the topic.");
         return;
       }
@@ -249,7 +249,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("You must be signed in.");
         return;
       }
-      if (!["owner", "moderator"].includes(role)) {
+      if (!["owner", "moderator"].includes(role ?? "")) {
         setToast("Only owners or moderators can change topic lock.");
         return;
       }
@@ -274,7 +274,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("You must be signed in.");
         return;
       }
-      if (!["owner", "moderator"].includes(role)) {
+      if (!["owner", "moderator"].includes(role ?? "")) {
         setToast("Only owners or moderators can change moderated mode.");
         return;
       }
@@ -307,12 +307,12 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         return;
       }
       // Only owner can transfer ownership
-      if (["+o", "-o"].includes(mode) && role !== "owner") {
+      if (["+o", "-o"].includes(mode) && (role ?? "") !== "owner") {
         setToast("Only the owner can promote/demote another owner.");
         return;
       }
       // Only owner/mod can set other modes
-      if (!["owner", "moderator"].includes(role) && !["+o", "-o"].includes(mode)) {
+      if (!["owner", "moderator"].includes(role ?? "") && !["+o", "-o"].includes(mode)) {
         setToast("Only owners or moderators can change modes.");
         return;
       }
