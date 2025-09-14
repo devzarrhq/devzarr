@@ -28,11 +28,23 @@ type Message = {
 const HELP_COMMANDS = [
   {
     cmd: "/topic <new topic>",
-    desc: "Set the channel topic (owner/mod only)",
+    desc: "Set the channel topic (owner/mod only, if +t)",
   },
   {
-    cmd: "/mode @user +m/-m/+o",
-    desc: "Promote/demote moderator or transfer ownership (owner/mod only)",
+    cmd: "/mode @user +m/-m/+v/-v",
+    desc: "Promote/demote moderator or give/remove voice (owner/mod only)",
+  },
+  {
+    cmd: "/mode +o/-o",
+    desc: "Transfer/remove ownership (owner only)",
+  },
+  {
+    cmd: "/mode +t/-t",
+    desc: "Lock/unlock topic (only mods/ops can change topic)",
+  },
+  {
+    cmd: "/mode +m/-m",
+    desc: "Enable/disable moderated chat (only +v, +o, +m can talk)",
   },
   {
     cmd: "/kick @user",
@@ -55,61 +67,130 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const [toast, setToast] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
   const [currentTopic, setCurrentTopic] = useState(topic || "");
+  const [topicLocked, setTopicLocked] = useState(false);
+  const [moderated, setModerated] = useState(false);
+  const [memberRoles, setMemberRoles] = useState<Record<string, { role: string, voice: boolean }>>({});
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [currentUserVoice, setCurrentUserVoice] = useState<boolean>(false);
   const scroller = useRef<HTMLDivElement>(null);
 
+  // Fetch clique settings and member roles
   useEffect(() => {
-    setCurrentTopic(topic || "");
-  }, [topic]);
+    let mounted = true;
+    (async () => {
+      // Fetch clique settings
+      const { data: clique } = await supabase
+        .from("cliques")
+        .select("topic, topic_locked, moderated")
+        .eq("id", cliqueId)
+        .single();
+      if (mounted && clique) {
+        setCurrentTopic(clique.topic || "");
+        setTopicLocked(!!clique.topic_locked);
+        setModerated(!!clique.moderated);
+      }
+      // Fetch all member roles and voice
+      const { data: members } = await supabase
+        .from("clique_members")
+        .select("user_id, role, voice");
+      if (mounted && members) {
+        const map: Record<string, { role: string, voice: boolean }> = {};
+        members.forEach((m: any) => {
+          map[m.user_id] = { role: m.role, voice: !!m.voice };
+        });
+        setMemberRoles(map);
+      }
+      // Fetch current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (mounted) setCurrentUserId(user?.id ?? null);
+      if (user) {
+        const { data: member } = await supabase
+          .from("clique_members")
+          .select("role, voice")
+          .eq("clique_id", cliqueId)
+          .eq("user_id", user.id)
+          .single();
+        if (mounted && member) {
+          setCurrentUserRole(member.role);
+          setCurrentUserVoice(!!member.voice);
+        }
+      }
+    })();
+    // Listen for changes to clique settings
+    const ch = supabase
+      .channel(`clique-settings:${cliqueId}`)
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "cliques", filter: `id=eq.${cliqueId}` },
+        payload => {
+          if (payload.new) {
+            setCurrentTopic(payload.new.topic || "");
+            setTopicLocked(!!payload.new.topic_locked);
+            setModerated(!!payload.new.moderated);
+          }
+        }
+      )
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "clique_members", filter: `clique_id=eq.${cliqueId}` },
+        async () => {
+          // Refresh member roles
+          const { data: members } = await supabase
+            .from("clique_members")
+            .select("user_id, role, voice")
+            .eq("clique_id", cliqueId);
+          const map: Record<string, { role: string, voice: boolean }> = {};
+          (members ?? []).forEach((m: any) => {
+            map[m.user_id] = { role: m.role, voice: !!m.voice };
+          });
+          setMemberRoles(map);
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+      mounted = false;
+    };
+    // eslint-disable-next-line
+  }, [cliqueId, supabase]);
 
+  // Fetch messages and author profiles
   useEffect(() => {
     (async () => {
-      const { data: messages, error: msgError } = await supabase
+      const { data: messages } = await supabase
         .from("messages")
         .select("id, body, author_id, created_at")
         .eq("clique_id", cliqueId)
         .order("created_at", { ascending: true })
         .limit(100);
-
-      if (msgError) {
-        setMsgs([]);
-        return;
-      }
       if (!messages || messages.length === 0) {
         setMsgs([]);
         return;
       }
-
       // Get unique author_ids
       const authorIds = Array.from(new Set(messages.map((m: any) => m.author_id))).filter(Boolean);
-
       if (authorIds.length === 0) {
         setMsgs(messages);
         return;
       }
-
       // Fetch all profiles for these authors
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, handle, display_name, avatar_url")
         .in("user_id", authorIds);
-
       // Map profiles to messages
       const profileMap: Record<string, any> = {};
       (profiles ?? []).forEach((p: any) => {
         profileMap[p.user_id] = p;
       });
-
       const mapped = messages.map((m: any) => ({
         ...m,
         author: profileMap[m.author_id] || null,
       }));
-
       setMsgs(mapped);
       setTimeout(() => {
         scroller.current?.scrollTo(0, scroller.current.scrollHeight);
       }, 100);
     })();
-
     // Real-time: Listen for new messages
     const channel = supabase.channel(`clique:${cliqueId}`)
       .on("postgres_changes",
@@ -130,21 +211,20 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           }, 100);
         })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, [cliqueId, supabase]);
 
-  // Helper: get current user and their role in this clique
+  // Helper: get current user and their role/voice in this clique
   async function getCurrentUserAndRole() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { user: null, role: null };
+    if (!user) return { user: null, role: null, voice: false };
     const { data: member } = await supabase
       .from("clique_members")
-      .select("role")
+      .select("role, voice")
       .eq("clique_id", cliqueId)
       .eq("user_id", user.id)
       .single();
-    return { user, role: member?.role ?? null };
+    return { user, role: member?.role ?? null, voice: !!member?.voice };
   }
 
   // Helper: get user_id by handle (case-insensitive)
@@ -178,7 +258,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("You must be signed in.");
         return;
       }
-      if (!["owner", "moderator"].includes(role)) {
+      if (topicLocked && !["owner", "moderator"].includes(role)) {
         setToast("Only owners or moderators can change the topic.");
         return;
       }
@@ -196,7 +276,57 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       return;
     }
 
-    // /mode @handle +m/-m/+o
+    // /mode +t or /mode -t
+    if (cmd.trim() === "/mode +t" || cmd.trim() === "/mode -t") {
+      const { user, role } = await getCurrentUserAndRole();
+      if (!user) {
+        setToast("You must be signed in.");
+        return;
+      }
+      if (!["owner", "moderator"].includes(role)) {
+        setToast("Only owners or moderators can change topic lock.");
+        return;
+      }
+      const lock = cmd.trim() === "/mode +t";
+      const { error } = await supabase
+        .from("cliques")
+        .update({ topic_locked: lock })
+        .eq("id", cliqueId);
+      if (!error) {
+        setTopicLocked(lock);
+        setToast(lock ? "Topic lock enabled (+t)." : "Topic lock disabled (-t).");
+      } else {
+        setToast("Failed to update topic lock.");
+      }
+      return;
+    }
+
+    // /mode +m or /mode -m (moderated chat)
+    if (cmd.trim() === "/mode +m" || cmd.trim() === "/mode -m") {
+      const { user, role } = await getCurrentUserAndRole();
+      if (!user) {
+        setToast("You must be signed in.");
+        return;
+      }
+      if (!["owner", "moderator"].includes(role)) {
+        setToast("Only owners or moderators can change moderated mode.");
+        return;
+      }
+      const mod = cmd.trim() === "/mode +m";
+      const { error } = await supabase
+        .from("cliques")
+        .update({ moderated: mod })
+        .eq("id", cliqueId);
+      if (!error) {
+        setModerated(mod);
+        setToast(mod ? "Moderated mode enabled (+m)." : "Moderated mode disabled (-m).");
+      } else {
+        setToast("Failed to update moderated mode.");
+      }
+      return;
+    }
+
+    // /mode @user +m/-m/+v/-v
     if (cmd.startsWith("/mode ")) {
       const parts = cmd.split(" ");
       if (parts.length < 3) {
@@ -229,10 +359,10 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("You cannot perform this action on yourself.");
         return;
       }
-      // Get target's current role
+      // Get target's current role/voice
       const { data: targetMember } = await supabase
         .from("clique_members")
-        .select("role")
+        .select("role, voice")
         .eq("clique_id", cliqueId)
         .eq("user_id", targetUserId)
         .single();
@@ -269,6 +399,34 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         forceMemberListRefresh();
         return;
       }
+      if (mode === "+v") {
+        if (targetMember.voice) {
+          setToast("User already has voice.");
+          return;
+        }
+        await supabase
+          .from("clique_members")
+          .update({ voice: true })
+          .eq("clique_id", cliqueId)
+          .eq("user_id", targetUserId);
+        setToast("User given voice (+v).");
+        forceMemberListRefresh();
+        return;
+      }
+      if (mode === "-v") {
+        if (!targetMember.voice) {
+          setToast("User does not have voice.");
+          return;
+        }
+        await supabase
+          .from("clique_members")
+          .update({ voice: false })
+          .eq("clique_id", cliqueId)
+          .eq("user_id", targetUserId);
+        setToast("User voice removed (-v).");
+        forceMemberListRefresh();
+        return;
+      }
       if (mode === "+o") {
         // Transfer ownership: set target to owner, current owner to member
         await supabase
@@ -294,8 +452,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("Cannot demote owner without transferring ownership.");
         return;
       }
-      // Voice (+v/-v) - for future: you can implement a 'voice' field in clique_members
-      setToast("Voice (+v/-v) is not implemented yet.");
+      setToast("Unknown mode.");
       return;
     }
 
@@ -309,6 +466,19 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       await handleCommand(text.trim());
       setText("");
       return;
+    }
+    // Moderated mode: only allow +o, +m, +v to talk
+    if (moderated) {
+      if (
+        !(
+          currentUserRole === "owner" ||
+          currentUserRole === "moderator" ||
+          currentUserVoice
+        )
+      ) {
+        setToast("This clique is moderated. Only +o, +m, or +v can talk.");
+        return;
+      }
     }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert("Sign in first");
@@ -337,6 +507,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       {/* Topic at the top */}
       <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700">
         Topic: {displayTopic}
+        {topicLocked && <span className="ml-2 text-xs text-emerald-400">[+t]</span>}
+        {moderated && <span className="ml-2 text-xs text-emerald-400">[+m]</span>}
       </div>
       <div ref={scroller} className="flex-1 overflow-y-auto p-4 space-y-2">
         {msgs.length === 0 ? (
@@ -360,8 +532,14 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
               )}
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  {/* Name with role badge */}
-                  <RoleName userId={m.author_id} cliqueId={cliqueId} handle={m.author?.handle} displayName={m.author?.display_name} />
+                  {/* Name with role/voice badge */}
+                  <RoleName
+                    userId={m.author_id}
+                    cliqueId={cliqueId}
+                    handle={m.author?.handle}
+                    displayName={m.author?.display_name}
+                    memberRoles={memberRoles}
+                  />
                   {/* Time */}
                   <span className="text-[10px] text-gray-400">
                     {new Date(m.created_at).toLocaleTimeString()}
@@ -448,30 +626,26 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   );
 }
 
-// Helper component to show role badge before name
-function RoleName({ userId, cliqueId, handle, displayName }: { userId: string, cliqueId: string, handle?: string | null, displayName?: string | null }) {
-  const [role, setRole] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const supabase = supabaseBrowser();
-      const { data } = await supabase
-        .from("clique_members")
-        .select("role")
-        .eq("clique_id", cliqueId)
-        .eq("user_id", userId)
-        .single();
-      if (mounted) setRole(data?.role ?? null);
-    })();
-    return () => { mounted = false; };
-  }, [userId, cliqueId]);
-
+// Helper component to show role/voice badge before name
+function RoleName({
+  userId,
+  cliqueId,
+  handle,
+  displayName,
+  memberRoles,
+}: {
+  userId: string;
+  cliqueId: string;
+  handle?: string | null;
+  displayName?: string | null;
+  memberRoles: Record<string, { role: string, voice: boolean }>;
+}) {
+  // Use passed-in memberRoles for efficiency
+  const info = memberRoles[userId] || { role: null, voice: false };
   let prefix = "";
-  if (role === "owner") prefix = "@";
-  else if (role === "moderator") prefix = "^";
-  // else if (role === "voice") prefix = "+"; // for future
-
+  if (info.role === "owner") prefix = "@";
+  else if (info.role === "moderator") prefix = "^";
+  else if (info.voice) prefix = "+";
   return (
     <span className="font-semibold text-xs text-emerald-300">
       {prefix}
