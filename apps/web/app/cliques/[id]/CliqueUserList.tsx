@@ -10,16 +10,31 @@ type Member = {
   voice?: boolean;
 };
 
+function sortMembers(members: Member[]): Member[] {
+  // Owners first, then mods, then regulars, each group alphabetically by display_name or handle
+  return [...members].sort((a, b) => {
+    const rank = (m: Member) =>
+      m.role === "owner" ? 0 : m.role === "mod" ? 1 : 2;
+    const rA = rank(a);
+    const rB = rank(b);
+    if (rA !== rB) return rA - rB;
+    const nameA = (a.display_name ?? a.handle ?? "").toLowerCase();
+    const nameB = (b.display_name ?? b.handle ?? "").toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
+}
+
 export default function CliqueUserList({ members, online }: { members: Member[]; online?: Set<string> }) {
+  const sorted = sortMembers(members);
   return (
     <aside className="hidden lg:block w-[260px] flex-shrink-0 px-2 py-4 h-full">
       <div className="bg-white/5 rounded-xl border border-gray-800 shadow p-4 h-full flex flex-col">
         <div className="font-bold text-gray-200 mb-3 text-sm tracking-wide">Members</div>
         <ul className="space-y-2 flex-1 overflow-y-auto">
-          {members.length === 0 ? (
+          {sorted.length === 0 ? (
             <li className="text-gray-400 text-sm">No members yet.</li>
           ) : (
-            members.map((m) => {
+            sorted.map((m) => {
               let prefix = "";
               let roleTint = "text-gray-100";
               let style: React.CSSProperties = {};

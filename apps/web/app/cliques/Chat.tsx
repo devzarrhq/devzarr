@@ -17,8 +17,9 @@ function linkify(text: string) {
 type Message = {
   id: string;
   body: string;
-  author_id: string;
+  author_id?: string;
   created_at: string;
+  type?: "system";
   author?: {
     handle: string | null;
     display_name: string | null;
@@ -70,6 +71,11 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [currentUserVoice, setCurrentUserVoice] = useState<boolean>(false);
   const scroller = useRef<HTMLDivElement>(null);
+
+  // Autocomplete state
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [autocompleteOptions, setAutocompleteOptions] = useState(HELP_COMMANDS);
+  const [autocompleteIndex, setAutocompleteIndex] = useState(0);
 
   // Use shared clique members context
   const { members, updateMember } = useCliqueMembers();
@@ -132,7 +138,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     (async () => {
       const { data: messages } = await supabase
         .from("messages")
-        .select("id, body, author_id, created_at")
+        .select("id, body, author_id, created_at, type")
         .eq("clique_id", cliqueId)
         .order("created_at", { ascending: true })
         .limit(100);
@@ -141,16 +147,16 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         return;
       }
       // Get unique author_ids
-      const authorIds = Array.from(new Set(messages.map((m: any) => m.author_id))).filter(Boolean);
-      if (authorIds.length === 0) {
-        setMsgs(messages);
-        return;
-      }
+      const authorIds = Array.from(new Set(messages.filter((m: any) => !m.type).map((m: any) => m.author_id))).filter(Boolean);
       // Fetch all profiles for these authors
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, handle, display_name, avatar_url")
-        .in("user_id", authorIds);
+      let profiles: any[] = [];
+      if (authorIds.length > 0) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("user_id, handle, display_name, avatar_url")
+          .in("user_id", authorIds);
+        profiles = profs ?? [];
+      }
       // Map profiles to messages
       const profileMap: Record<string, any> = {};
       (profiles ?? []).forEach((p: any) => {
@@ -158,7 +164,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       });
       const mapped = messages.map((m: any) => ({
         ...m,
-        author: profileMap[m.author_id] || null,
+        author: m.type === "system" ? null : (profileMap[m.author_id] || null),
       }));
       setMsgs(mapped);
       setTimeout(() => {
@@ -171,14 +177,18 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         { event: "INSERT", schema: "public", table: "messages", filter: `clique_id=eq.${cliqueId}` },
         async (payload) => {
           const m = payload.new as Message;
-          const { data: author } = await supabase
-            .from("profiles")
-            .select("handle, display_name, avatar_url")
-            .eq("user_id", m.author_id)
-            .single();
+          let author = null;
+          if (!m.type) {
+            const { data: a } = await supabase
+              .from("profiles")
+              .select("handle, display_name, avatar_url")
+              .eq("user_id", m.author_id)
+              .single();
+            author = a || null;
+          }
           setMsgs((prev) => [
             ...prev,
-            { ...m, author: author ? author : null },
+            { ...m, author },
           ]);
           setTimeout(() => {
             scroller.current?.scrollTo(0, scroller.current.scrollHeight);
@@ -205,6 +215,25 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       .ilike("handle", clean)
       .single();
     return data?.user_id ?? null;
+  }
+
+  // Helper: insert a system message
+  async function insertSystemMessage(body: string) {
+    const { error } = await supabase.from("messages").insert({
+      clique_id: cliqueId,
+      body,
+      type: "system",
+    });
+    // Optimistically add to UI
+    setMsgs((prev) => [
+      ...prev,
+      {
+        id: "sys-" + Math.random().toString(36).slice(2),
+        body,
+        created_at: new Date().toISOString(),
+        type: "system",
+      },
+    ]);
   }
 
   // Command parser and executor
@@ -236,6 +265,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       if (!error) {
         setCurrentTopic(newTopic);
         setToast("Topic updated.");
+        await insertSystemMessage(`Topic was set to: "${newTopic}"`);
       } else {
         setToast("Failed to update topic.");
       }
@@ -261,6 +291,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       if (!error) {
         setTopicLocked(lock);
         setToast(lock ? "Topic lock enabled (+t)." : "Topic lock disabled (-t).");
+        await insertSystemMessage(lock ? "Topic lock enabled (+t)" : "Topic lock disabled (-t)");
       } else {
         setToast("Failed to update topic lock.");
       }
@@ -286,6 +317,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       if (!error) {
         setModerated(mod);
         setToast(mod ? "Moderated mode enabled (+m)." : "Moderated mode disabled (-m).");
+        await insertSystemMessage(mod ? "+m enabled (moderated chat)" : "+m disabled (unmoderated chat)");
       } else {
         setToast("Failed to update moderated mode.");
       }
@@ -348,6 +380,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("Failed to promote to moderator.");
         } else {
           setToast("User promoted to moderator.");
+          await insertSystemMessage(`@${handle.replace(/^@/, "")} is now a moderator (^ mark)`);
         }
         return;
       }
@@ -366,6 +399,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("Failed to demote moderator.");
         } else {
           setToast("User demoted from moderator.");
+          await insertSystemMessage(`@${handle.replace(/^@/, "")} is no longer a moderator`);
         }
         return;
       }
@@ -384,6 +418,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("Failed to give voice.");
         } else {
           setToast("User given voice (+v).");
+          await insertSystemMessage(`@${handle.replace(/^@/, "")} was given voice (+)`);
         }
         return;
       }
@@ -402,6 +437,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("Failed to remove voice.");
         } else {
           setToast("User voice removed (-v).");
+          await insertSystemMessage(`@${handle.replace(/^@/, "")} had voice removed`);
         }
         return;
       }
@@ -427,6 +463,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ owner_id: targetUserId })
           .eq("id", cliqueId);
         setToast("Ownership transferred.");
+        await insertSystemMessage(`@${handle.replace(/^@/, "")} is now the owner (@ mark)`);
         return;
       }
       if (mode === "-o") {
@@ -441,9 +478,46 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
         setToast("User demoted from owner.");
+        await insertSystemMessage(`@${handle.replace(/^@/, "")} is no longer the owner`);
         return;
       }
       setToast("Unknown mode.");
+      return;
+    }
+
+    // /kick @user
+    if (cmd.startsWith("/kick ")) {
+      const handle = cmd.replace("/kick", "").trim();
+      const { user, role } = await getCurrentUserAndRole();
+      if (!user) {
+        setToast("You must be signed in.");
+        return;
+      }
+      if (!["owner", "mod"].includes(role ?? "")) {
+        setToast("Only owners or moderators can kick.");
+        return;
+      }
+      const targetUserId = await getUserIdByHandle(handle);
+      if (!targetUserId) {
+        setToast(`No user with handle ${handle} found.`);
+        return;
+      }
+      if (user.id === targetUserId) {
+        setToast("You cannot kick yourself.");
+        return;
+      }
+      // Remove from clique_members
+      const { error } = await supabase
+        .from("clique_members")
+        .delete()
+        .eq("clique_id", cliqueId)
+        .eq("user_id", targetUserId);
+      if (error) {
+        setToast("Failed to kick user.");
+      } else {
+        setToast("User kicked.");
+        await insertSystemMessage(`@${handle.replace(/^@/, "")} was kicked from the clique`);
+      }
       return;
     }
 
@@ -458,6 +532,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       setText("");
       // Always show toast for feedback
       setTimeout(() => setToast(null), 2200);
+      setShowAutocomplete(false);
       return;
     }
     // Moderated mode: only allow +o, +m, +v to talk
@@ -484,20 +559,62 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     if (!error) setText("");
   };
 
-  // Enter = send, Shift+Enter = newline
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  // Autocomplete logic
+  useEffect(() => {
+    if (text.startsWith("/")) {
+      setShowAutocomplete(true);
+      const q = text.slice(1).toLowerCase();
+      const filtered = HELP_COMMANDS.filter(c => c.cmd.slice(1).toLowerCase().startsWith(q));
+      setAutocompleteOptions(filtered.length ? filtered : HELP_COMMANDS);
+      setAutocompleteIndex(0);
+    } else {
+      setShowAutocomplete(false);
+    }
+  }, [text]);
+
+  // Keyboard navigation for autocomplete
+  function handleInputKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (showAutocomplete) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setAutocompleteIndex(i => Math.min(i + 1, autocompleteOptions.length - 1));
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setAutocompleteIndex(i => Math.max(i - 1, 0));
+        return;
+      }
+      if (e.key === "Enter" && autocompleteOptions.length > 0) {
+        e.preventDefault();
+        setText(autocompleteOptions[autocompleteIndex].cmd + " ");
+        setShowAutocomplete(false);
+        return;
+      }
+      if (e.key === "Tab" && autocompleteOptions.length > 0) {
+        e.preventDefault();
+        setText(autocompleteOptions[autocompleteIndex].cmd + " ");
+        setShowAutocomplete(false);
+        return;
+      }
+      if (e.key === "Escape") {
+        setShowAutocomplete(false);
+        return;
+      }
+    }
+    // Enter = send, Shift+Enter = newline
+    if (e.key === "Enter" && !e.shiftKey && !showAutocomplete) {
       e.preventDefault();
       send();
     }
     // Shift+Enter: allow newline (do nothing)
-  };
+  }
 
   // Show default topic if none set
   const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
 
   return (
-    <div className="flex h-[70vh] flex-col rounded-2xl bg-white/5 ring-1 ring-white/10">
+    <div className="flex h-[70vh] flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 relative">
       {/* Topic at the top */}
       <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700">
         Topic: {displayTopic}
@@ -510,7 +627,16 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             No messages yet. Start the conversation!
           </div>
         ) : (
-          msgs.map(m => (
+          msgs.map(m => m.type === "system" ? (
+            <div
+              key={m.id}
+              className="flex items-center gap-2 text-sm bg-orange-900/30 text-orange-300 font-semibold rounded-md px-3 py-2 w-fit max-w-[80%] border-l-4 border-orange-400 shadow"
+              style={{ fontStyle: "italic" }}
+            >
+              <ChevronRight className="w-4 h-4 text-orange-400" />
+              <span>{m.body}</span>
+            </div>
+          ) : (
             <div key={m.id} className="flex items-start gap-2 text-sm text-gray-100 bg-white/5 rounded-md px-3 py-2 w-fit max-w-[70%]">
               {/* Avatar */}
               {m.author?.avatar_url ? (
@@ -528,7 +654,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
                 <div className="flex items-center gap-2 mb-0.5">
                   {/* Name with role/voice badge */}
                   <RoleName
-                    userId={m.author_id}
+                    userId={m.author_id!}
                     cliqueId={cliqueId}
                     handle={m.author?.handle}
                     displayName={m.author?.display_name}
@@ -545,15 +671,41 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           ))
         )}
       </div>
-      <div className="p-3 flex gap-2">
-        <textarea
-          value={text}
-          onChange={(e)=>setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="flex-1 rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10 resize-none"
-          placeholder="Say something nice...   (/help for commands)"
-          rows={2}
-        />
+      <div className="p-3 flex gap-2 relative">
+        <div className="flex-1 relative">
+          <textarea
+            value={text}
+            onChange={(e)=>setText(e.target.value)}
+            onKeyDown={handleInputKeyDown}
+            className="w-full rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10 resize-none"
+            placeholder="Say something nice...   (/help for commands)"
+            rows={2}
+            autoFocus
+            spellCheck={false}
+            autoComplete="off"
+          />
+          {/* Autocomplete popup */}
+          {showAutocomplete && (
+            <div className="absolute left-0 bottom-12 z-50 bg-gray-900 border border-emerald-400 rounded-lg shadow-lg w-80 max-w-full">
+              <ul>
+                {autocompleteOptions.map((opt, i) => (
+                  <li
+                    key={opt.cmd}
+                    className={`px-4 py-2 cursor-pointer ${i === autocompleteIndex ? "bg-emerald-700/40 text-white" : "text-gray-200"}`}
+                    onMouseDown={e => {
+                      e.preventDefault();
+                      setText(opt.cmd + " ");
+                      setShowAutocomplete(false);
+                    }}
+                  >
+                    <span className="font-mono text-emerald-300">{opt.cmd}</span>
+                    <span className="ml-2 text-xs text-gray-400">{opt.desc}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
         <button onClick={send} className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500">
           Send
         </button>
