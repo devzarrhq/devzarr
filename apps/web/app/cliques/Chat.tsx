@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { ChevronRight } from "lucide-react";
 
-// ... (other utility functions)
+// ... (utility functions, if any)
 
 export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: string }) {
   const supabase = supabaseBrowser();
@@ -14,16 +14,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const [currentTopic, setCurrentTopic] = useState(topic || "");
   const scroller = useRef<HTMLDivElement>(null);
 
-  // ... (useEffect and other logic)
+  // ... (useEffect, handleCommand, send, etc.)
 
-  // --- handleCommand must be here, inside the component ---
-  async function handleCommand(cmd: string) {
-    if (cmd.trim() === "/help") {
-      setShowHelp(true);
-      return;
-    }
-    // ... rest of command logic (as previously provided)
-  }
+  // --- handleCommand and all logic here ---
 
-  // ... rest of component (send, render, etc.)
+  // ... (rest of your chat logic)
+
+  return (
+    <div>
+      {/* Your chat UI goes here */}
+      {/* Example: */}
+      <div>Chat UI for clique {cliqueId}</div>
+    </div>
+  );
 }
