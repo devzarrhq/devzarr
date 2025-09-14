@@ -23,8 +23,9 @@ export default async function HomePage() {
   const projectIds = Array.from(new Set(safePosts.map((p) => p.project_id).filter(Boolean)));
   const authorIds = Array.from(new Set(safePosts.map((p) => p.author_id).filter(Boolean)));
 
+  // --- FIX: select icon_url as well ---
   const [{ data: projects }, { data: profiles }] = await Promise.all([
-    supabase.from("projects").select("id, name, slug, cover_url").in("id", projectIds),
+    supabase.from("projects").select("id, name, slug, cover_url, icon_url").in("id", projectIds),
     supabase.from("profiles").select("user_id, handle, display_name, avatar_url").in("user_id", authorIds),
   ]);
 
