@@ -19,10 +19,10 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     (async () => {
       try {
         const supabase = supabaseBrowser();
-        // Fetch clique by ID
+        // Fetch clique by ID (now includes topic)
         const { data: cliqueData, error: cliqueError } = await supabase
           .from("cliques")
-          .select("id, name, slug, description, is_private, owner_id, created_at")
+          .select("id, name, slug, description, is_private, owner_id, created_at, topic")
           .eq("id", params.id)
           .single();
 
@@ -99,7 +99,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
         <div className="flex flex-1 flex-row">
           <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4">
             <main className="flex-1 flex flex-col">
-              {/* Title and description */}
+              {/* Title, topic, and description */}
               <div className="w-full max-w-2xl">
                 <h1
                   className="text-4xl font-extrabold mb-2"
@@ -107,6 +107,12 @@ export default function CliquePage({ params }: { params: { id: string } }) {
                 >
                   {clique.name}
                 </h1>
+                {/* Topic at the top */}
+                {clique.topic && (
+                  <div className="mb-2 text-emerald-300 font-semibold text-lg">
+                    Topic: {clique.topic}
+                  </div>
+                )}
                 {clique.description && (
                   <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
                 )}
@@ -117,7 +123,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
               {/* Chat and members list side by side */}
               <div className="flex flex-row gap-8 w-full max-w-6xl">
                 <div className="flex-1">
-                  <Chat cliqueId={clique.id} />
+                  <Chat cliqueId={clique.id} topic={clique.topic} />
                 </div>
                 <div className="flex-shrink-0 flex flex-col justify-start">
                   <MembersClient cliqueId={clique.id} initial={members} />
