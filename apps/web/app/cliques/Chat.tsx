@@ -72,6 +72,18 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const scroller = useRef<HTMLDivElement>(null);
 
   // Fetch clique settings and member roles
+  async function refreshMemberRoles() {
+    const { data: members } = await supabase
+      .from("clique_members")
+      .select("user_id, role, voice")
+      .eq("clique_id", cliqueId);
+    const map: Record<string, { role: string, voice: boolean }> = {};
+    (members ?? []).forEach((m: any) => {
+      map[m.user_id] = { role: m.role, voice: !!m.voice };
+    });
+    setMemberRoles(map);
+  }
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -87,16 +99,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setModerated(!!clique.moderated);
       }
       // Fetch all member roles and voice
-      const { data: members } = await supabase
-        .from("clique_members")
-        .select("user_id, role, voice");
-      if (mounted && members) {
-        const map: Record<string, { role: string, voice: boolean }> = {};
-        members.forEach((m: any) => {
-          map[m.user_id] = { role: m.role, voice: !!m.voice };
-        });
-        setMemberRoles(map);
-      }
+      await refreshMemberRoles();
       // Fetch current user
       const { data: { user } } = await supabase.auth.getUser();
       if (mounted) setCurrentUserId(user?.id ?? null);
@@ -129,16 +132,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       .on("postgres_changes",
         { event: "*", schema: "public", table: "clique_members", filter: `clique_id=eq.${cliqueId}` },
         async () => {
-          // Refresh member roles
-          const { data: members } = await supabase
-            .from("clique_members")
-            .select("user_id, role, voice")
-            .eq("clique_id", cliqueId);
-          const map: Record<string, { role: string, voice: boolean }> = {};
-          (members ?? []).forEach((m: any) => {
-            map[m.user_id] = { role: m.role, voice: !!m.voice };
-          });
-          setMemberRoles(map);
+          await refreshMemberRoles();
         }
       )
       .subscribe();
@@ -223,12 +217,13 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     return { user, role: member?.role ?? null, voice: !!member?.voice };
   }
 
-  // Helper: get user_id by handle (case-insensitive)
+  // Helper: get user_id by handle (case-insensitive, strip leading @)
   async function getUserIdByHandle(handle: string) {
+    const clean = handle.replace(/^@/, "");
     const { data } = await supabase
       .from("profiles")
       .select("user_id")
-      .ilike("handle", handle.replace(/^@/, ""))
+      .ilike("handle", clean)
       .single();
     return data?.user_id ?? null;
   }
@@ -236,6 +231,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   // Manual member list refresh: trigger a custom event
   function forceMemberListRefresh() {
     window.dispatchEvent(new CustomEvent("clique-members-refresh"));
+    refreshMemberRoles();
   }
 
   // Command parser and executor
@@ -356,13 +352,13 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         return;
       }
       // Get target's current role/voice
-      const { data: targetMember } = await supabase
+      const { data: targetMember, error: targetError } = await supabase
         .from("clique_members")
         .select("role, voice")
         .eq("clique_id", cliqueId)
         .eq("user_id", targetUserId)
         .single();
-      if (!targetMember) {
+      if (targetError || !targetMember) {
         setToast("User is not a member of this clique.");
         return;
       }
@@ -372,13 +368,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("User is already a moderator.");
           return;
         }
-        await supabase
+        const { error } = await supabase
           .from("clique_members")
           .update({ role: "moderator" })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
-        setToast("User promoted to moderator.");
-        forceMemberListRefresh();
+        if (error) {
+          setToast("Failed to promote to moderator.");
+        } else {
+          setToast("User promoted to moderator.");
+          forceMemberListRefresh();
+        }
         return;
       }
       if (mode === "-m") {
@@ -386,13 +386,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("User is not a moderator.");
           return;
         }
-        await supabase
+        const { error } = await supabase
           .from("clique_members")
           .update({ role: "member" })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
-        setToast("User demoted from moderator.");
-        forceMemberListRefresh();
+        if (error) {
+          setToast("Failed to demote moderator.");
+        } else {
+          setToast("User demoted from moderator.");
+          forceMemberListRefresh();
+        }
         return;
       }
       if (mode === "+v") {
@@ -400,13 +404,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("User already has voice.");
           return;
         }
-        await supabase
+        const { error } = await supabase
           .from("clique_members")
           .update({ voice: true })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
-        setToast("User given voice (+v).");
-        forceMemberListRefresh();
+        if (error) {
+          setToast("Failed to give voice.");
+        } else {
+          setToast("User given voice (+v).");
+          forceMemberListRefresh();
+        }
         return;
       }
       if (mode === "-v") {
@@ -414,13 +422,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("User does not have voice.");
           return;
         }
-        await supabase
+        const { error } = await supabase
           .from("clique_members")
           .update({ voice: false })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
-        setToast("User voice removed (-v).");
-        forceMemberListRefresh();
+        if (error) {
+          setToast("Failed to remove voice.");
+        } else {
+          setToast("User voice removed (-v).");
+          forceMemberListRefresh();
+        }
         return;
       }
       if (mode === "+o") {
@@ -449,8 +461,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("User is not an owner.");
           return;
         }
-        // Only allow demoting if there is another owner (should not leave clique without owner)
-        // For simplicity, only allow if current user is owner and target is not self
         await supabase
           .from("clique_members")
           .update({ role: "member" })
