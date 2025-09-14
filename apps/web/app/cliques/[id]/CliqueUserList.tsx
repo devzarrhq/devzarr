@@ -26,7 +26,7 @@ export default function CliqueUserList({ members, online }: { members: Member[];
               if (m.role === "owner") {
                 prefix = "@";
                 roleTint = "text-emerald-300";
-              } else if (m.role === "moderator") {
+              } else if (m.role === "mod") {
                 prefix = "^";
                 roleTint = "";
                 style = { color: "#f59e42", fontWeight: 700 }; // Tailwind orange-400
