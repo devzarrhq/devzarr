@@ -28,7 +28,8 @@ export default function CliqueUserList({ members, online }: { members: Member[];
                 roleTint = "text-emerald-300";
               } else if (m.role === "moderator") {
                 prefix = "^";
-                roleTint = "text-cyan-300";
+                roleTint = "";
+                style = { color: "#f59e42", fontWeight: 700 }; // Tailwind orange-400
               } else if (m.voice) {
                 prefix = "+";
                 roleTint = "";
