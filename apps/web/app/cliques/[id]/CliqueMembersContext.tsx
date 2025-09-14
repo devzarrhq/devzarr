@@ -49,6 +49,12 @@ export function CliqueMembersProvider({ cliqueId, initial, children }: { cliqueI
     setMembers(merged);
   }, [cliqueId]);
 
+  // Always fetch members on mount (or when cliqueId changes)
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cliqueId]);
+
   // Real-time updates: listen for any change to clique_members for this clique
   useEffect(() => {
     const supabase = supabaseBrowser();
