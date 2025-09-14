@@ -21,6 +21,7 @@ declare module "lucide-react" {
   export const Plus: React.FC<LucideProps>;
   export const SearchIcon: React.FC<LucideProps>;
   export const LogOut: React.FC<LucideProps>;
-  export const Heart: React.FC<LucideProps>; // <-- Added Heart icon
+  export const Heart: React.FC<LucideProps>;
+  export const ChevronRight: React.FC<LucideProps>; // <-- Added ChevronRight icon
   // Add more icons as needed
 }
