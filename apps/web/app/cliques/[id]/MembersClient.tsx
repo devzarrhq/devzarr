@@ -1,16 +1,16 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import CliqueUserList from "./CliqueUserList";
 import { useAuth } from "../../providers/AuthProvider";
 
 export default function MembersClient({ cliqueId, initial }: { cliqueId: string; initial: any[] }) {
   const { user } = useAuth();
-  const supabase = supabaseBrowser();
+  // Memoize supabase client so channel is stable
+  const supabase = useMemo(() => supabaseBrowser(), []);
   const [members, setMembers] = useState(initial);
   const [online, setOnline] = useState<Set<string>>(new Set());
 
-  // Real-time member list
   useEffect(() => {
     let mounted = true;
     const fetchMembers = async () => {
@@ -34,7 +34,11 @@ export default function MembersClient({ cliqueId, initial }: { cliqueId: string;
       .channel(`cm:${cliqueId}`)
       .on("postgres_changes",
         { schema: "public", table: "clique_members", event: "*", filter: `clique_id=eq.${cliqueId}` },
-        () => fetchMembers()
+        (payload) => {
+          // Debug: log every event
+          console.log("clique_members change event:", payload);
+          fetchMembers();
+        }
       )
       .subscribe();
 
@@ -43,7 +47,7 @@ export default function MembersClient({ cliqueId, initial }: { cliqueId: string;
       supabase.removeChannel(ch);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cliqueId]);
+  }, [cliqueId, supabase]);
 
   // Presence (online users)
   useEffect(() => {
@@ -62,7 +66,7 @@ export default function MembersClient({ cliqueId, initial }: { cliqueId: string;
     });
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cliqueId, user?.id]);
+  }, [cliqueId, user?.id, supabase]);
 
   return <CliqueUserList members={members} online={online} />;
 }

@@ -22,6 +22,7 @@ export default function CliqueUserList({ members, online }: { members: Member[];
             members.map((m) => {
               let prefix = "";
               let roleTint = "text-gray-100";
+              let style: React.CSSProperties = {};
               if (m.role === "owner") {
                 prefix = "@";
                 roleTint = "text-emerald-300";
@@ -30,7 +31,8 @@ export default function CliqueUserList({ members, online }: { members: Member[];
                 roleTint = "text-cyan-300";
               } else if (m.voice) {
                 prefix = "+";
-                roleTint = "text-yellow-300"; // Make voice users yellow
+                roleTint = "";
+                style = { color: "#fde047", fontWeight: 700 }; // Tailwind yellow-300
               }
               return (
                 <li key={m.user_id} className="flex items-center gap-2">
@@ -48,7 +50,7 @@ export default function CliqueUserList({ members, online }: { members: Member[];
                   )}
                   {/* Online badge */}
                   <div className={`w-2 h-2 rounded-full ${online?.has(m.user_id) ? "bg-emerald-400" : "bg-gray-600"}`} />
-                  <span className={`truncate text-sm font-bold ${roleTint}`}>
+                  <span className={`truncate text-sm font-bold ${roleTint}`} style={style}>
                     {prefix}
                     {m.handle ?? "anonymous"}
                   </span>
