@@ -92,7 +92,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msgs.length]);
 
-  // Handle /help and /mode commands
+  // Handle /help command
   async function handleCommand(cmd: string) {
     if (cmd.trim() === "/help") {
       setShowHelp(true);
@@ -164,51 +164,28 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         ) : (
           <div className="flex flex-col gap-4">
             {msgs.map((msg, idx) => {
-              const isMe = msg.author_id === currentUserId;
-              const prev = msgs[idx - 1];
-              const showAvatar = idx === 0 || prev?.author_id !== msg.author_id;
               const profile = profiles[msg.author_id];
               const displayName = profile?.display_name || profile?.handle || "User";
               const avatarUrl = profile?.avatar_url || "/images/default-avatar.png";
               return (
                 <div
                   key={msg.id}
-                  className={`flex items-end w-full ${isMe ? "justify-end pr-6" : "justify-start pl-6"}`}
+                  className="flex items-start gap-3 w-full"
                 >
-                  {!isMe && showAvatar && (
-                    <img
-                      src={avatarUrl}
-                      alt={displayName}
-                      className="w-8 h-8 rounded-full mr-3 self-start"
-                    />
-                  )}
-                  <div
-                    className={`
-                      max-w-[70%] px-4 py-2 rounded-lg text-sm shadow break-words
-                      ${isMe
-                        ? "bg-blue-600 text-white rounded-br-none"
-                        : "bg-gray-800 text-gray-100 rounded-bl-none"
-                      }
-                    `}
-                    style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}
-                  >
-                    {!isMe && showAvatar && (
-                      <div className="font-semibold text-xs mb-1 text-teal-400">
-                        {displayName}
-                      </div>
-                    )}
-                    <div className="whitespace-pre-line break-words">{msg.body}</div>
-                    <div className="text-xs text-gray-400 mt-1 text-right">
-                      {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-xs text-teal-400">{displayName}</span>
+                      <span className="text-xs text-gray-400">{new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                    </div>
+                    <div className="bg-gray-800 text-gray-100 rounded-lg px-4 py-2 mt-1 text-sm break-words whitespace-pre-line">
+                      {msg.body}
                     </div>
                   </div>
-                  {isMe && showAvatar && (
-                    <img
-                      src={avatarUrl}
-                      alt="You"
-                      className="w-8 h-8 rounded-full ml-3 self-start"
-                    />
-                  )}
                 </div>
               );
             })}
@@ -249,8 +226,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             <h2 className="text-xl font-bold mb-4 text-emerald-300">Clique Chat Help</h2>
             <ul className="text-gray-200 text-sm space-y-2">
               <li><b>/help</b> — Show this help dialog</li>
-              <li><b>/mode</b> — (coming soon) Moderation commands</li>
-              <li><b>/topic</b> — (coming soon) Change topic</li>
             </ul>
             <button
               className="mt-6 px-4 py-2 rounded bg-emerald-500 text-white font-semibold"
