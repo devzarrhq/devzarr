@@ -238,6 +238,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   async function handleCommand(cmd: string) {
     // /help
     if (cmd.trim() === "/help") {
+      setToast("Type /mode @user +v to give voice, +m to make moderator, etc.");
       setShowHelp(true);
       return;
     }
@@ -483,6 +484,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     if (text.trim().startsWith("/")) {
       await handleCommand(text.trim());
       setText("");
+      // Always show toast for feedback
+      setTimeout(() => setToast(null), 2200);
       return;
     }
     // Moderated mode: only allow +o, +m, +v to talk
@@ -495,6 +498,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         )
       ) {
         setToast("This clique is moderated. Only +o, +m, or +v can talk.");
+        setTimeout(() => setToast(null), 2200);
         return;
       }
     }

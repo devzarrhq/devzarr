@@ -21,17 +21,17 @@ export default function CliqueUserList({ members, online }: { members: Member[];
           ) : (
             members.map((m) => {
               let prefix = "";
-              if (m.role === "owner") prefix = "@";
-              else if (m.role === "moderator") prefix = "^";
-              else if (m.voice) prefix = "+";
-              const roleTint =
-                m.role === "owner"
-                  ? "text-emerald-300"
-                  : m.role === "moderator"
-                  ? "text-cyan-300"
-                  : m.voice
-                  ? "text-blue-300"
-                  : "text-gray-100";
+              let roleTint = "text-gray-100";
+              if (m.role === "owner") {
+                prefix = "@";
+                roleTint = "text-emerald-300";
+              } else if (m.role === "moderator") {
+                prefix = "^";
+                roleTint = "text-cyan-300";
+              } else if (m.voice) {
+                prefix = "+";
+                roleTint = "text-blue-300";
+              }
               return (
                 <li key={m.user_id} className="flex items-center gap-2">
                   {/* Avatar */}
