@@ -24,11 +24,21 @@ type Message = {
   } | null;
 };
 
+const HELP_TEXT = `
+<b>Available Commands:</b>
+/topic &lt;new topic&gt; — Set the channel topic (owner/mod only)<br/>
+/mode @user +m/-m/+o — Promote/demote moderator or transfer ownership (owner/mod only)<br/>
+/kick @user — Remove a user from the clique (owner/mod only)<br/>
+/ban @user — Ban a user from the clique (owner/mod only)<br/>
+/help — Show this help popup<br/>
+`;
+
 export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: string }) {
   const supabase = supabaseBrowser();
   const [msgs, setMsgs] = useState<Message[]>([]);
   const [text, setText] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  const [showHelp, setShowHelp] = useState(false);
   const [currentTopic, setCurrentTopic] = useState(topic || "");
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -139,6 +149,12 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
 
   // Command parser and executor
   async function handleCommand(cmd: string) {
+    // /help
+    if (cmd.trim() === "/help") {
+      setShowHelp(true);
+      return;
+    }
+
     // /topic <new topic>
     if (cmd.startsWith("/topic ")) {
       const newTopic = cmd.replace("/topic", "").trim();
@@ -268,10 +284,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       return;
     }
 
-    // Existing commands: /kick, /ban, /promote, /demote
-    // ... (keep as before)
-    // (You can keep the rest of your previous command logic here)
-    // For brevity, not repeating the previous code for /kick, /ban, /promote, /demote
     setToast("Unknown command.");
   }
 
@@ -302,14 +314,15 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     // Shift+Enter: allow newline (do nothing)
   };
 
+  // Show default topic if none set
+  const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
+
   return (
     <div className="flex h-[70vh] flex-col rounded-2xl bg-white/5 ring-1 ring-white/10">
       {/* Topic at the top */}
-      {currentTopic && (
-        <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700">
-          Topic: {currentTopic}
-        </div>
-      )}
+      <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700">
+        Topic: {displayTopic}
+      </div>
       <div ref={scroller} className="flex-1 overflow-y-auto p-4 space-y-2">
         {msgs.length === 0 ? (
           <div className="text-gray-400 text-center w-full py-8">
@@ -332,10 +345,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
               )}
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  {/* Name */}
-                  <span className="font-semibold text-xs text-emerald-300">
-                    {m.author?.display_name || m.author?.handle || "Anonymous"}
-                  </span>
+                  {/* Name with role badge */}
+                  <RoleName userId={m.author_id} cliqueId={cliqueId} handle={m.author?.handle} displayName={m.author?.display_name} />
                   {/* Time */}
                   <span className="text-[10px] text-gray-400">
                     {new Date(m.created_at).toLocaleTimeString()}
@@ -353,7 +364,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           onChange={(e)=>setText(e.target.value)}
           onKeyDown={handleKeyDown}
           className="flex-1 rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10 resize-none"
-          placeholder="Say something nice… or use /topic, /mode, /kick, /ban"
+          placeholder="Say something nice...   (/help for commands)"
           rows={2}
         />
         <button onClick={send} className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500">
@@ -365,6 +376,21 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         <div className="absolute left-1/2 -translate-x-1/2 bottom-6 z-50">
           <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg border border-emerald-400 font-semibold animate-fade-in-out" style={{ whiteSpace: "pre-line" }}>
             {toast}
+          </div>
+        </div>
+      )}
+      {/* Help Modal */}
+      {showHelp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md w-full border border-emerald-400">
+            <h2 className="text-xl font-bold mb-4 text-emerald-300">Clique Chat Commands</h2>
+            <div className="text-gray-200 text-sm mb-4" dangerouslySetInnerHTML={{ __html: HELP_TEXT }} />
+            <button
+              className="mt-2 px-4 py-2 rounded bg-emerald-500/90 text-white font-semibold"
+              onClick={() => setShowHelp(false)}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
@@ -380,5 +406,37 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         }
       `}</style>
     </div>
+  );
+}
+
+// Helper component to show role badge before name
+function RoleName({ userId, cliqueId, handle, displayName }: { userId: string, cliqueId: string, handle?: string | null, displayName?: string | null }) {
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const supabase = supabaseBrowser();
+      const { data } = await supabase
+        .from("clique_members")
+        .select("role")
+        .eq("clique_id", cliqueId)
+        .eq("user_id", userId)
+        .single();
+      if (mounted) setRole(data?.role ?? null);
+    })();
+    return () => { mounted = false; };
+  }, [userId, cliqueId]);
+
+  let prefix = "";
+  if (role === "owner") prefix = "@";
+  else if (role === "moderator") prefix = "^";
+  // else if (role === "voice") prefix = "+"; // for future
+
+  return (
+    <span className="font-semibold text-xs text-emerald-300">
+      {prefix}
+      {displayName || handle || "Anonymous"}
+    </span>
   );
 }
