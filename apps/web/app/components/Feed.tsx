@@ -25,7 +25,12 @@ type Post = {
   title: string | null;
   body: string | null;
   created_at: string;
-  project?: { name?: string | null; slug?: string | null; cover_url?: string | null } | null;
+  project?: { 
+    name?: string | null; 
+    slug?: string | null; 
+    cover_url?: string | null;
+    icon_url?: string | null;
+  } | null;
   author?: { handle?: string | null; display_name?: string | null; avatar_url?: string | null } | null;
 };
 
@@ -92,18 +97,31 @@ export default function Feed({ initialPosts = [] as Post[] }) {
       ) : (
         <div className="flex flex-col gap-8 w-full">
           {posts.map((p) => {
-            // Project avatar/icon
-            const projectIcon = p.project?.cover_url ? (
-              <img
-                src={p.project.cover_url}
-                alt={p.project.name || "Project"}
-                className="w-10 h-10 rounded-lg object-cover border border-gray-700 bg-gray-800 flex-shrink-0"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
-                <Users className="w-5 h-5 text-emerald-300" />
-              </div>
-            );
+            // Project avatar/icon: icon_url > cover_url > fallback
+            let projectIcon = null;
+            if (p.project?.icon_url) {
+              projectIcon = (
+                <img
+                  src={p.project.icon_url}
+                  alt={p.project.name || "Project"}
+                  className="w-10 h-10 rounded-lg object-cover border border-gray-700 bg-gray-800 flex-shrink-0"
+                />
+              );
+            } else if (p.project?.cover_url) {
+              projectIcon = (
+                <img
+                  src={p.project.cover_url}
+                  alt={p.project.name || "Project"}
+                  className="w-10 h-10 rounded-lg object-cover border border-gray-700 bg-gray-800 flex-shrink-0"
+                />
+              );
+            } else {
+              projectIcon = (
+                <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-5 h-5 text-emerald-300" />
+                </div>
+              );
+            }
             // Author avatar
             const authorAvatar = p.author?.avatar_url ? (
               <img
