@@ -4,8 +4,21 @@ import { useState } from "react";
 import { useTheme } from "../theme-context";
 import AddProjectModal from "./AddProjectModal";
 import AddPostModal from "./AddPostModal";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+
+// --- Relative time utility ---
+function timeAgo(date: string | Date) {
+  const now = new Date();
+  const then = new Date(date);
+  const diff = Math.floor((now.getTime() - then.getTime()) / 1000);
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr${Math.floor(diff / 3600) === 1 ? "" : "s"} ago`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) === 1 ? "" : "s"} ago`;
+  return then.toLocaleDateString();
+}
 
 type Post = {
   id: string;
@@ -78,8 +91,65 @@ export default function Feed({ initialPosts = [] as Post[] }) {
         </div>
       ) : (
         <div className="flex flex-col gap-8 w-full">
-          {posts.map((p) =>
-            p.project?.slug ? (
+          {posts.map((p) => {
+            // Project avatar/icon
+            const projectIcon = p.project?.cover_url ? (
+              <img
+                src={p.project.cover_url}
+                alt={p.project.name || "Project"}
+                className="w-10 h-10 rounded-lg object-cover border border-gray-700 bg-gray-800 flex-shrink-0"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <Users className="w-5 h-5 text-emerald-300" />
+              </div>
+            );
+            // Author avatar
+            const authorAvatar = p.author?.avatar_url ? (
+              <img
+                src={p.author.avatar_url!}
+                alt={p.author.display_name ?? p.author.handle ?? "author"}
+                className="h-9 w-9 rounded-full object-cover"
+              />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-gray-700" />
+            );
+            // Owner badge
+            const ownerBadge = (
+              <span className="font-semibold text-gray-200 text-sm">
+                {p.author?.display_name || p.author?.handle || "Anonymous"}
+              </span>
+            );
+            // Relative time
+            const relTime = <span className="text-xs text-gray-400 ml-2">{timeAgo(p.created_at)}</span>;
+
+            // Main post card
+            const cardContent = (
+              <div className="flex items-start gap-4">
+                {projectIcon}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    {authorAvatar}
+                    {ownerBadge}
+                    {relTime}
+                    {p.project?.name && (
+                      <span className="ml-auto text-xs text-emerald-300">
+                        in {p.project.name}
+                      </span>
+                    )}
+                  </div>
+                  {p.title && <h3 className="mt-1 font-semibold text-gray-100">{p.title}</h3>}
+                  {p.body && (
+                    <div className="prose prose-invert max-w-none mt-1" style={{ color: "#fff" }}>
+                      <ReactMarkdown>{p.body}</ReactMarkdown>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+
+            // If project has a slug, wrap in link
+            return p.project?.slug ? (
               <Link
                 key={p.id}
                 href={`/projects/${p.project.slug}`}
@@ -87,60 +157,17 @@ export default function Feed({ initialPosts = [] as Post[] }) {
                 tabIndex={0}
                 aria-label={`View project ${p.project.name}`}
               >
-                <div className="flex items-center gap-3 mb-3">
-                  {p.author?.avatar_url ? (
-                    <img
-                      src={p.author.avatar_url!}
-                      alt={p.author.display_name ?? p.author.handle ?? "author"}
-                      className="h-9 w-9 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-9 w-9 rounded-full bg-gray-700" />
-                  )}
-                  <div className="leading-tight">
-                    <div className="text-gray-100 font-medium">
-                      {p.author?.display_name || p.author?.handle || "Anonymous"}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {new Date(p.created_at).toLocaleString()}
-                    </div>
-                  </div>
-                  <span className="ml-auto text-xs text-emerald-300 group-hover:underline">
-                    in {p.project.name}
-                  </span>
-                </div>
-                {p.title ? <h3 className="text-lg font-semibold mb-1">{p.title}</h3> : null}
-                {p.body ? <p className="text-gray-300 whitespace-pre-wrap">{p.body}</p> : null}
+                {cardContent}
               </Link>
             ) : (
               <article
                 key={p.id}
                 className="rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg w-full"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  {p.author?.avatar_url ? (
-                    <img
-                      src={p.author.avatar_url!}
-                      alt={p.author.display_name ?? p.author.handle ?? "author"}
-                      className="h-9 w-9 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-9 w-9 rounded-full bg-gray-700" />
-                  )}
-                  <div className="leading-tight">
-                    <div className="text-gray-100 font-medium">
-                      {p.author?.display_name || p.author?.handle || "Anonymous"}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {new Date(p.created_at).toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-                {p.title ? <h3 className="text-lg font-semibold mb-1">{p.title}</h3> : null}
-                {p.body ? <p className="text-gray-300 whitespace-pre-wrap">{p.body}</p> : null}
+                {cardContent}
               </article>
-            )
-          )}
+            );
+          })}
         </div>
       )}
     </section>
