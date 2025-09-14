@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { ChevronRight } from "lucide-react";
 
 // Simple linkify utility
 function linkify(text: string) {
@@ -24,14 +25,28 @@ type Message = {
   } | null;
 };
 
-const HELP_TEXT = `
-<b>Available Commands:</b><br/>
-/topic &lt;new topic&gt; — Set the channel topic (owner/mod only)<br/>
-/mode @user +m/-m/+o — Promote/demote moderator or transfer ownership (owner/mod only)<br/>
-/kick @user — Remove a user from the clique (owner/mod only)<br/>
-/ban @user — Ban a user from the clique (owner/mod only)<br/>
-/help — Show this help popup
-`;
+const HELP_COMMANDS = [
+  {
+    cmd: "/topic <new topic>",
+    desc: "Set the channel topic (owner/mod only)",
+  },
+  {
+    cmd: "/mode @user +m/-m/+o",
+    desc: "Promote/demote moderator or transfer ownership (owner/mod only)",
+  },
+  {
+    cmd: "/kick @user",
+    desc: "Remove a user from the clique (owner/mod only)",
+  },
+  {
+    cmd: "/ban @user",
+    desc: "Ban a user from the clique (owner/mod only)",
+  },
+  {
+    cmd: "/help",
+    desc: "Show this help popup",
+  },
+];
 
 export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: string }) {
   const supabase = supabaseBrowser();
@@ -392,13 +407,22 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             }}
           >
             <h2 className="text-lg font-bold mb-3 text-emerald-300 text-center">Clique Chat Commands</h2>
-            <div
-              className="text-gray-200 text-sm mb-4 text-left"
-              style={{ wordBreak: "break-word" }}
-              dangerouslySetInnerHTML={{ __html: HELP_TEXT }}
-            />
+            <div className="w-full">
+              <div className="font-semibold text-gray-100 mb-2">Available Commands:</div>
+              <ul className="space-y-2">
+                {HELP_COMMANDS.map((c, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <ChevronRight className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <span>
+                      <span className="font-mono font-semibold text-emerald-200">{c.cmd}</span>
+                      <span className="text-gray-300"> — {c.desc}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <button
-              className="mt-2 px-4 py-2 rounded bg-emerald-500/90 text-white font-semibold"
+              className="mt-6 px-4 py-2 rounded bg-emerald-500/90 text-white font-semibold"
               onClick={() => setShowHelp(false)}
               autoFocus
             >
