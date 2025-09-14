@@ -415,7 +415,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
                     <ChevronRight className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                     <span>
                       <span className="font-mono font-semibold text-emerald-200">{c.cmd}</span>
-                      <span className="text-gray-300"> — {c.desc}</span>
+                      <span className="text-gray-400"> — {c.desc}</span>
                     </span>
                   </li>
                 ))}
