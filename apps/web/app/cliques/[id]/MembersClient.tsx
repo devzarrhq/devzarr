@@ -3,54 +3,13 @@ import { useEffect, useState, useMemo } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import CliqueUserList from "./CliqueUserList";
 import { useAuth } from "../../providers/AuthProvider";
+import { useCliqueMembers } from "./CliqueMembersContext";
 
-export default function MembersClient({ cliqueId, initial }: { cliqueId: string; initial: any[] }) {
+export default function MembersClient({ cliqueId }: { cliqueId: string }) {
   const { user } = useAuth();
   const supabase = useMemo(() => supabaseBrowser(), []);
-  const [members, setMembers] = useState(initial);
+  const { members } = useCliqueMembers();
   const [online, setOnline] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    let mounted = true;
-    const fetchMembers = async () => {
-      // Add a random param to bust cache
-      const { data: rows } = await supabase
-        .from("clique_members")
-        .select("user_id, role, voice")
-        .eq("clique_id", cliqueId)
-        .order("user_id", { ascending: true });
-      const ids = (rows ?? []).map(r => r.user_id);
-      const { data: profs } = ids.length
-        ? await supabase.from("profiles").select("user_id, handle, display_name, avatar_url").in("user_id", ids)
-        : { data: [] as any[] };
-      // Always create a new array/object
-      const merged = (rows ?? []).map(r => ({
-        ...r,
-        voice: !!r.voice,
-        ...(profs?.find(p => p.user_id === r.user_id) ?? {})
-      }));
-      console.log("Fetched members after event:", merged);
-      if (mounted) setMembers([...merged]);
-    };
-    fetchMembers();
-
-    // Listen for ALL changes (insert, update, delete) to clique_members for this clique
-    const ch = supabase
-      .channel(`cm:${cliqueId}`)
-      .on("postgres_changes",
-        { schema: "public", table: "clique_members", event: "*", filter: `clique_id=eq.${cliqueId}` },
-        (payload) => {
-          console.log("clique_members change event:", payload);
-          fetchMembers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      mounted = false;
-      supabase.removeChannel(ch);
-    };
-  }, [cliqueId, supabase]);
 
   // Presence (online users)
   useEffect(() => {
