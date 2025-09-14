@@ -7,6 +7,7 @@ type Member = {
   display_name: string | null;
   avatar_url: string | null;
   role: string;
+  voice?: boolean;
 };
 
 export default function CliqueUserList({ members, online }: { members: Member[]; online?: Set<string> }) {
@@ -19,12 +20,17 @@ export default function CliqueUserList({ members, online }: { members: Member[];
             <li className="text-gray-400 text-sm">No members yet.</li>
           ) : (
             members.map((m) => {
-              const prefix = m.role === "owner" ? "@" : m.role === "moderator" ? "+" : "";
+              let prefix = "";
+              if (m.role === "owner") prefix = "@";
+              else if (m.role === "moderator") prefix = "^";
+              else if (m.voice) prefix = "+";
               const roleTint =
                 m.role === "owner"
                   ? "text-emerald-300"
                   : m.role === "moderator"
                   ? "text-cyan-300"
+                  : m.voice
+                  ? "text-blue-300"
                   : "text-gray-100";
               return (
                 <li key={m.user_id} className="flex items-center gap-2">
