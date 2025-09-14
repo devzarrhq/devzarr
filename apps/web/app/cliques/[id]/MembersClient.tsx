@@ -15,13 +15,14 @@ export default function MembersClient({ cliqueId, initial }: { cliqueId: string;
     let mounted = true;
     const fetchMembers = async () => {
       const { data: rows } = await supabase
-        .from("clique_members").select("user_id, role").eq("clique_id", cliqueId);
+        .from("clique_members").select("user_id, role, voice").eq("clique_id", cliqueId);
       const ids = (rows ?? []).map(r => r.user_id);
       const { data: profs } = ids.length
         ? await supabase.from("profiles").select("user_id, handle, display_name, avatar_url").in("user_id", ids)
         : { data: [] as any[] };
       const merged = (rows ?? []).map(r => ({
         ...r,
+        voice: !!r.voice, // always boolean
         ...(profs?.find(p => p.user_id === r.user_id) ?? {})
       }));
       if (mounted) setMembers(merged);
