@@ -224,7 +224,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("You must be signed in.");
         return;
       }
-      if (topicLocked && !["owner", "moderator"].includes(role ?? "")) {
+      if (topicLocked && !["owner", "mod"].includes(role ?? "")) {
         setToast("Only owners or moderators can change the topic.");
         return;
       }
@@ -249,7 +249,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("You must be signed in.");
         return;
       }
-      if (!["owner", "moderator"].includes(role ?? "")) {
+      if (!["owner", "mod"].includes(role ?? "")) {
         setToast("Only owners or moderators can change topic lock.");
         return;
       }
@@ -274,7 +274,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("You must be signed in.");
         return;
       }
-      if (!["owner", "moderator"].includes(role ?? "")) {
+      if (!["owner", "mod"].includes(role ?? "")) {
         setToast("Only owners or moderators can change moderated mode.");
         return;
       }
@@ -312,7 +312,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         return;
       }
       // Only owner/mod can set other modes
-      if (!["owner", "moderator"].includes(role ?? "") && !["+o", "-o"].includes(mode)) {
+      if (!["owner", "mod"].includes(role ?? "") && !["+o", "-o"].includes(mode)) {
         setToast("Only owners or moderators can change modes.");
         return;
       }
@@ -333,15 +333,15 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       }
       // Handle modes
       if (mode === "+m") {
-        if (targetMember.role === "moderator") {
+        if (targetMember.role === "mod") {
           setToast("User is already a moderator.");
           return;
         }
         // Optimistic update
-        updateMember(targetUserId, { role: "moderator" });
+        updateMember(targetUserId, { role: "mod" });
         const { error } = await supabase
           .from("clique_members")
-          .update({ role: "moderator" })
+          .update({ role: "mod" })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
         if (error) {
@@ -352,7 +352,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         return;
       }
       if (mode === "-m") {
-        if (targetMember.role !== "moderator") {
+        if (targetMember.role !== "mod") {
           setToast("User is not a moderator.");
           return;
         }
@@ -465,7 +465,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       if (
         !(
           currentUserRole === "owner" ||
-          currentUserRole === "moderator" ||
+          currentUserRole === "mod" ||
           currentUserVoice
         )
       ) {
@@ -638,7 +638,7 @@ function RoleName({
   const info = memberRoles[userId] || { role: null, voice: false };
   let prefix = "";
   if (info.role === "owner") prefix = "@";
-  else if (info.role === "moderator") prefix = "^";
+  else if (info.role === "mod") prefix = "^";
   else if (info.voice) prefix = "+";
   return (
     <span className="font-semibold text-xs text-emerald-300">
