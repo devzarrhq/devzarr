@@ -14,6 +14,7 @@ type Project = {
   slug: string;
   summary: string | null;
   cover_url: string | null;
+  icon_url?: string | null;
   created_at: string;
 };
 
@@ -22,10 +23,10 @@ type FollowersMap = Record<string, number>;
 export default async function ProjectsPage({ searchParams }: { searchParams?: { sort?: string } }) {
   const supabase = createSupabaseServer();
 
-  // Fetch all public projects
+  // Fetch all public projects, now including icon_url
   const { data: projects } = await supabase
     .from("projects")
-    .select("id, name, slug, summary, cover_url, created_at")
+    .select("id, name, slug, summary, cover_url, icon_url, created_at")
     .eq("is_public", true);
 
   // Defensive: if projects is null, treat as empty array
