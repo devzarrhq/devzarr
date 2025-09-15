@@ -532,47 +532,49 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         )}
       </div>
       {/* Scrollable message box with fade at top */}
-      <div
-        ref={scroller}
-        className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar pb-[260px]"
-        style={{
-          height: "400px",
-          // maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
-          // WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
-        }}
-      >
-        <div className="flex flex-col gap-4 w-full pb-24">
-          {msgs.length === 0 ? (
-            <div className="text-gray-400 text-center w-full py-8">
-              No messages yet. Start the conversation!
-            </div>
-          ) : (
-            msgs.map(m =>
-              m.is_system ? (
-                <SystemMessage key={m.id} body={m.body} created_at={m.created_at} />
-              ) : (
-                <UserMessage key={m.id} msg={m} cliqueId={cliqueId} memberRoles={memberRoles} timeAgo={timeAgo} />
-              )
+    <div
+      ref={scroller}
+      className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 scroll-smooth custom-scrollbar"
+    >
+      <div className="flex flex-col gap-4 w-full pb-4">
+        {msgs.length === 0 ? (
+          <div className="text-gray-400 text-center w-full py-8">
+            No messages yet. Start the conversation!
+          </div>
+        ) : (
+          msgs.map(m =>
+            m.is_system ? (
+              <SystemMessage key={m.id} body={m.body} created_at={m.created_at} />
+            ) : (
+              <UserMessage
+                key={m.id}
+                msg={m}
+                cliqueId={cliqueId}
+                memberRoles={memberRoles}
+                timeAgo={timeAgo}
+              />
             )
-          )}
-        </div>
+          )
+        )}
       </div>
-      <div className="absolute left-0 right-0 bottom-[200px] z-10 p-3 flex gap-2 border-t border-white/10 bg-gray-900/80 backdrop-blur rounded-t-2xl">
-        <textarea
-          value={text}
-          onChange={(e)=>setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={2}
-          className="flex-1 rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10 resize-none"
-          placeholder="Say something nice...   (/help for commands)"
-        />
-        <button
-          onClick={send}
-          className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500"
-        >
-          Send
-        </button>
-      </div>
+    </div>
+
+    <div className="flex-shrink-0 p-3 flex gap-2 border-t border-white/10 bg-gray-900/80 backdrop-blur">
+      <textarea
+        value={text}
+        onChange={(e)=>setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        rows={2}
+        className="flex-1 rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10 resize-none"
+        placeholder="Say something nice...   (/help for commands)"
+      />
+      <button
+        onClick={send}
+        className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500"
+      >
+        Send
+      </button>
+    </div>
       {toast && (
         <div className="absolute left-1/2 -translate-x-1/2 bottom-6 z-50">
           <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg border border-emerald-400 font-semibold animate-fade-in-out" style={{ whiteSpace: "pre-line" }}>
