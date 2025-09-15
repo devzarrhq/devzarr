@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import Chat from "../Chat";
-import dynamic from "next/dynamic";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import MembersClient from "./MembersClient";
 import RightSidebarWidgets from "../../components/RightSidebarWidgets";
@@ -20,7 +19,6 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     (async () => {
       try {
         const supabase = supabaseBrowser();
-        // Fetch clique by ID (now includes topic)
         const { data: cliqueData, error: cliqueError } = await supabase
           .from("cliques")
           .select("id, name, slug, description, is_private, owner_id, created_at, topic")
@@ -33,14 +31,12 @@ export default function CliquePage({ params }: { params: { id: string } }) {
         }
         setClique(cliqueData);
 
-        // 1) pull members (id + role)
         const { data: cm } = await supabase
           .from("clique_members")
           .select("user_id, role, voice")
           .eq("clique_id", params.id);
 
         const userIds = (cm ?? []).map((m: any) => m.user_id);
-        // 2) pull profiles in bulk
         const { data: profs } = userIds.length
           ? await supabase
               .from("profiles")
@@ -48,7 +44,6 @@ export default function CliquePage({ params }: { params: { id: string } }) {
               .in("user_id", userIds)
           : { data: [] as any[] };
 
-        // 3) merge + sort (owner → moderator → member → alpha)
         const rank = (r?: string) => (r === "owner" ? 0 : r === "moderator" ? 1 : 2);
         const mergedMembers = (cm ?? [])
           .map((m: any) => ({
@@ -110,7 +105,6 @@ export default function CliquePage({ params }: { params: { id: string } }) {
                   >
                     {clique.name}
                   </h1>
-                  {/* Topic at the top */}
                   {clique.topic && (
                     <div className="mb-2 text-emerald-300 font-semibold text-lg">
                       Topic: {clique.topic}
@@ -124,7 +118,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
                 {/* Chat and members list side by side */}
-                <div className="flex flex-row gap-8 w-full max-w-6xl flex-1 min-h-0">
+                <div className="flex flex-1 min-h-0 flex-row gap-8 w-full max-w-6xl">
                   <div className="flex-1 min-h-0 flex flex-col">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>

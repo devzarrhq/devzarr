@@ -91,7 +91,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   useEffect(() => {
     let mounted = true;
     (async () => {
-      // Fetch clique settings
       const { data: clique } = await supabase
         .from("cliques")
         .select("topic, topic_locked, moderated")
@@ -102,7 +101,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setTopicLocked(!!clique.topic_locked);
         setModerated(!!clique.moderated);
       }
-      // Fetch current user
       const { data: { user } } = await supabase.auth.getUser();
       if (mounted) setCurrentUserId(user?.id ?? null);
       if (user) {
@@ -113,7 +111,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         }
       }
     })();
-    // Listen for changes to clique settings
     const ch = supabase
       .channel(`clique-settings:${cliqueId}`)
       .on("postgres_changes",
@@ -131,10 +128,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       supabase.removeChannel(ch);
       mounted = false;
     };
-    // eslint-disable-next-line
   }, [cliqueId, supabase, members]);
 
-  // Fetch messages and author profiles
   useEffect(() => {
     (async () => {
       const { data: messages } = await supabase
@@ -147,18 +142,15 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setMsgs([]);
         return;
       }
-      // Get unique author_ids
       const authorIds = Array.from(new Set(messages.map((m: any) => m.author_id))).filter(Boolean);
       if (authorIds.length === 0) {
         setMsgs(messages);
         return;
       }
-      // Fetch all profiles for these authors
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, handle, display_name, avatar_url")
         .in("user_id", authorIds);
-      // Map profiles to messages
       const profileMap: Record<string, any> = {};
       (profiles ?? []).forEach((p: any) => {
         profileMap[p.user_id] = p;
@@ -169,7 +161,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       }));
       setMsgs(mapped);
     })();
-    // Real-time: Listen for new messages
     const channel = supabase.channel(`clique:${cliqueId}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `clique_id=eq.${cliqueId}` },
@@ -189,18 +180,15 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     return () => { supabase.removeChannel(channel); };
   }, [cliqueId, supabase]);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     const el = scroller.current;
     if (!el) return;
-    // Only scroll if near bottom or just loaded
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     if (isNearBottom || el.scrollTop === 0) {
       el.scrollTo({ top: el.scrollHeight + 100, behavior: "smooth" });
     }
   }, [msgs.length]);
 
-  // Helper: get current user and their role/voice in this clique
   async function getCurrentUserAndRole() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { user: null, role: null, voice: false };
@@ -208,7 +196,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     return { user, role: me?.role ?? null, voice: !!me?.voice };
   }
 
-  // Helper: get user_id by handle (case-insensitive, strip leading @)
   async function getUserIdByHandle(handle: string) {
     const clean = handle.replace(/^@/, "");
     const { data } = await supabase
@@ -219,25 +206,21 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     return data?.user_id ?? null;
   }
 
-  // Helper: get handle by user_id
   function getHandleByUserId(userId: string) {
     const member = members.find(m => m.user_id === userId);
     return member?.handle || member?.display_name || "unknown";
   }
 
-  // --- FULL COMMAND HANDLER LOGIC ---
   async function handleCommand(cmd: string) {
     const { user, role, voice } = await getCurrentUserAndRole();
     if (!user) {
       setToast("You must be signed in.");
       return;
     }
-    // /help
     if (cmd === "/help") {
       setShowHelp(true);
       return;
     }
-    // /topic <new topic>
     if (cmd.startsWith("/topic")) {
       const newTopic = cmd.replace("/topic", "").trim();
       if (!newTopic) {
@@ -271,11 +254,9 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       }
       return;
     }
-    // /mode +t/-t (topic lock), +m/-m (moderated), +v/-v (voice), +o/-o (owner)
     if (cmd.startsWith("/mode")) {
       const args = cmd.replace("/mode", "").trim().split(/\s+/);
       if (args.length === 1 && (args[0] === "+t" || args[0] === "-t")) {
-        // Topic lock
         if (role !== "owner" && role !== "mod") {
           setToast("Only owner or mod can lock/unlock topic.");
           return;
@@ -301,7 +282,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         return;
       }
       if (args.length === 1 && (args[0] === "+m" || args[0] === "-m")) {
-        // Moderated mode
         if (role !== "owner" && role !== "mod") {
           setToast("Only owner or mod can change moderated mode.");
           return;
@@ -326,7 +306,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         }
         return;
       }
-      // /mode @user +m/-m/+v/-v/+o/-o
       if (args.length === 2 && args[0].startsWith("@")) {
         const targetHandle = args[0];
         const mode = args[1];
@@ -336,17 +315,14 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           setToast("User not found.");
           return;
         }
-        // Only owner can promote/demote owner
         if ((mode === "+o" || mode === "-o") && role !== "owner") {
           setToast("Only owner can promote/demote owner.");
           return;
         }
-        // Only owner/mod can promote/demote mod/voice
         if ((mode === "+m" || mode === "-m" || mode === "+v" || mode === "-v") && role !== "owner" && role !== "mod") {
           setToast("Only owner or mod can change roles.");
           return;
         }
-        // Update role/voice in clique_members
         if (mode === "+m" || mode === "-m") {
           const newRole = mode === "+m" ? "mod" : "member";
           const { error } = await supabase
@@ -394,9 +370,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           return;
         }
         if (mode === "+o" || mode === "-o") {
-          // Only owner can transfer ownership
           if (mode === "+o") {
-            // Transfer ownership
             const { error } = await supabase
               .from("cliques")
               .update({ owner_id: targetId })
@@ -415,7 +389,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             }
             return;
           }
-          // No demote owner (must transfer)
           setToast("To demote owner, transfer ownership.");
           return;
         }
@@ -425,7 +398,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       setToast("Usage: /mode @user +m/-m/+v/-v/+o/-o or /mode +t/-t or /mode +m/-m");
       return;
     }
-    // /kick @user
     if (cmd.startsWith("/kick")) {
       const targetHandle = cmd.replace("/kick", "").trim();
       if (!targetHandle.startsWith("@")) {
@@ -441,7 +413,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("User not found.");
         return;
       }
-      // Remove from clique_members
       const { error } = await supabase
         .from("clique_members")
         .delete()
@@ -461,7 +432,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       }
       return;
     }
-    // /ban @user
     if (cmd.startsWith("/ban")) {
       const targetHandle = cmd.replace("/ban", "").trim();
       if (!targetHandle.startsWith("@")) {
@@ -477,7 +447,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("User not found.");
         return;
       }
-      // Add to clique_bans
       const { error } = await supabase
         .from("clique_bans")
         .insert({
@@ -486,7 +455,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           banned_by: user.id,
         });
       if (!error) {
-        // Remove from clique_members as well
         await supabase
           .from("clique_members")
           .delete()
@@ -508,7 +476,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     setToast("Unknown command. Type /help for a list of commands.");
   }
 
-  // Send message or handle command
   const send = async () => {
     if (!text.trim()) return;
     if (text.trim().startsWith("/")) {
@@ -549,7 +516,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     }
   };
 
-  // Compose mode string (e.g. [+tm])
   let modeString = "";
   if (topicLocked) modeString += "t";
   if (moderated) modeString += "m";
@@ -560,7 +526,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   return (
     <div className="w-full flex justify-center flex-1 min-h-0">
       <div className="w-full max-w-2xl flex flex-col flex-1 min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
-        {/* Topic at the top */}
         <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2">
           <span>Topic: {displayTopic}</span>
           {displayModes && (
@@ -570,11 +535,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         {/* Scrollable message box with fade at top */}
         <div
           ref={scroller}
-          className="overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
+          className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
           style={{
-            height: "calc(70vh - 110px)",
-            minHeight: 220,
-            maxHeight: "calc(80vh - 110px)",
             maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
             WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
           }}
@@ -595,7 +557,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             )}
           </div>
         </div>
-        {/* Input area pinned at bottom */}
         <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent">
           <textarea
             value={text}
@@ -612,7 +573,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             Send
           </button>
         </div>
-        {/* Toast/snackbar */}
         {toast && (
           <div className="absolute left-1/2 -translate-x-1/2 bottom-6 z-50">
             <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg border border-emerald-400 font-semibold animate-fade-in-out" style={{ whiteSpace: "pre-line" }}>
@@ -620,7 +580,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             </div>
           </div>
         )}
-        {/* Help Modal */}
         {showHelp && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
             <div
@@ -669,7 +628,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .animate-fade-in-out {
             animation: fade-in-out 2.2s both;
           }
-          /* Modern custom scrollbar */
           .custom-scrollbar {
             scrollbar-width: thin;
             scrollbar-color: #38bdf8 #23272f;
