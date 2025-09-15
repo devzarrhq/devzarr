@@ -135,7 +135,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
               {/* Chat + Members row: constrained to remaining height */}
               <div className="row-start-2 row-end-3 min-h-0 overflow-hidden">
                 <div className="flex min-h-0 flex-row gap-8 w-full overflow-hidden">
-                  <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                  <div className="flex-1 min-h-0 h-full flex flex-col overflow-hidden">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>
                   <div className="flex-shrink-0 flex flex-col justify-start">
