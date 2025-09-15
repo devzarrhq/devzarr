@@ -74,7 +74,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
-        <div className="flex-1 flex flex-col h-screen min-h-0 md:ml-64">
+        <div className="flex-1 flex flex-col h-screen min-h-0 overflow-hidden md:ml-64">
           <Topbar />
           <main className="flex-1 flex items-center justify-center">
             <div className="p-8 text-gray-300">{error}</div>
@@ -88,7 +88,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
-        <div className="flex-1 flex flex-col h-screen min-h-0 md:ml-64">
+        <div className="flex-1 flex flex-col h-screen min-h-0 overflow-hidden md:ml-64">
           <Topbar />
           <main className="flex-1 flex items-center justify-center">
             <div className="p-8 text-gray-300">Loading…</div>
@@ -102,12 +102,15 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     <CliqueMembersProvider cliqueId={clique.id} initial={members}>
       <div className="flex h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
+        {/* Column holding topbar + center content */}
         <div className="flex flex-1 flex-col h-screen min-h-0 overflow-hidden">
           <Topbar />
-          <div className="flex flex-1 flex-row min-h-0">
-            <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4 min-h-0">
-              <main className="flex-1 flex flex-col min-h-0">
-                {/* Title, topic, and description */}
+          {/* Middle row (center column + fixed right sidebar) */}
+          <div className="flex flex-1 flex-row min-h-0 overflow-hidden">
+            {/* Center column */}
+            <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4 min-h-0 overflow-hidden">
+              <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                {/* Title, topic, description (do NOT grow/shrink height randomly) */}
                 <div className="w-full flex-shrink-0">
                   <h1
                     className="text-4xl font-extrabold mb-2"
@@ -127,8 +130,9 @@ export default function CliquePage({ params }: { params: { id: string } }) {
                     Created: {new Date(clique.created_at).toLocaleString()}
                   </div>
                 </div>
-                {/* Chat and members list side by side */}
-                <div className="flex flex-1 min-h-0 flex-row gap-8 w-full">
+
+                {/* Chat + members (chat column must be overflow-hidden + min-h-0) */}
+                <div className="flex flex-1 min-h-0 flex-row gap-8 w-full overflow-hidden">
                   <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>
@@ -138,6 +142,8 @@ export default function CliquePage({ params }: { params: { id: string } }) {
                 </div>
               </main>
             </div>
+
+            {/* Fixed right sidebar */}
             <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
               <RightSidebarWidgets />
             </aside>
