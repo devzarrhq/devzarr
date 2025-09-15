@@ -252,6 +252,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         .update({ topic: newTopic })
         .eq("id", cliqueId);
       if (!error) {
+        // Optimistically update topic
+        setCurrentTopic(newTopic);
         // Insert system message
         await supabase.from("messages").insert({
           clique_id: cliqueId,
@@ -281,6 +283,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ topic_locked: lock })
           .eq("id", cliqueId);
         if (!error) {
+          setTopicLocked(lock); // Optimistic update
           await supabase.from("messages").insert({
             clique_id: cliqueId,
             author_id: user.id,
@@ -306,6 +309,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ moderated: mod })
           .eq("id", cliqueId);
         if (!error) {
+          setModerated(mod); // Optimistic update
           await supabase.from("messages").insert({
             clique_id: cliqueId,
             author_id: user.id,
