@@ -524,9 +524,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
 
   return (
-    <div className="w-full flex justify-center flex-1 min-h-0">
-      <div className="w-full max-w-2xl flex flex-col flex-1 min-h-0 rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg">
-        <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2">
+    <div className="w-full flex justify-center">
+      <div
+        className="w-full max-w-2xl flex flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg"
+        style={{
+          height: "70vh",
+          minHeight: 400,
+          maxHeight: 700,
+          margin: "0 auto",
+        }}
+      >
+        <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
           <span>Topic: {displayTopic}</span>
           {displayModes && (
             <span className="ml-2 text-xs text-emerald-400 font-mono">{displayModes}</span>
@@ -557,7 +565,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             )}
           </div>
         </div>
-        <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent">
+        <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent rounded-b-2xl">
           <textarea
             value={text}
             onChange={(e)=>setText(e.target.value)}
