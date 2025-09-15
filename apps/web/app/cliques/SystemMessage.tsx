@@ -15,15 +15,13 @@ function timeAgo(date: string | Date) {
 
 export default function SystemMessage({ body, created_at }: { body: string; created_at: string }) {
   return (
-    <div className="flex items-start gap-2 w-full max-w-full">
-      <div
-        className="bg-orange-900/80 border border-orange-500/60 !text-orange-200 font-semibold rounded-lg px-4 py-2 pt-6 shadow w-full relative text-sm"
-        style={{ wordBreak: "break-word", overflowWrap: "anywhere", color: "#fdba74", minHeight: "44px" }}
-      >
-        <span className="absolute top-2 right-4 text-xs text-orange-300 font-normal">
-          {timeAgo(created_at)}
-        </span>
-        {body}
+    <div className="flex items-start gap-2 text-sm text-gray-100 bg-white/5 rounded-md px-3 py-2 w-fit max-w-[70%]">
+      <div>
+        <div className="flex items-center gap-2 mb-0.5">
+          <span className="font-bold text-orange-400">[system]</span>
+          <span className="text-xs text-gray-400">{timeAgo(created_at)}</span>
+        </div>
+        <div className="text-orange-200">{body}</div>
       </div>
     </div>
   );
