@@ -537,8 +537,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         className="overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
         style={{
           height: "300px",
-          maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
+          // maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
+          // WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
         }}
       >
         <div className="flex flex-col gap-4 w-full pb-24">
