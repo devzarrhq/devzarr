@@ -524,15 +524,14 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
 
   return (
-    <div className="w-full flex flex-col flex-1 min-h-0">
-      {/* Fixed header (never scrolls) */}
+    <div className="w-full h-full flex flex-col flex-1 min-h-0">
       <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
         <span>Topic: {displayTopic}</span>
         {displayModes && (
           <span className="ml-2 text-xs text-emerald-400 font-mono">{displayModes}</span>
         )}
       </div>
-      {/* Scrollable messages list only */}
+      {/* Scrollable message box with fade at top */}
       <div
         ref={scroller}
         className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
@@ -557,7 +556,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           )}
         </div>
       </div>
-      {/* Fixed input (never scrolls) */}
       <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent rounded-b-2xl">
         <textarea
           value={text}
