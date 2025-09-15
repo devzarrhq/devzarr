@@ -18,6 +18,7 @@ export default function UserMessage({
   msg,
   cliqueId,
   memberRoles,
+  timeAgo,
 }: {
   msg: {
     id: string;
@@ -32,6 +33,7 @@ export default function UserMessage({
   };
   cliqueId: string;
   memberRoles: MemberRoles;
+  timeAgo: (date: string | Date) => string;
 }) {
   return (
     <div key={msg.id} className="flex items-start gap-2 text-sm text-gray-100 bg-white/5 rounded-md px-3 py-2 w-fit max-w-[70%]">
@@ -56,7 +58,7 @@ export default function UserMessage({
             memberRoles={memberRoles}
           />
           <span className="text-[10px] text-gray-400">
-            {new Date(msg.created_at).toLocaleTimeString()}
+            {timeAgo(msg.created_at)}
           </span>
         </div>
         <div>{linkify(msg.body)}</div>
