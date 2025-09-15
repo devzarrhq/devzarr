@@ -129,7 +129,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
                 </div>
                 {/* Chat and members list side by side */}
                 <div className="flex flex-1 min-h-0 flex-row gap-8 w-full">
-                  <div className="flex-1 min-h-0 flex flex-col">
+                  <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>
                   <div className="flex-shrink-0 flex flex-col justify-start">
