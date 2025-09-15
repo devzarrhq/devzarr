@@ -524,7 +524,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
 
   return (
-    <div className="min-h-0 h-full w-full grid grid-rows-[auto,1fr,auto] overflow-hidden">
+    <div className="min-h-0 h-full w-full grid grid-rows-[auto,1fr,auto] flex-1 overflow-hidden">
       <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
         <span>Topic: {displayTopic}</span>
         {displayModes && (
