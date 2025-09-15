@@ -524,7 +524,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 w-full overflow-hidden">
+    <div className="relative min-h-0 h-full w-full grid grid-rows-[auto,1fr] flex-1 overflow-hidden">
       <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
         <span>Topic: {displayTopic}</span>
         {displayModes && (
@@ -534,7 +534,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       {/* Scrollable message box with fade at top */}
       <div
         ref={scroller}
-        className="row-start-2 row-end-3 flex-1 min-h-0 h-full overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar overflow-hidden"
+        className="row-start-2 row-end-3 min-h-0 h-full overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar pb-[280px]"
         style={{
           height: "400px",
           // maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
@@ -557,7 +557,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           )}
         </div>
       </div>
-      <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent rounded-b-2xl flex-shrink-0">
+      <div className="absolute left-0 right-0 bottom-[200px] z-10 p-3 px-2 flex gap-2 border-t border-white/10 bg-transparent rounded-b-2xl">
         <textarea
           value={text}
           onChange={(e)=>setText(e.target.value)}
