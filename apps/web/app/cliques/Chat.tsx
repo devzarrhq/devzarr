@@ -79,7 +79,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const scroller = useRef<HTMLDivElement>(null);
 
   // Use shared clique members context
-  const { members, updateMember } = useCliqueMembers();
+  const { members } = useCliqueMembers();
 
   // Build memberRoles map for fast lookup
   const memberRoles = members.reduce((acc, m) => {
@@ -220,7 +220,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     return member?.handle || member?.display_name || "unknown";
   }
 
-  // --- FULL COMMAND HANDLER LOGIC RESTORED ---
+  // --- FULL COMMAND HANDLER LOGIC ---
   async function handleCommand(cmd: string) {
     const { user, role, voice } = await getCurrentUserAndRole();
     if (!user) {
@@ -243,7 +243,6 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         setToast("Topic is locked. Only owner/mod can change it.");
         return;
       }
-      // Only owner/mod can set topic if locked
       if (role !== "owner" && role !== "mod") {
         setToast("Only owner or mod can set the topic.");
         return;
