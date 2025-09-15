@@ -102,37 +102,39 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     <CliqueMembersProvider cliqueId={clique.id} initial={members}>
       <div className="flex h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
-        {/* Column holding topbar + center content */}
+
+        {/* Column after Sidebar */}
         <div className="flex flex-1 flex-col h-screen min-h-0 overflow-hidden">
           <Topbar />
-          {/* Middle row (center column + fixed right sidebar) */}
-          <div className="flex flex-1 flex-row min-h-0 overflow-hidden">
-            {/* Center column */}
-            <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4 min-h-0 overflow-hidden">
-              <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
-                {/* Title, topic, description (do NOT grow/shrink height randomly) */}
-                <div className="w-full flex-shrink-0">
-                  <h1
-                    className="text-4xl font-extrabold mb-2"
-                    style={{ color: `var(--tw-color-accent-${accent})` }}
-                  >
-                    {clique.name}
-                  </h1>
-                  {clique.topic && (
-                    <div className="mb-2 text-emerald-300 font-semibold text-lg">
-                      Topic: {clique.topic}
-                    </div>
-                  )}
-                  {clique.description && (
-                    <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
-                  )}
-                  <div className="mb-8 text-xs text-gray-500">
-                    Created: {new Date(clique.created_at).toLocaleString()}
-                  </div>
-                </div>
 
-                {/* Chat + members (chat column must be overflow-hidden + min-h-0) */}
-                <div className="flex flex-1 min-h-0 flex-row gap-8 w-full overflow-hidden">
+          {/* Center row (content) + fixed right sidebar */}
+          <div className="flex flex-1 flex-row min-h-0 overflow-hidden">
+            {/* Center column: use GRID to clamp title area and let chat fill remaining */}
+            <div className="flex-1 md:ml-64 lg:mr-[340px] px-4 min-h-0 overflow-hidden grid grid-rows-[auto,1fr]">
+              {/* Title / Topic / Description (fixed height, no scroll) */}
+              <div className="w-full row-start-1 row-end-2">
+                <h1
+                  className="text-4xl font-extrabold mb-2"
+                  style={{ color: `var(--tw-color-accent-${accent})` }}
+                >
+                  {clique.name}
+                </h1>
+                {clique.topic && (
+                  <div className="mb-2 text-emerald-300 font-semibold text-lg">
+                    Topic: {clique.topic}
+                  </div>
+                )}
+                {clique.description && (
+                  <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
+                )}
+                <div className="mb-8 text-xs text-gray-500">
+                  Created: {new Date(clique.created_at).toLocaleString()}
+                </div>
+              </div>
+
+              {/* Chat + Members row: constrained to remaining height */}
+              <div className="row-start-2 row-end-3 min-h-0 overflow-hidden">
+                <div className="flex min-h-0 flex-row gap-8 w-full overflow-hidden">
                   <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>
@@ -140,7 +142,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
                     <MembersClient cliqueId={clique.id} />
                   </div>
                 </div>
-              </main>
+              </div>
             </div>
 
             {/* Fixed right sidebar */}
