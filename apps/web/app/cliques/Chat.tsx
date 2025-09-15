@@ -220,10 +220,224 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     return member?.handle || member?.display_name || "unknown";
   }
 
-  // Command parser and executor (restored)
+  // --- FULL COMMAND HANDLER LOGIC RESTORED ---
   async function handleCommand(cmd: string) {
-    // ... unchanged ...
-    // (omitted for brevity)
+    const { user, role, voice } = await getCurrentUserAndRole();
+    if (!user) {
+      setToast("You must be signed in.");
+      return;
+    }
+    // /help
+    if (cmd === "/help") {
+      setShowHelp(true);
+      return;
+    }
+    // /topic <new topic>
+    if (cmd.startsWith("/topic")) {
+      const newTopic = cmd.replace("/topic", "").trim();
+      if (!newTopic) {
+        setToast("Usage: /topic <new topic>");
+        return;
+      }
+      if (topicLocked && role !== "owner" && role !== "mod") {
+        setToast("Topic is locked. Only owner/mod can change it.");
+        return;
+      }
+      // Only owner/mod can set topic if locked
+      if (role !== "owner" && role !== "mod") {
+        setToast("Only owner or mod can set the topic.");
+        return;
+      }
+      const { error } = await supabase
+        .from("cliques")
+        .update({ topic: newTopic })
+        .eq("id", cliqueId);
+      if (!error) {
+        setToast("Topic updated.");
+      } else {
+        setToast("Failed to update topic.");
+      }
+      return;
+    }
+    // /mode +t/-t (topic lock), +m/-m (moderated), +v/-v (voice), +o/-o (owner)
+    if (cmd.startsWith("/mode")) {
+      const args = cmd.replace("/mode", "").trim().split(/\s+/);
+      if (args.length === 1 && (args[0] === "+t" || args[0] === "-t")) {
+        // Topic lock
+        if (role !== "owner" && role !== "mod") {
+          setToast("Only owner or mod can lock/unlock topic.");
+          return;
+        }
+        const lock = args[0] === "+t";
+        const { error } = await supabase
+          .from("cliques")
+          .update({ topic_locked: lock })
+          .eq("id", cliqueId);
+        if (!error) {
+          setToast(lock ? "Topic lock enabled." : "Topic lock disabled.");
+        } else {
+          setToast("Failed to update topic lock.");
+        }
+        return;
+      }
+      if (args.length === 1 && (args[0] === "+m" || args[0] === "-m")) {
+        // Moderated mode
+        if (role !== "owner" && role !== "mod") {
+          setToast("Only owner or mod can change moderated mode.");
+          return;
+        }
+        const mod = args[0] === "+m";
+        const { error } = await supabase
+          .from("cliques")
+          .update({ moderated: mod })
+          .eq("id", cliqueId);
+        if (!error) {
+          setToast(mod ? "Moderated mode enabled." : "Moderated mode disabled.");
+        } else {
+          setToast("Failed to update moderated mode.");
+        }
+        return;
+      }
+      // /mode @user +m/-m/+v/-v/+o/-o
+      if (args.length === 2 && args[0].startsWith("@")) {
+        const targetHandle = args[0];
+        const mode = args[1];
+        const targetId = await getUserIdByHandle(targetHandle);
+        if (!targetId) {
+          setToast("User not found.");
+          return;
+        }
+        // Only owner can promote/demote owner
+        if ((mode === "+o" || mode === "-o") && role !== "owner") {
+          setToast("Only owner can promote/demote owner.");
+          return;
+        }
+        // Only owner/mod can promote/demote mod/voice
+        if ((mode === "+m" || mode === "-m" || mode === "+v" || mode === "-v") && role !== "owner" && role !== "mod") {
+          setToast("Only owner or mod can change roles.");
+          return;
+        }
+        // Update role/voice in clique_members
+        if (mode === "+m" || mode === "-m") {
+          const newRole = mode === "+m" ? "mod" : "member";
+          const { error } = await supabase
+            .from("clique_members")
+            .update({ role: newRole })
+            .eq("clique_id", cliqueId)
+            .eq("user_id", targetId);
+          if (!error) {
+            setToast(mode === "+m" ? "Promoted to mod." : "Demoted to member.");
+          } else {
+            setToast("Failed to update role.");
+          }
+          return;
+        }
+        if (mode === "+v" || mode === "-v") {
+          const newVoice = mode === "+v";
+          const { error } = await supabase
+            .from("clique_members")
+            .update({ voice: newVoice })
+            .eq("clique_id", cliqueId)
+            .eq("user_id", targetId);
+          if (!error) {
+            setToast(newVoice ? "Voice granted." : "Voice removed.");
+          } else {
+            setToast("Failed to update voice.");
+          }
+          return;
+        }
+        if (mode === "+o" || mode === "-o") {
+          // Only owner can transfer ownership
+          if (mode === "+o") {
+            // Transfer ownership
+            const { error } = await supabase
+              .from("cliques")
+              .update({ owner_id: targetId })
+              .eq("id", cliqueId);
+            if (!error) {
+              setToast("Ownership transferred.");
+            } else {
+              setToast("Failed to transfer ownership.");
+            }
+            return;
+          }
+          // No demote owner (must transfer)
+          setToast("To demote owner, transfer ownership.");
+          return;
+        }
+        setToast("Unknown mode command.");
+        return;
+      }
+      setToast("Usage: /mode @user +m/-m/+v/-v/+o/-o or /mode +t/-t or /mode +m/-m");
+      return;
+    }
+    // /kick @user
+    if (cmd.startsWith("/kick")) {
+      const targetHandle = cmd.replace("/kick", "").trim();
+      if (!targetHandle.startsWith("@")) {
+        setToast("Usage: /kick @user");
+        return;
+      }
+      if (role !== "owner" && role !== "mod") {
+        setToast("Only owner or mod can kick.");
+        return;
+      }
+      const targetId = await getUserIdByHandle(targetHandle);
+      if (!targetId) {
+        setToast("User not found.");
+        return;
+      }
+      // Remove from clique_members
+      const { error } = await supabase
+        .from("clique_members")
+        .delete()
+        .eq("clique_id", cliqueId)
+        .eq("user_id", targetId);
+      if (!error) {
+        setToast("User kicked.");
+      } else {
+        setToast("Failed to kick user.");
+      }
+      return;
+    }
+    // /ban @user
+    if (cmd.startsWith("/ban")) {
+      const targetHandle = cmd.replace("/ban", "").trim();
+      if (!targetHandle.startsWith("@")) {
+        setToast("Usage: /ban @user");
+        return;
+      }
+      if (role !== "owner" && role !== "mod") {
+        setToast("Only owner or mod can ban.");
+        return;
+      }
+      const targetId = await getUserIdByHandle(targetHandle);
+      if (!targetId) {
+        setToast("User not found.");
+        return;
+      }
+      // Add to clique_bans
+      const { error } = await supabase
+        .from("clique_bans")
+        .insert({
+          clique_id: cliqueId,
+          user_id: targetId,
+          banned_by: user.id,
+        });
+      if (!error) {
+        // Remove from clique_members as well
+        await supabase
+          .from("clique_members")
+          .delete()
+          .eq("clique_id", cliqueId)
+          .eq("user_id", targetId);
+        setToast("User banned.");
+      } else {
+        setToast("Failed to ban user.");
+      }
+      return;
+    }
+    setToast("Unknown command. Type /help for a list of commands.");
   }
 
   // Send message or handle command
