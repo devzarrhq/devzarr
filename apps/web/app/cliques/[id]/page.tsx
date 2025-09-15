@@ -110,7 +110,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
           {/* Center row (content) + fixed right sidebar */}
           <div className="flex flex-1 flex-row min-h-0 overflow-hidden">
             {/* Center column: use GRID to clamp title area and let chat fill remaining */}
-            <div className="flex-1 md:ml-64 lg:mr-[340px] px-4 min-h-0 overflow-hidden grid grid-rows-[auto,1fr]">
+            <div className="flex-1 md:ml-64 lg:mr-[340px] px-4 min-h-0 overflow-hidden grid grid-rows-[auto,1fr] h-full">
               {/* Title / Topic / Description (fixed height, no scroll) */}
               <div className="w-full row-start-1 row-end-2">
                 <h1
@@ -133,7 +133,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
               </div>
 
               {/* Chat + Members row: constrained to remaining height */}
-              <div className="row-start-2 row-end-3 min-h-0 overflow-hidden">
+              <div className="row-start-2 row-end-3 min-h-0 overflow-hidden h-full">
                 <div className="flex min-h-0 flex-row gap-8 w-full overflow-hidden">
                   <div className="flex-1 min-h-0 h-full flex flex-col overflow-hidden">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
