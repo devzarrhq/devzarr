@@ -50,9 +50,19 @@ export default function CliquePage({ params }: { params: { id: string } }) {
             user_id: m.user_id,
             role: m.role ?? "member",
             voice: !!m.voice,
-            ...(profs?.find((p: any) => p.user_id === m.user_id) ?? { handle: null, display_name: null, avatar_url: null })
+            ...(profs?.find((p: any) => p.user_id === m.user_id) ?? {
+              handle: null,
+              display_name: null,
+              avatar_url: null,
+            }),
           }))
-          .sort((a: any, b: any) => rank(a.role) - rank(b.role) || (a.display_name ?? a.handle ?? "").localeCompare(b.display_name ?? b.handle ?? ""));
+          .sort(
+            (a: any, b: any) =>
+              rank(a.role) - rank(b.role) ||
+              (a.display_name ?? a.handle ?? "").localeCompare(
+                b.display_name ?? b.handle ?? ""
+              )
+          );
         setMembers(mergedMembers);
       } catch {
         setError("Failed to load clique.");
@@ -64,7 +74,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
-  <div className="flex-1 flex flex-col h-screen md:ml-64">
+        <div className="flex-1 flex flex-col h-screen overflow-hidden md:ml-64">
           <Topbar />
           <main className="flex-1 flex items-center justify-center">
             <div className="p-8 text-gray-300">{error}</div>
@@ -78,7 +88,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
-        <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+        <div className="flex-1 flex flex-col h-screen overflow-hidden md:ml-64">
           <Topbar />
           <main className="flex-1 flex items-center justify-center">
             <div className="p-8 text-gray-300">Loading…</div>
@@ -90,12 +100,12 @@ export default function CliquePage({ params }: { params: { id: string } }) {
 
   return (
     <CliqueMembersProvider cliqueId={clique.id} initial={members}>
-  <div className="flex h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <div className="flex h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
-  <div className="flex flex-1 flex-col min-h-0">
+        <div className="flex flex-1 flex-col h-screen overflow-hidden">
           <Topbar />
           <div className="flex flex-1 flex-row min-h-0">
-            <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4 min-h-0">
+            <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] px-4 min-h-0 overflow-hidden">
               <main className="flex-1 flex flex-col min-h-0">
                 {/* Title, topic, and description */}
                 <div className="w-full">
