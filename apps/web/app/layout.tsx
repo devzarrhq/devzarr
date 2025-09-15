@@ -6,7 +6,7 @@ import AuthGate from './providers/AuthGate'
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen min-w-full transition-colors bg-blue-500">
+      <body className="h-screen w-full overflow-hiddentransition-colors bg-blue-500">
         <ClientProviders>
           <AuthGate>
             {children}
