@@ -98,44 +98,46 @@ export default function CliquePage({ params }: { params: { id: string } }) {
     );
   }
 
-  return (
-    <CliqueMembersProvider cliqueId={clique.id} initial={members}>
-      <div className="flex flex-1 min-h-0 w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
-        <Sidebar />
+return (
+  <CliqueMembersProvider cliqueId={clique.id} initial={members}>
+    <div className="flex min-h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <Sidebar />
 
-        {/* Column after Sidebar */}
-        <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
-          <Topbar />
+      {/* Main column after Sidebar */}
+      <div className="flex flex-1 flex-col min-h-screen">
+        <Topbar />
 
-          {/* Center row (content) + fixed right sidebar */}
-          <div className="flex flex-1 flex-row min-h-0 overflow-hidden">
-            {/* Center column: use GRID to clamp title area and let chat fill remaining */}
-            <div className="md:ml-64 lg:mr-[340px] px-4 min-h-0 overflow-hidden grid grid-rows-[auto,1fr] h-full">
-              {/* Title / Topic / Description (fixed height, no scroll) */}
-              <div className="w-full row-start-1 row-end-2">
-                <h1
-                  className="text-4xl font-extrabold mb-2"
-                  style={{ color: `var(--tw-color-accent-${accent})` }}
-                >
-                  {clique.name}
-                </h1>
-                {clique.topic && (
-                  <div className="mb-2 text-emerald-300 font-semibold text-lg">
-                    Topic: {clique.topic}
+        <div className="flex flex-1 flex-row min-h-0">
+          {/* Center column */}
+          <div className="flex-1 flex flex-col md:ml-64 lg:mr-[340px] min-h-0 px-4">
+            <main className="w-full py-10 flex flex-col flex-1 min-h-0">
+              <div className="mx-auto w-full max-w-5xl flex flex-col flex-1 min-h-0">
+                {/* Title / Topic / Description */}
+                <div className="mb-6">
+                  <h1
+                    className="text-4xl font-extrabold mb-2"
+                    style={{ color: `var(--tw-color-accent-${accent})` }}
+                  >
+                    {clique.name}
+                  </h1>
+                  {clique.topic && (
+                    <div className="mb-2 text-emerald-300 font-semibold text-lg">
+                      Topic: {clique.topic}
+                    </div>
+                  )}
+                  {clique.description && (
+                    <p className="text-gray-300 text-lg mb-6">
+                      {clique.description}
+                    </p>
+                  )}
+                  <div className="text-xs text-gray-500">
+                    Created: {new Date(clique.created_at).toLocaleString()}
                   </div>
-                )}
-                {clique.description && (
-                  <p className="text-gray-300 text-lg mb-6">{clique.description}</p>
-                )}
-                <div className="mb-8 text-xs text-gray-500">
-                  Created: {new Date(clique.created_at).toLocaleString()}
                 </div>
-              </div>
 
-              {/* Chat + Members row: constrained to remaining height */}
-              <div className="row-start-2 row-end-3 min-h-0 overflow-hidden h-full">
-                <div className="flex min-h-0 flex-row gap-8 w-full overflow-hidden">
-                  <div className="flex-1 min-h-0 h-full flex flex-col overflow-hidden">
+                {/* Chat + Members, constrained to remaining height */}
+                <div className="flex-1 min-h-0 flex flex-row gap-8">
+                  <div className="flex-1 min-h-0 flex flex-col">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>
                   <div className="flex-shrink-0 flex flex-col justify-start">
@@ -143,15 +145,17 @@ export default function CliquePage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Fixed right sidebar */}
-            <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
-              <RightSidebarWidgets />
-            </aside>
+            </main>
           </div>
+
+          {/* Fixed right sidebar */}
+          <aside className="hidden lg:block lg:w-[340px] flex-shrink-0 px-6 py-10 fixed right-0 top-0 h-full z-10">
+            <RightSidebarWidgets />
+          </aside>
         </div>
       </div>
-    </CliqueMembersProvider>
-  );
+    </div>
+  </CliqueMembersProvider>
+);
+
 }
