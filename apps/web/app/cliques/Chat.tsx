@@ -524,7 +524,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
 
   return (
-    <div className="relative min-h-0 h-full w-full flex flex-col flex-1 overflow-hidden">
+    <div className="relative flex flex-col h-full w-full overflow-hidden">
       <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
         <span>Topic: {displayTopic}</span>
         {displayModes && (
@@ -534,7 +534,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       {/* Scrollable message box with fade at top */}
       <div
         ref={scroller}
-        className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar pb-[280px]"
+        className="flex-1 overflow-y-auto px-2 py-4 scroll-smooth custom-scrollbar pb-[260px]"
         style={{
           height: "400px",
           // maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
