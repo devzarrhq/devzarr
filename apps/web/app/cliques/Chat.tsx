@@ -19,6 +19,8 @@ type Message = {
   body: string;
   author_id: string;
   created_at: string;
+  is_system?: boolean;
+  system_type?: string | null;
   author?: {
     handle: string | null;
     display_name: string | null;
@@ -132,7 +134,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     (async () => {
       const { data: messages } = await supabase
         .from("messages")
-        .select("id, body, author_id, created_at")
+        .select("id, body, author_id, created_at, is_system, system_type")
         .eq("clique_id", cliqueId)
         .order("created_at", { ascending: true })
         .limit(100);
@@ -201,10 +203,16 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     const clean = handle.replace(/^@/, "");
     const { data } = await supabase
       .from("profiles")
-      .select("user_id")
+      .select("user_id, handle")
       .ilike("handle", clean)
       .single();
     return data?.user_id ?? null;
+  }
+
+  // Helper: get handle by user_id
+  function getHandleByUserId(userId: string) {
+    const member = members.find(m => m.user_id === userId);
+    return member?.handle || member?.display_name || "unknown";
   }
 
   // Command parser and executor
@@ -236,6 +244,14 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       if (!error) {
         setCurrentTopic(newTopic);
         setToast("Topic updated.");
+        // Insert system message
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `[System] Topic changed to: "${newTopic}" by @${getHandleByUserId(user.id)}`,
+          is_system: true,
+          system_type: "topic_change",
+        });
       } else {
         setToast("Failed to update topic.");
       }
@@ -261,6 +277,14 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       if (!error) {
         setTopicLocked(lock);
         setToast(lock ? "Topic lock enabled (+t)." : "Topic lock disabled (-t).");
+        // Insert system message
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `[System] Topic lock ${lock ? "enabled" : "disabled"} by @${getHandleByUserId(user.id)}`,
+          is_system: true,
+          system_type: "mode_change",
+        });
       } else {
         setToast("Failed to update topic lock.");
       }
@@ -286,6 +310,14 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       if (!error) {
         setModerated(mod);
         setToast(mod ? "Moderated mode enabled (+m)." : "Moderated mode disabled (-m).");
+        // Insert system message
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `[System] Moderated mode ${mod ? "enabled" : "disabled"} by @${getHandleByUserId(user.id)}`,
+          is_system: true,
+          system_type: "mode_change",
+        });
       } else {
         setToast("Failed to update moderated mode.");
       }
@@ -344,10 +376,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ role: "mod" })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
-        if (error) {
-          setToast("Failed to promote to moderator.");
-        } else {
+        if (!error) {
           setToast("User promoted to moderator.");
+          await supabase.from("messages").insert({
+            clique_id: cliqueId,
+            author_id: user.id,
+            body: `[System] @${getHandleByUserId(targetUserId)} was promoted to moderator by @${getHandleByUserId(user.id)}`,
+            is_system: true,
+            system_type: "mode_change",
+          });
+        } else {
+          setToast("Failed to promote to moderator.");
         }
         return;
       }
@@ -362,10 +401,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ role: "member" })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
-        if (error) {
-          setToast("Failed to demote moderator.");
-        } else {
+        if (!error) {
           setToast("User demoted from moderator.");
+          await supabase.from("messages").insert({
+            clique_id: cliqueId,
+            author_id: user.id,
+            body: `[System] @${getHandleByUserId(targetUserId)} was demoted from moderator by @${getHandleByUserId(user.id)}`,
+            is_system: true,
+            system_type: "mode_change",
+          });
+        } else {
+          setToast("Failed to demote moderator.");
         }
         return;
       }
@@ -380,10 +426,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ voice: true })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
-        if (error) {
-          setToast("Failed to give voice.");
-        } else {
+        if (!error) {
           setToast("User given voice (+v).");
+          await supabase.from("messages").insert({
+            clique_id: cliqueId,
+            author_id: user.id,
+            body: `[System] @${getHandleByUserId(targetUserId)} was given voice by @${getHandleByUserId(user.id)}`,
+            is_system: true,
+            system_type: "mode_change",
+          });
+        } else {
+          setToast("Failed to give voice.");
         }
         return;
       }
@@ -398,10 +451,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ voice: false })
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
-        if (error) {
-          setToast("Failed to remove voice.");
-        } else {
+        if (!error) {
           setToast("User voice removed (-v).");
+          await supabase.from("messages").insert({
+            clique_id: cliqueId,
+            author_id: user.id,
+            body: `[System] @${getHandleByUserId(targetUserId)} had voice removed by @${getHandleByUserId(user.id)}`,
+            is_system: true,
+            system_type: "mode_change",
+          });
+        } else {
+          setToast("Failed to remove voice.");
         }
         return;
       }
@@ -427,6 +487,13 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ owner_id: targetUserId })
           .eq("id", cliqueId);
         setToast("Ownership transferred.");
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `[System] Ownership transferred to @${getHandleByUserId(targetUserId)} by @${getHandleByUserId(user.id)}`,
+          is_system: true,
+          system_type: "mode_change",
+        });
         return;
       }
       if (mode === "-o") {
@@ -441,9 +508,102 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .eq("clique_id", cliqueId)
           .eq("user_id", targetUserId);
         setToast("User demoted from owner.");
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `[System] @${getHandleByUserId(targetUserId)} was demoted from owner by @${getHandleByUserId(user.id)}`,
+          is_system: true,
+          system_type: "mode_change",
+        });
         return;
       }
       setToast("Unknown mode.");
+      return;
+    }
+
+    // /kick @user
+    if (cmd.startsWith("/kick ")) {
+      const handle = cmd.replace("/kick", "").trim();
+      const { user, role } = await getCurrentUserAndRole();
+      if (!user) {
+        setToast("You must be signed in.");
+        return;
+      }
+      if (!["owner", "mod"].includes(role ?? "")) {
+        setToast("Only owners or moderators can kick.");
+        return;
+      }
+      const targetUserId = await getUserIdByHandle(handle);
+      if (!targetUserId) {
+        setToast(`No user with handle ${handle} found.`);
+        return;
+      }
+      if (user.id === targetUserId) {
+        setToast("You cannot kick yourself.");
+        return;
+      }
+      // Remove from clique_members
+      const { error } = await supabase
+        .from("clique_members")
+        .delete()
+        .eq("clique_id", cliqueId)
+        .eq("user_id", targetUserId);
+      if (!error) {
+        setToast("User kicked.");
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `[System] @${getHandleByUserId(targetUserId)} was kicked by @${getHandleByUserId(user.id)}`,
+          is_system: true,
+          system_type: "kick",
+        });
+      } else {
+        setToast("Failed to kick user.");
+      }
+      return;
+    }
+
+    // /ban @user
+    if (cmd.startsWith("/ban ")) {
+      const handle = cmd.replace("/ban", "").trim();
+      const { user, role } = await getCurrentUserAndRole();
+      if (!user) {
+        setToast("You must be signed in.");
+        return;
+      }
+      if (!["owner", "mod"].includes(role ?? "")) {
+        setToast("Only owners or moderators can ban.");
+        return;
+      }
+      const targetUserId = await getUserIdByHandle(handle);
+      if (!targetUserId) {
+        setToast(`No user with handle ${handle} found.`);
+        return;
+      }
+      if (user.id === targetUserId) {
+        setToast("You cannot ban yourself.");
+        return;
+      }
+      // Add to clique_bans and remove from clique_members
+      await supabase.from("clique_bans").insert({
+        clique_id: cliqueId,
+        user_id: targetUserId,
+        banned_by: user.id,
+        reason: "Banned via chat command",
+      });
+      await supabase
+        .from("clique_members")
+        .delete()
+        .eq("clique_id", cliqueId)
+        .eq("user_id", targetUserId);
+      setToast("User banned.");
+      await supabase.from("messages").insert({
+        clique_id: cliqueId,
+        author_id: user.id,
+        body: `[System] @${getHandleByUserId(targetUserId)} was banned by @${getHandleByUserId(user.id)}`,
+        is_system: true,
+        system_type: "ban",
+      });
       return;
     }
 
@@ -480,6 +640,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       clique_id: cliqueId,
       author_id: user.id,
       body: text.trim(),
+      is_system: false,
+      system_type: null,
     });
     if (!error) setText("");
   };
@@ -511,37 +673,50 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           </div>
         ) : (
           msgs.map(m => (
-            <div key={m.id} className="flex items-start gap-2 text-sm text-gray-100 bg-white/5 rounded-md px-3 py-2 w-fit max-w-[70%]">
-              {/* Avatar */}
-              {m.author?.avatar_url ? (
-                <img
-                  src={m.author.avatar_url}
-                  alt={m.author.display_name || m.author.handle || "avatar"}
-                  className="w-7 h-7 rounded-full object-cover mr-2"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-gray-700 mr-2 flex items-center justify-center text-xs text-gray-400">
-                  ?
+            m.is_system ? (
+              <div
+                key={m.id}
+                className="w-full flex justify-center my-2"
+              >
+                <div className="bg-orange-900/30 border border-orange-500/40 text-orange-300 font-semibold rounded px-4 py-2 text-center w-fit text-sm shadow"
+                  style={{ fontStyle: "italic", letterSpacing: "0.01em" }}
+                >
+                  {m.body}
                 </div>
-              )}
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  {/* Name with role/voice badge */}
-                  <RoleName
-                    userId={m.author_id}
-                    cliqueId={cliqueId}
-                    handle={m.author?.handle}
-                    displayName={m.author?.display_name}
-                    memberRoles={memberRoles}
-                  />
-                  {/* Time */}
-                  <span className="text-[10px] text-gray-400">
-                    {new Date(m.created_at).toLocaleTimeString()}
-                  </span>
-                </div>
-                <div>{linkify(m.body)}</div>
               </div>
-            </div>
+            ) : (
+              <div key={m.id} className="flex items-start gap-2 text-sm text-gray-100 bg-white/5 rounded-md px-3 py-2 w-fit max-w-[70%]">
+                {/* Avatar */}
+                {m.author?.avatar_url ? (
+                  <img
+                    src={m.author.avatar_url}
+                    alt={m.author.display_name || m.author.handle || "avatar"}
+                    className="w-7 h-7 rounded-full object-cover mr-2"
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-gray-700 mr-2 flex items-center justify-center text-xs text-gray-400">
+                    ?
+                  </div>
+                )}
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    {/* Name with role/voice badge */}
+                    <RoleName
+                      userId={m.author_id}
+                      cliqueId={cliqueId}
+                      handle={m.author?.handle}
+                      displayName={m.author?.display_name}
+                      memberRoles={memberRoles}
+                    />
+                    {/* Time */}
+                    <span className="text-[10px] text-gray-400">
+                      {new Date(m.created_at).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <div>{linkify(m.body)}</div>
+                </div>
+              </div>
+            )
           ))
         )}
       </div>
