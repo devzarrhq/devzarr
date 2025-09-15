@@ -534,7 +534,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       {/* Scrollable message box with fade at top */}
       <div
         ref={scroller}
-        className="row-start-2 row-end-3 flex-1 min-h-0 max-h-full overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
+        className="row-start-2 row-end-3 min-h-0 flex-1 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
         style={{
           maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
           WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
