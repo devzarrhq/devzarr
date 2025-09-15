@@ -252,6 +252,14 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         .update({ topic: newTopic })
         .eq("id", cliqueId);
       if (!error) {
+        // Insert system message
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `Topic changed to: "${newTopic}"`,
+          is_system: true,
+          system_type: "topic",
+        });
         setToast("Topic updated.");
       } else {
         setToast("Failed to update topic.");
@@ -273,6 +281,13 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ topic_locked: lock })
           .eq("id", cliqueId);
         if (!error) {
+          await supabase.from("messages").insert({
+            clique_id: cliqueId,
+            author_id: user.id,
+            body: lock ? "Topic lock enabled (+t)" : "Topic lock disabled (-t)",
+            is_system: true,
+            system_type: "mode",
+          });
           setToast(lock ? "Topic lock enabled." : "Topic lock disabled.");
         } else {
           setToast("Failed to update topic lock.");
@@ -291,6 +306,13 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .update({ moderated: mod })
           .eq("id", cliqueId);
         if (!error) {
+          await supabase.from("messages").insert({
+            clique_id: cliqueId,
+            author_id: user.id,
+            body: mod ? "Moderated mode enabled (+m)" : "Moderated mode disabled (-m)",
+            is_system: true,
+            system_type: "mode",
+          });
           setToast(mod ? "Moderated mode enabled." : "Moderated mode disabled.");
         } else {
           setToast("Failed to update moderated mode.");
@@ -302,6 +324,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         const targetHandle = args[0];
         const mode = args[1];
         const targetId = await getUserIdByHandle(targetHandle);
+        const targetName = targetHandle;
         if (!targetId) {
           setToast("User not found.");
           return;
@@ -325,6 +348,15 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             .eq("clique_id", cliqueId)
             .eq("user_id", targetId);
           if (!error) {
+            await supabase.from("messages").insert({
+              clique_id: cliqueId,
+              author_id: user.id,
+              body: mode === "+m"
+                ? `${targetName} was promoted to moderator (+m)`
+                : `${targetName} was demoted to member (-m)`,
+              is_system: true,
+              system_type: "mode",
+            });
             setToast(mode === "+m" ? "Promoted to mod." : "Demoted to member.");
           } else {
             setToast("Failed to update role.");
@@ -339,6 +371,15 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
             .eq("clique_id", cliqueId)
             .eq("user_id", targetId);
           if (!error) {
+            await supabase.from("messages").insert({
+              clique_id: cliqueId,
+              author_id: user.id,
+              body: newVoice
+                ? `${targetName} was granted voice (+v)`
+                : `${targetName} had voice removed (-v)`,
+              is_system: true,
+              system_type: "mode",
+            });
             setToast(newVoice ? "Voice granted." : "Voice removed.");
           } else {
             setToast("Failed to update voice.");
@@ -354,6 +395,13 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
               .update({ owner_id: targetId })
               .eq("id", cliqueId);
             if (!error) {
+              await supabase.from("messages").insert({
+                clique_id: cliqueId,
+                author_id: user.id,
+                body: `${targetName} is now the owner (+o)`,
+                is_system: true,
+                system_type: "mode",
+              });
               setToast("Ownership transferred.");
             } else {
               setToast("Failed to transfer ownership.");
@@ -393,6 +441,13 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         .eq("clique_id", cliqueId)
         .eq("user_id", targetId);
       if (!error) {
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `${targetHandle} was kicked from the clique.`,
+          is_system: true,
+          system_type: "kick",
+        });
         setToast("User kicked.");
       } else {
         setToast("Failed to kick user.");
@@ -430,6 +485,13 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           .delete()
           .eq("clique_id", cliqueId)
           .eq("user_id", targetId);
+        await supabase.from("messages").insert({
+          clique_id: cliqueId,
+          author_id: user.id,
+          body: `${targetHandle} was banned from the clique.`,
+          is_system: true,
+          system_type: "ban",
+        });
         setToast("User banned.");
       } else {
         setToast("Failed to ban user.");
