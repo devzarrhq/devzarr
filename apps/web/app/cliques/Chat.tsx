@@ -1,4 +1,3 @@
-// NOTE: For scroll to work as expected, ensure all parent containers of <Chat /> have h-full and min-h-0 or a fixed height.
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -525,7 +524,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
 
   return (
-    <div className="w-full h-full flex flex-col min-h-0">
+    <div className="w-full flex flex-col flex-1 min-h-0">
       {/* Fixed header (never scrolls) */}
       <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
         <span>Topic: {displayTopic}</span>
@@ -533,33 +532,32 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
           <span className="ml-2 text-xs text-emerald-400 font-mono">{displayModes}</span>
         )}
       </div>
-      {/* Only this area scrolls */}
-      <div className="flex-1 min-h-0 flex flex-col">
-        <div
-          ref={scroller}
-          className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
-          style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
-          }}
-        >
-          <div className="flex flex-col gap-4 w-full pb-24">
-            {msgs.length === 0 ? (
-              <div className="text-gray-400 text-center w-full py-8">
-                No messages yet. Start the conversation!
-              </div>
-            ) : (
-              msgs.map(m =>
-                m.is_system ? (
-                  <SystemMessage key={m.id} body={m.body} created_at={m.created_at} />
-                ) : (
-                  <UserMessage key={m.id} msg={m} cliqueId={cliqueId} memberRoles={memberRoles} timeAgo={timeAgo} />
-                )
+      {/* Scrollable messages list only */}
+      <div
+        ref={scroller}
+        className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
+        style={{
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
+        }}
+      >
+        <div className="flex flex-col gap-4 w-full pb-24">
+          {msgs.length === 0 ? (
+            <div className="text-gray-400 text-center w-full py-8">
+              No messages yet. Start the conversation!
+            </div>
+          ) : (
+            msgs.map(m =>
+              m.is_system ? (
+                <SystemMessage key={m.id} body={m.body} created_at={m.created_at} />
+              ) : (
+                <UserMessage key={m.id} msg={m} cliqueId={cliqueId} memberRoles={memberRoles} timeAgo={timeAgo} />
               )
-            )}
-          </div>
+            )
+          )}
         </div>
       </div>
+      {/* Fixed input (never scrolls) */}
       <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent rounded-b-2xl">
         <textarea
           value={text}
