@@ -100,7 +100,7 @@ export default function CliquePage({ params }: { params: { id: string } }) {
 
   return (
     <CliqueMembersProvider cliqueId={clique.id} initial={members}>
-      <div className="flex flex-1 min-h-0 w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <div className="flex h-screen w-full flex-row bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         <Sidebar />
 
         {/* Column after Sidebar */}
