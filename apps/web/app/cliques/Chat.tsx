@@ -524,137 +524,127 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
   const displayTopic = currentTopic?.trim() ? currentTopic : "Welcome to the clique";
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full h-full flex flex-col flex-1 min-h-0">
+      <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
+        <span>Topic: {displayTopic}</span>
+        {displayModes && (
+          <span className="ml-2 text-xs text-emerald-400 font-mono">{displayModes}</span>
+        )}
+      </div>
+      {/* Scrollable message box with fade at top */}
       <div
-        className="w-full max-w-2xl flex flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 shadow-lg"
+        ref={scroller}
+        className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
         style={{
-          height: "70vh",
-          minHeight: 400,
-          maxHeight: 700,
-          margin: "0 auto",
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
         }}
       >
-        <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
-          <span>Topic: {displayTopic}</span>
-          {displayModes && (
-            <span className="ml-2 text-xs text-emerald-400 font-mono">{displayModes}</span>
+        <div className="flex flex-col gap-4 w-full pb-24">
+          {msgs.length === 0 ? (
+            <div className="text-gray-400 text-center w-full py-8">
+              No messages yet. Start the conversation!
+            </div>
+          ) : (
+            msgs.map(m =>
+              m.is_system ? (
+                <SystemMessage key={m.id} body={m.body} created_at={m.created_at} />
+              ) : (
+                <UserMessage key={m.id} msg={m} cliqueId={cliqueId} memberRoles={memberRoles} timeAgo={timeAgo} />
+              )
+            )
           )}
         </div>
-        {/* Scrollable message box with fade at top */}
-        <div
-          ref={scroller}
-          className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar"
-          style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 100%)",
-          }}
-        >
-          <div className="flex flex-col gap-4 w-full pb-24">
-            {msgs.length === 0 ? (
-              <div className="text-gray-400 text-center w-full py-8">
-                No messages yet. Start the conversation!
-              </div>
-            ) : (
-              msgs.map(m =>
-                m.is_system ? (
-                  <SystemMessage key={m.id} body={m.body} created_at={m.created_at} />
-                ) : (
-                  <UserMessage key={m.id} msg={m} cliqueId={cliqueId} memberRoles={memberRoles} timeAgo={timeAgo} />
-                )
-              )
-            )}
-          </div>
-        </div>
-        <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent rounded-b-2xl">
-          <textarea
-            value={text}
-            onChange={(e)=>setText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            rows={2}
-            className="flex-1 rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10 resize-none"
-            placeholder="Say something nice...   (/help for commands)"
-          />
-          <button
-            onClick={send}
-            className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500"
-          >
-            Send
-          </button>
-        </div>
-        {toast && (
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-6 z-50">
-            <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg border border-emerald-400 font-semibold animate-fade-in-out" style={{ whiteSpace: "pre-line" }}>
-              {toast}
-            </div>
-          </div>
-        )}
-        {showHelp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div
-              className="bg-gray-900 rounded-2xl shadow-2xl p-6 border border-emerald-400 flex flex-col items-center"
-              style={{
-                width: "100%",
-                maxWidth: 420,
-                minWidth: 0,
-                margin: "0 auto",
-              }}
-            >
-              <h2 className="text-lg font-bold mb-3 text-emerald-300 text-center">Clique Chat Commands</h2>
-              <div className="w-full">
-                <div className="font-semibold text-gray-100 mb-2">Available Commands:</div>
-                <ul className="space-y-2 mb-6">
-                  {HELP_COMMANDS.map((c, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className="mt-0.5">
-                        <ChevronRight className="w-4 h-4 text-emerald-300" />
-                      </span>
-                      <span>
-                        <span className="text-emerald-300 font-mono font-semibold">{c.cmd}</span>
-                        <span className="text-gray-400"> — {c.desc}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <button
-                className="mt-0 px-4 py-2 rounded bg-emerald-500/90 text-white font-semibold"
-                onClick={() => setShowHelp(false)}
-                autoFocus
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-        <style>{`
-          @keyframes fade-in-out {
-            0% { opacity: 0; transform: translateY(10px);}
-            10% { opacity: 1; transform: translateY(0);}
-            90% { opacity: 1; transform: translateY(0);}
-            100% { opacity: 0; transform: translateY(-10px);}
-          }
-          .animate-fade-in-out {
-            animation: fade-in-out 2.2s both;
-          }
-          .custom-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: #38bdf8 #23272f;
-          }
-          .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-            background: #23272f;
-            border-radius: 8px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #38bdf8 0%, #06d6a0 100%);
-            border-radius: 8px;
-            min-height: 40px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #06d6a0 0%, #38bdf8 100%);
-          }
-        `}</style>
       </div>
+      <div className="p-3 flex gap-2 border-t border-white/10 bg-transparent rounded-b-2xl">
+        <textarea
+          value={text}
+          onChange={(e)=>setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          rows={2}
+          className="flex-1 rounded-lg bg-gray-800 text-white px-3 py-2 ring-1 ring-white/10 resize-none"
+          placeholder="Say something nice...   (/help for commands)"
+        />
+        <button
+          onClick={send}
+          className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500"
+        >
+          Send
+        </button>
+      </div>
+      {toast && (
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-6 z-50">
+          <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg border border-emerald-400 font-semibold animate-fade-in-out" style={{ whiteSpace: "pre-line" }}>
+            {toast}
+          </div>
+        </div>
+      )}
+      {showHelp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div
+            className="bg-gray-900 rounded-2xl shadow-2xl p-6 border border-emerald-400 flex flex-col items-center"
+            style={{
+              width: "100%",
+              maxWidth: 420,
+              minWidth: 0,
+              margin: "0 auto",
+            }}
+          >
+            <h2 className="text-lg font-bold mb-3 text-emerald-300 text-center">Clique Chat Commands</h2>
+            <div className="w-full">
+              <div className="font-semibold text-gray-100 mb-2">Available Commands:</div>
+              <ul className="space-y-2 mb-6">
+                {HELP_COMMANDS.map((c, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="mt-0.5">
+                      <ChevronRight className="w-4 h-4 text-emerald-300" />
+                    </span>
+                    <span>
+                      <span className="text-emerald-300 font-mono font-semibold">{c.cmd}</span>
+                      <span className="text-gray-400"> — {c.desc}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button
+              className="mt-0 px-4 py-2 rounded bg-emerald-500/90 text-white font-semibold"
+              onClick={() => setShowHelp(false)}
+              autoFocus
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+      <style>{`
+        @keyframes fade-in-out {
+          0% { opacity: 0; transform: translateY(10px);}
+          10% { opacity: 1; transform: translateY(0);}
+          90% { opacity: 1; transform: translateY(0);}
+          100% { opacity: 0; transform: translateY(-10px);}
+        }
+        .animate-fade-in-out {
+          animation: fade-in-out 2.2s both;
+        }
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #38bdf8 #23272f;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+          background: #23272f;
+          border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #38bdf8 0%, #06d6a0 100%);
+          border-radius: 8px;
+          min-height: 40px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #06d6a0 0%, #38bdf8 100%);
+        }
+      `}</style>
     </div>
   );
 }
