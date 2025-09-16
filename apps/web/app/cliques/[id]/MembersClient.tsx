@@ -11,7 +11,6 @@ export default function MembersClient({ cliqueId }: { cliqueId: string }) {
   const { members } = useCliqueMembers();
   const [online, setOnline] = useState<Set<string>>(new Set());
 
-  // Presence (online users)
   useEffect(() => {
     if (!user) return;
     const ch = supabase.channel(`presence:${cliqueId}`, { config: { presence: { key: user.id } } });
@@ -29,5 +28,9 @@ export default function MembersClient({ cliqueId }: { cliqueId: string }) {
     return () => { supabase.removeChannel(ch); };
   }, [cliqueId, user?.id, supabase]);
 
-  return <CliqueUserList members={members} online={online} />;
+  return (
+    <div className="overflow-y-auto max-h-[calc(100vh-300px)] border border-white">
+      <CliqueUserList members={members} online={online} />
+    </div>
+  );
 }

@@ -185,9 +185,9 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     if (!el) return;
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     if (isNearBottom || el.scrollTop === 0) {
-      el.scrollTo({ top: el.scrollHeight + 100, behavior: "smooth" });
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }
-  }, [msgs.length]);
+  }, [msgs]);
 
   async function getCurrentUserAndRole() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -535,7 +535,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
     <div
       ref={scroller}
       className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar border border-red-500"
-      style={{ maxHeight: 'calc(100vh - 200px)' }}
+      style={{ maxHeight: 'calc(100vh - 300px)' }}
     >
       <div className="flex flex-col gap-4 w-full pb-4">
         {msgs.length === 0 ? (

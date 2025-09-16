@@ -12,8 +12,8 @@ type Member = {
 
 export default function CliqueUserList({ members, online }: { members: Member[]; online?: Set<string> }) {
   return (
-    <aside className="hidden lg:block w-[260px] flex-shrink-0 px-2 py-4 h-full">
-      <div className="bg-white/5 rounded-xl border border-gray-800 shadow p-4 h-full flex flex-col">
+    <aside className="w-[260px] flex-shrink-0 px-2 py-4 max-h-full">
+      <div className="bg-white/5 rounded-xl border border-gray-800 shadow p-4 flex flex-col max-h-full overflow-y-auto">
         <div className="font-bold text-gray-200 mb-3 text-sm tracking-wide">Members</div>
         <ul className="space-y-2 flex-1 overflow-y-auto">
           {members.length === 0 ? (
@@ -37,7 +37,6 @@ export default function CliqueUserList({ members, online }: { members: Member[];
               }
               return (
                 <li key={m.user_id} className="flex items-center gap-2">
-                  {/* Avatar */}
                   {m.avatar_url ? (
                     <img
                       src={m.avatar_url}
@@ -49,7 +48,6 @@ export default function CliqueUserList({ members, online }: { members: Member[];
                       <UserCircle className="w-5 h-5 text-gray-400" />
                     </div>
                   )}
-                  {/* Online badge */}
                   <div className={`w-2 h-2 rounded-full ${online?.has(m.user_id) ? "bg-emerald-400" : "bg-gray-600"}`} />
                   <span className={`truncate text-sm font-bold ${roleTint}`} style={style}>
                     {prefix}
