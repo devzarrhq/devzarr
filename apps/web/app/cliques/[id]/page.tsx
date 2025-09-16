@@ -140,7 +140,7 @@ return (
                   <div className="relative flex-1 min-h-0 flex flex-col overflow-y-auto border border-red-500">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>
-                  <div className="flex-shrink-0 w-64 overflow-y-auto max-h-[calc(100vh-180px)] border border-white">
+                  <div className="flex-shrink-0 w-64 border border-white">
                     <MembersClient cliqueId={clique.id} />
                   </div>
                 </div>
