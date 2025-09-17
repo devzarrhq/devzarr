@@ -537,7 +537,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       className="flex-1 min-h-0 overflow-y-auto w-full px-2 py-4 relative scroll-smooth custom-scrollbar border border-red-500"
       style={{ maxHeight: 'calc(100vh - 450px)' }}
     >
-      <div className="flex flex-col gap-4 w-full pb-4 overflow-y-auto">
+      <div className="flex flex-col gap-4 w-full pb-4 overflow-scroll">
         {msgs.length === 0 ? (
           <div className="text-gray-400 text-center w-full py-8">
             No messages yet. Start the conversation!
