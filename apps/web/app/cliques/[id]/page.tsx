@@ -140,7 +140,10 @@ return (
                   <div className="relative flex-1 min-h-0 flex flex-col overflow-y-auto">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>
-                  <div className="flex-shrink-0 w-64 overflow-y-auto max-h-[calc(100vh-450px)]">
+                  <div 
+                    className="flex-shrink-0 w-64 overflow-y-auto"
+                    style={{ maxHeight: 'calc(100vh - 450px)' }}
+                  >
                     <MembersClient cliqueId={clique.id} />
                   </div>
                 </div>

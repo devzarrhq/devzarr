@@ -13,7 +13,10 @@ type Member = {
 export default function CliqueUserList({ members, online }: { members: Member[]; online?: Set<string> }) {
   return (
     <aside className="w-[260px] flex-shrink-0 px-2 py-4 max-h-[calc(100vh-450px)]">
-      <div className="bg-white/5 rounded-xl border border-gray-800 shadow p-4 flex flex-col max-h-[calc(100vh-450px)] overflow-y-auto">
+      <div
+        className="bg-white/5 rounded-xl border border-gray-800 shadow p-4 flex flex-col overflow-y-auto"
+        style={{ height: 'calc(100vh - 450px)' }}
+      >
         <div className="font-bold text-gray-200 mb-3 text-sm tracking-wide">Members</div>
         <ul className="space-y-2 flex-1 overflow-y-auto">
           {members.length === 0 ? (
