@@ -533,7 +533,7 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       </div>
       {/* Scrollable message box with fade at top */}
     <div
-      className="flex-1 min-h-0 w-full px-2 py-4 relative scroll-smooth border border-red-500" style={{ maxHeight: 'calc(100vh - 450px)' }}>
+      className="flex-1 min-h-0 w-full px-2 py-4 relative scroll-smooth" style={{ maxHeight: 'calc(100vh - 450px)' }}>
       <div 
         ref={scroller}
         className="flex flex-col gap-4 w-full pb-4 scroll-smooth custom-scrollbar" style={{ maxHeight: 'calc(100vh - 450px)', overflowY: 'auto' }}>

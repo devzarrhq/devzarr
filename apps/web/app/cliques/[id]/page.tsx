@@ -137,10 +137,10 @@ return (
 
                 {/* Chat + Members, constrained to remaining height */}
                 <div className="flex-1 min-h-0 flex flex-row gap-8 max-h-[calc(100vh-300px)] overflow-y-auto">
-                  <div className="relative flex-1 min-h-0 flex flex-col overflow-y-auto border border-red-500">
+                  <div className="relative flex-1 min-h-0 flex flex-col overflow-y-auto">
                     <Chat cliqueId={clique.id} topic={clique.topic} />
                   </div>
-                  <div className="flex-shrink-0 w-64 overflow-y-auto max-h-[calc(100vh-300px)] border border-white">
+                  <div className="flex-shrink-0 w-64 overflow-y-auto max-h-[calc(100vh-300px)]">
                     <MembersClient cliqueId={clique.id} />
                   </div>
                 </div>
