@@ -24,19 +24,16 @@ export default function CliqueUserList({ members, online }: { members: Member[];
           ) : (
             members.map((m) => {
               let prefix = "";
-              let roleTint = "text-gray-100";
-              let style: React.CSSProperties = {};
+              let color = "#e5e7eb"; // gray-200
               if (m.role === "owner") {
                 prefix = "@";
-                roleTint = "text-emerald-300";
+                color = "#4ade80"; // green-400
               } else if (m.role === "mod") {
                 prefix = "^";
-                roleTint = "";
-                style = { color: "#f59e42", fontWeight: 700 }; // Tailwind orange-400
+                color = "#f59e42"; // orange-400
               } else if (m.voice) {
                 prefix = "+";
-                roleTint = "";
-                style = { color: "#fde047", fontWeight: 700 }; // Tailwind yellow-300
+                color = "#fde047"; // yellow-300
               }
               return (
                 <li key={m.user_id} className="flex items-center gap-2">
@@ -52,7 +49,7 @@ export default function CliqueUserList({ members, online }: { members: Member[];
                     </div>
                   )}
                   <div className={`w-2 h-2 rounded-full ${online?.has(m.user_id) ? "bg-emerald-400" : "bg-gray-600"}`} />
-                  <span className={`truncate text-sm font-bold ${roleTint}`} style={style}>
+                  <span className="truncate text-sm font-bold" style={{ color }}>
                     {prefix}
                     {m.handle ?? "anonymous"}
                   </span>

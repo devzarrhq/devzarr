@@ -16,11 +16,12 @@ export default function RoleName({
 }) {
   const info = memberRoles[userId] || { role: null, voice: false };
   let prefix = "";
-  if (info.role === "owner") prefix = "@";
-  else if (info.role === "mod") prefix = "^";
-  else if (info.voice) prefix = "+";
+  let color = "#e5e7eb"; // gray-200
+  if (info.role === "owner") { prefix = "@"; color = "#4ade80"; }
+  else if (info.role === "mod") { prefix = "^"; color = "#f59e42"; }
+  else if (info.voice) { prefix = "+"; color = "#fde047"; }
   return (
-    <span className="font-semibold text-xs text-emerald-300">
+    <span className="font-semibold text-xs" style={{ color }}>
       {prefix}
       {displayName || handle || "Anonymous"}
     </span>
