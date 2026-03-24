@@ -590,8 +590,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div
             className="bg-gray-900 rounded-2xl shadow-2xl p-6 flex flex-col items-center"
-            style={{ border: `1px solid var(--tw-color-accent-${accent})` }}
             style={{
+              border: `1px solid var(--tw-color-accent-${accent})`,
               width: "100%",
               maxWidth: 420,
               minWidth: 0,
