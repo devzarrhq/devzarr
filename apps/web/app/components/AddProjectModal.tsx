@@ -148,7 +148,7 @@ export default function AddProjectModal({ open, onClose, onCreated, wide }: Prop
     const safeSlug = slug || `project-${Math.random().toString(36).slice(2, 8)}`;
     const filePath = `${user.id}/${safeSlug}-cover.${fileExt}`;
     // Upload to 'project-covers' bucket
-    const { error: uploadError } = await supabase.storage.from("project-covers").upload(filePath, file, {
+    const { error: uploadError } = await supabase.storage.from("project-assets").upload(filePath, file, {
       upsert: true,
       cacheControl: "3600",
     });
@@ -157,7 +157,7 @@ export default function AddProjectModal({ open, onClose, onCreated, wide }: Prop
       setUploadingCover(false);
       return;
     }
-    const { data } = supabase.storage.from("project-covers").getPublicUrl(filePath);
+    const { data } = supabase.storage.from("project-assets").getPublicUrl(filePath);
     setCoverUrl(data.publicUrl);
     setUploadingCover(false);
   }
