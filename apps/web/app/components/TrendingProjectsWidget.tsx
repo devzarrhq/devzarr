@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Rocket } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { useTheme } from "../theme-context";
 
 type Project = {
   id: string;
@@ -13,6 +14,7 @@ type Project = {
 };
 
 export default function TrendingProjectsWidget() {
+  const { accent } = useTheme();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export default function TrendingProjectsWidget() {
     return (
       <div className="bg-white/5 rounded-xl border border-gray-800 p-5 mb-6">
         <div className="font-bold text-white mb-2 flex items-center gap-2">
-          <Rocket className="w-5 h-5 text-emerald-300" />
+          <Rocket className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
           Trending Projects
         </div>
         <div className="text-red-400 text-sm">{error}</div>
@@ -62,7 +64,7 @@ export default function TrendingProjectsWidget() {
     return (
       <div className="bg-white/5 rounded-xl border border-gray-800 p-5 mb-6">
         <div className="font-bold text-white mb-2 flex items-center gap-2">
-          <Rocket className="w-5 h-5 text-emerald-300" />
+          <Rocket className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
           Trending Projects
         </div>
         <div className="text-gray-400 text-sm">No trending projects yet.</div>
@@ -73,7 +75,7 @@ export default function TrendingProjectsWidget() {
   return (
     <div className="bg-white/5 rounded-xl border border-gray-800 p-5 mb-6">
       <div className="font-bold text-white mb-2 flex items-center gap-2">
-        <Rocket className="w-5 h-5 text-emerald-300" />
+        <Rocket className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
         Trending Projects
       </div>
       <ul className="space-y-3">
@@ -83,7 +85,7 @@ export default function TrendingProjectsWidget() {
               <img src={p.cover_url} alt={p.name} className="w-10 h-10 rounded object-cover border border-gray-700" />
             ) : (
               <div className="w-10 h-10 rounded bg-gray-700 flex items-center justify-center">
-                <Rocket className="w-5 h-5 text-emerald-300" />
+                <Rocket className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
               </div>
             )}
             <div className="flex-1 min-w-0">

@@ -6,10 +6,12 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../providers/AuthProvider";
+import { useTheme } from "../theme-context";
 
 export default function SettingsMenu({ onClose }: { onClose?: () => void }) {
   const router = useRouter();
   const { user } = useAuth();
+  const { accent } = useTheme();
 
   const handleLogout = async () => {
     await supabaseBrowser().auth.signOut();
@@ -29,7 +31,8 @@ export default function SettingsMenu({ onClose }: { onClose?: () => void }) {
       </Link>
       <Link
         href="/profile/setup"
-        className="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition"
+        className="w-full flex items-center gap-2 px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-90"
+        style={{ background: `var(--tw-color-accent-${accent})` }}
         onClick={onClose}
       >
         <Pencil className="w-5 h-5" />

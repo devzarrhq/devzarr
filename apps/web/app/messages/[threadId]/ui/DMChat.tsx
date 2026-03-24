@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { useTheme } from "../../../theme-context";
 
 type Profile = {
   user_id: string;
@@ -23,6 +24,7 @@ function formatTime(ts: string) {
 }
 
 export default function DMChat({ threadId, initialMessages }: { threadId: string; initialMessages: Msg[] }) {
+  const { accent } = useTheme();
   const supabase = supabaseBrowser();
   const [messages, setMessages] = useState<Msg[]>(initialMessages);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
@@ -193,7 +195,8 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
           />
           <button
             onClick={send}
-            className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500"
+            className="px-4 py-2 rounded-lg text-white hover:opacity-90"
+            style={{ background: `var(--tw-color-accent-${accent})` }}
           >
             Send
           </button>
@@ -202,7 +205,7 @@ export default function DMChat({ threadId, initialMessages }: { threadId: string
         {/* Toast */}
         {showToast && (
           <div className="w-full flex justify-center mt-3">
-            <div className="text-emerald-400 font-semibold text-base animate-fade-in-out">
+            <div className="font-semibold text-base animate-fade-in-out" style={{ color: `var(--tw-color-accent-${accent})` }}>
               Message sent!
             </div>
           </div>

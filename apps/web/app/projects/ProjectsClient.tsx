@@ -104,7 +104,7 @@ export default function ProjectsClient({ projects, followersMap, sort }: Props) 
             } else {
               projectIcon = (
                 <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
-                  <Rocket className="w-5 h-5 text-emerald-300" />
+                  <Rocket className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
                 </div>
               );
             }
@@ -112,7 +112,8 @@ export default function ProjectsClient({ projects, followersMap, sort }: Props) 
               <Link
                 key={p.id}
                 href={`/projects/${p.slug}`}
-                className="group block rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-6 shadow-lg w-full transition hover:ring-2 hover:ring-emerald-400/60 focus:outline-none"
+                className="group block rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-6 shadow-lg w-full transition hover:ring-2 focus:outline-none"
+                style={{ ["--tw-ring-color" as any]: `var(--tw-color-accent-${accent})` }}
                 tabIndex={0}
                 aria-label={`View project ${p.name}`}
               >
@@ -127,7 +128,7 @@ export default function ProjectsClient({ projects, followersMap, sort }: Props) 
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <Users className="w-4 h-4 text-emerald-300" />
+                    <Users className="w-4 h-4" style={{ color: `var(--tw-color-accent-${accent})` }} />
                     {followersMap[p.id] || 0}
                   </div>
                 </div>

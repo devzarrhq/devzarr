@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import AddUpdateModal from "./AddUpdateModal";
+import { useTheme } from "../../theme-context";
 
 export default function AddUpdateButton({ projectId }: { projectId: string }) {
+  const { accent } = useTheme();
   const [open, setOpen] = useState(false);
   return (
     <>
       <button
-        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition ml-2"
+        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white font-semibold text-sm transition ml-2 hover:opacity-90"
+        style={{ background: `var(--tw-color-accent-${accent})` }}
         onClick={() => setOpen(true)}
         title="Add Update"
       >

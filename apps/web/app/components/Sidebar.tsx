@@ -2,6 +2,7 @@
 
 import { Home, Rocket, Users, MessageCircle, UserCircle, Info } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTheme } from "../theme-context";
 
 const navLinks = [
@@ -15,6 +16,7 @@ const navLinks = [
 
 export default function Sidebar() {
   const { accent } = useTheme();
+  const pathname = usePathname();
 
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-800 border-r border-gray-800 px-4 py-6 fixed left-0 top-0 z-20">
@@ -37,18 +39,26 @@ export default function Sidebar() {
       </div>
       <nav className="flex-1">
         <ul className="space-y-2">
-          {navLinks.map(({ name, icon: Icon, href }) => (
-            <li key={name}>
-              <Link
-                href={href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent-${accent}/20 transition-colors text-gray-200 font-medium`}
-                style={{ borderLeft: `4px solid var(--tw-color-accent-${accent})` }}
-              >
-                <Icon className={`w-5 h-5`} style={{ color: `var(--tw-color-accent-${accent})` }} />
-                {name}
-              </Link>
-            </li>
-          ))}
+          {navLinks.map(({ name, icon: Icon, href }) => {
+            const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
+            return (
+              <li key={name}>
+                <Link
+                  href={href}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors font-medium ${
+                    isActive ? "text-white bg-white/10" : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
+                  }`}
+                  style={{ borderLeft: `4px solid ${isActive ? `var(--tw-color-accent-${accent})` : "transparent"}` }}
+                >
+                  <Icon
+                    className="w-5 h-5"
+                    style={{ color: isActive ? `var(--tw-color-accent-${accent})` : undefined }}
+                  />
+                  {name}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
       <div className="mt-auto text-xs text-gray-400 px-2">

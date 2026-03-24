@@ -82,7 +82,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
       <div className="flex items-center gap-2 mb-1">
         <span className="font-semibold text-gray-300 min-w-[120px]">{label}:</span>
         {href ? (
-          <a href={href} target="_blank" rel="noopener noreferrer" className={`underline font-semibold ${color || "text-emerald-300"}`}>
+          <a href={href} target="_blank" rel="noopener noreferrer" className={`underline font-semibold ${color || "text-green-300"}`} style={!color ? { color: "var(--tw-color-accent-green)" } : undefined}>
             {value}
           </a>
         ) : (
@@ -132,7 +132,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                     <ProjectEditButton ownerId={project.owner_id} slug={project.slug} />
                   </div>
                   {project.tagline && (
-                    <div className="text-lg text-emerald-300 font-medium mt-1">{project.tagline}</div>
+                    <div className="text-lg font-medium mt-1" style={{ color: "var(--tw-color-accent-green)" }}>{project.tagline}</div>
                   )}
                   <div className="flex items-center gap-2 mt-2">
                     {owner?.avatar_url ? (
@@ -152,7 +152,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
               <section className="mb-8">
                 <div className="flex flex-wrap gap-4 mb-4">
                   {project.type && (
-                    <span className="px-3 py-1 rounded-full bg-emerald-700/20 text-emerald-300 text-xs font-semibold">
+                    <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-semibold" style={{ color: "var(--tw-color-accent-green)" }}>
                       {project.type}
                     </span>
                   )}
@@ -190,7 +190,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                           className="h-4 rounded-full transition-all absolute left-0 top-0"
                           style={{
                             width: `${progress}%`,
-                            background: "var(--tw-color-accent-emerald, #10b981)",
+                            background: "var(--tw-color-accent-green, #22c55e)",
                             minWidth: progress > 0 ? "8px" : "0"
                           }}
                         />
@@ -220,7 +220,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                       <img src={project.icon_url} alt="Project Icon" className="w-10 h-10 rounded-lg object-cover border border-gray-800 bg-gray-800 flex-shrink-0" />
                     ) : (
                       <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
-                        <Users className="w-5 h-5 text-emerald-300" />
+                        <Users className="w-5 h-5" style={{ color: "var(--tw-color-accent-green)" }} />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">

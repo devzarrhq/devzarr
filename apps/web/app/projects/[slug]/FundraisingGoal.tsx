@@ -7,7 +7,7 @@ export default function FundraisingGoal({ goalAmount }: { goalAmount: number }) 
 
   useEffect(() => {
     // Get accent from localStorage or fallback
-    const accent = localStorage.getItem("accent") || "emerald";
+    const accent = localStorage.getItem("accent") || "green";
     const color = getComputedStyle(document.documentElement).getPropertyValue(`--tw-color-accent-${accent}`) || "#10b981";
     if (labelRef.current) labelRef.current.style.color = color;
     if (amountRef.current) amountRef.current.style.color = color;

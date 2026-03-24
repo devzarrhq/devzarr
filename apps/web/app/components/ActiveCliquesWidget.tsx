@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Users } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { useTheme } from "../theme-context";
 
 type Clique = {
   id: string;
@@ -13,6 +14,7 @@ type Clique = {
 };
 
 export default function ActiveCliquesWidget() {
+  const { accent } = useTheme();
   const [cliques, setCliques] = useState<Clique[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export default function ActiveCliquesWidget() {
     return (
       <div className="bg-white/5 rounded-xl border border-gray-800 p-5 mb-6">
         <div className="font-bold text-white mb-2 flex items-center gap-2">
-          <Users className="w-5 h-5 text-emerald-300" />
+          <Users className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
           Active Cliques
         </div>
         <div className="text-red-400 text-sm">{error}</div>
@@ -62,7 +64,7 @@ export default function ActiveCliquesWidget() {
     return (
       <div className="bg-white/5 rounded-xl border border-gray-800 p-5 mb-6">
         <div className="font-bold text-white mb-2 flex items-center gap-2">
-          <Users className="w-5 h-5 text-emerald-300" />
+          <Users className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
           Active Cliques
         </div>
         <div className="text-gray-400 text-sm">No active cliques right now.</div>
@@ -73,14 +75,14 @@ export default function ActiveCliquesWidget() {
   return (
     <div className="bg-white/5 rounded-xl border border-gray-800 p-5 mb-6">
       <div className="font-bold text-white mb-2 flex items-center gap-2">
-        <Users className="w-5 h-5 text-emerald-300" />
+        <Users className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
         Active Cliques
       </div>
       <ul className="space-y-3">
         {cliques.map((c) => (
           <li key={c.id} className="flex items-center gap-3">
             <div className="w-8 h-8 rounded bg-gray-700 flex items-center justify-center">
-              <Users className="w-5 h-5 text-emerald-300" />
+              <Users className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
             </div>
             <div className="flex-1 min-w-0">
               <Link href={`/cliques/${c.id}`} className="font-semibold text-white truncate hover:underline">
@@ -96,7 +98,8 @@ export default function ActiveCliquesWidget() {
       <div className="mt-4 flex justify-center">
         <Link
           href="/cliques"
-          className="px-4 py-2 rounded-lg bg-emerald-500/90 hover:bg-emerald-500 text-white font-semibold text-sm"
+          className="px-4 py-2 rounded-lg text-white font-semibold text-sm hover:opacity-90"
+          style={{ background: `var(--tw-color-accent-${accent})` }}
         >
           Join the conversation
         </Link>

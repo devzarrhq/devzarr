@@ -5,6 +5,7 @@ import { Dialog } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useAuth } from "../../providers/AuthProvider";
+import { useTheme } from "../../theme-context";
 
 export default function AddUpdateModal({
   open,
@@ -18,6 +19,7 @@ export default function AddUpdateModal({
   onCreated?: () => void;
 }) {
   const { user } = useAuth();
+  const { accent } = useTheme();
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -66,7 +68,7 @@ export default function AddUpdateModal({
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
       <div className="min-h-full grid place-items-center p-4">
         <Dialog.Panel className="relative w-full max-w-lg rounded-2xl bg-gray-900 p-6 md:p-8 shadow-2xl ring-1 ring-white/10">
-          <Dialog.Title className="text-xl md:text-2xl font-bold mb-4 text-emerald-300">
+          <Dialog.Title className="text-xl md:text-2xl font-bold mb-4" style={{ color: `var(--tw-color-accent-${accent})` }}>
             Add Project Update
           </Dialog.Title>
           <form className="space-y-4" onSubmit={handleSubmit}>
@@ -109,7 +111,8 @@ export default function AddUpdateModal({
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded font-semibold text-white disabled:opacity-50 bg-emerald-500"
+                className="px-4 py-2 rounded font-semibold text-white disabled:opacity-50"
+                style={{ background: `var(--tw-color-accent-${accent})` }}
                 disabled={loading || !canSubmit}
               >
                 {loading ? "Posting..." : "Add Update"}

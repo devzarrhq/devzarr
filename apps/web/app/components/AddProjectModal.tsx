@@ -375,7 +375,7 @@ export default function AddProjectModal({ open, onClose, onCreated, wide }: Prop
                 type="checkbox"
                 checked={isPublic}
                 onChange={(e) => setIsPublic(e.target.checked)}
-                className="accent-emerald-500"
+                style={{ accentColor: `var(--tw-color-accent-${accent})` }}
               />
               <label htmlFor="isPublic" className="text-gray-200">
                 Public project

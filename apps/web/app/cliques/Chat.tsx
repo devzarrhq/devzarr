@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { ChevronRight } from "lucide-react";
+import { useTheme } from "../theme-context";
 import { useCliqueMembers } from "./[id]/CliqueMembersContext";
 import SystemMessage from "./SystemMessage";
 import UserMessage from "./UserMessage";
@@ -65,6 +66,7 @@ type Message = {
 };
 
 export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: string }) {
+  const { accent } = useTheme();
   const supabase = supabaseBrowser();
   const [msgs, setMsgs] = useState<Message[]>([]);
   const [text, setText] = useState("");
@@ -525,10 +527,11 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
 
   return (
     <div className="relative flex flex-col flex-1 min-h-0 w-full">
-      <div className="px-4 py-2 bg-emerald-900/20 text-emerald-300 font-semibold text-center border-b border-emerald-700 flex items-center justify-center gap-2 rounded-t-2xl">
+      <div className="px-4 py-2 bg-white/5 font-semibold text-center border-b border-white/10 flex items-center justify-center gap-2 rounded-t-2xl"
+        style={{ color: `var(--tw-color-accent-${accent})` }}>
         <span>Topic: {displayTopic}</span>
         {displayModes && (
-          <span className="ml-2 text-xs text-emerald-400 font-mono">{displayModes}</span>
+          <span className="ml-2 text-xs font-mono opacity-75">{displayModes}</span>
         )}
       </div>
       {/* Scrollable message box with fade at top */}
@@ -570,14 +573,15 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       />
       <button
         onClick={send}
-        className="px-4 py-2 rounded-lg bg-emerald-500/90 text-white hover:bg-emerald-500"
+        className="px-4 py-2 rounded-lg text-white hover:opacity-90"
+        style={{ background: `var(--tw-color-accent-${accent})` }}
       >
         Send
       </button>
     </div>
       {toast && (
         <div className="absolute left-1/2 -translate-x-1/2 bottom-6 z-50">
-          <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg border border-emerald-400 font-semibold animate-fade-in-out" style={{ whiteSpace: "pre-line" }}>
+          <div className="bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg font-semibold animate-fade-in-out" style={{ whiteSpace: "pre-line", borderColor: `var(--tw-color-accent-${accent})`, borderWidth: 1, borderStyle: "solid" }}>
             {toast}
           </div>
         </div>
@@ -585,7 +589,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
       {showHelp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div
-            className="bg-gray-900 rounded-2xl shadow-2xl p-6 border border-emerald-400 flex flex-col items-center"
+            className="bg-gray-900 rounded-2xl shadow-2xl p-6 flex flex-col items-center"
+            style={{ border: `1px solid var(--tw-color-accent-${accent})` }}
             style={{
               width: "100%",
               maxWidth: 420,
@@ -593,17 +598,17 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
               margin: "0 auto",
             }}
           >
-            <h2 className="text-lg font-bold mb-3 text-emerald-300 text-center">Clique Chat Commands</h2>
+            <h2 className="text-lg font-bold mb-3 text-center" style={{ color: `var(--tw-color-accent-${accent})` }}>Clique Chat Commands</h2>
             <div className="w-full">
               <div className="font-semibold text-gray-100 mb-2">Available Commands:</div>
               <ul className="space-y-2 mb-6">
                 {HELP_COMMANDS.map((c, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <span className="mt-0.5">
-                      <ChevronRight className="w-4 h-4 text-emerald-300" />
+                      <ChevronRight className="w-4 h-4" style={{ color: `var(--tw-color-accent-${accent})` }} />
                     </span>
                     <span>
-                      <span className="text-emerald-300 font-mono font-semibold">{c.cmd}</span>
+                      <span className="font-mono font-semibold" style={{ color: `var(--tw-color-accent-${accent})` }}>{c.cmd}</span>
                       <span className="text-gray-400"> — {c.desc}</span>
                     </span>
                   </li>
@@ -611,7 +616,8 @@ export default function Chat({ cliqueId, topic }: { cliqueId: string, topic?: st
               </ul>
             </div>
             <button
-              className="mt-0 px-4 py-2 rounded bg-emerald-500/90 text-white font-semibold"
+              className="mt-0 px-4 py-2 rounded text-white font-semibold"
+              style={{ background: `var(--tw-color-accent-${accent})` }}
               onClick={() => setShowHelp(false)}
               autoFocus
             >

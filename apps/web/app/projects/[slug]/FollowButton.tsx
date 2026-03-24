@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { useTheme } from "../../theme-context";
 
 export default function FollowButton({ projectId, followerCount: initial }: { projectId: string; followerCount: number }) {
+  const { accent } = useTheme();
   const supabase = supabaseBrowser();
   const [count, setCount] = useState(initial);
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
@@ -36,7 +38,13 @@ export default function FollowButton({ projectId, followerCount: initial }: { pr
   return (
     <div className="flex items-center gap-3">
       <button onClick={toggle}
-        className={`px-4 py-2 rounded-lg text-sm font-semibold ${isFollowing ? "bg-white/10 text-white" : "bg-emerald-500/90 text-white hover:bg-emerald-500"}`}>
+        className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+        style={isFollowing
+          ? { background: "rgba(255,255,255,0.1)" }
+          : { background: `var(--tw-color-accent-${accent})`, opacity: 0.9 }
+        }
+        onMouseEnter={e => { if (!isFollowing) (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+        onMouseLeave={e => { if (!isFollowing) (e.currentTarget as HTMLElement).style.opacity = "0.9"; }}>
         {isFollowing ? "Following" : "Follow"}
       </button>
       <div className="text-gray-400 text-sm">{count} follower{count === 1 ? "" : "s"}</div>

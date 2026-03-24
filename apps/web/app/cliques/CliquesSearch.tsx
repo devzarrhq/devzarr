@@ -6,6 +6,7 @@ import { useCliqueMembership } from "./useCliqueMembership";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useAuth } from "../providers/AuthProvider";
 import { useRouter } from "next/navigation";
+import { useTheme } from "../theme-context";
 
 type Clique = {
   id: string;
@@ -21,6 +22,7 @@ export default function CliquesSearch({
   cliques: Clique[];
   memberCounts: Record<string, number>;
 }) {
+  const { accent } = useTheme();
   const [query, setQuery] = useState("");
   const filtered = cliques.filter(
     (c) =>
@@ -50,7 +52,8 @@ export default function CliquesSearch({
       <input
         type="text"
         placeholder="Search cliques…"
-        className="w-full mb-6 px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+        className="w-full mb-6 px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2"
+        style={{ ["--tw-ring-color" as any]: `var(--tw-color-accent-${accent})` }}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
@@ -63,13 +66,13 @@ export default function CliquesSearch({
             return (
               <div
                 key={c.id}
-                className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-emerald-900/10 border border-gray-800 transition"
+                className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-gray-800 transition"
               >
                 <Link
                   href={`/cliques/${c.id}`}
                   className="flex items-center gap-4 flex-1 min-w-0"
                 >
-                  <Users className="w-8 h-8 text-emerald-300" />
+                  <Users className="w-8 h-8" style={{ color: `var(--tw-color-accent-${accent})` }} />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-lg text-white truncate">{c.name}</div>
                     <div className="text-gray-400 text-sm truncate">{c.description || c.slug}</div>
@@ -80,7 +83,8 @@ export default function CliquesSearch({
                 </Link>
                 {isMember === false && (
                   <button
-                    className="ml-4 px-4 py-1.5 rounded-lg bg-emerald-500/90 text-white font-semibold text-sm hover:bg-emerald-500"
+                    className="ml-4 px-4 py-1.5 rounded-lg text-white font-semibold text-sm hover:opacity-90"
+                    style={{ background: `var(--tw-color-accent-${accent})` }}
                     onClick={() => handleJoin(c.id)}
                   >
                     Join

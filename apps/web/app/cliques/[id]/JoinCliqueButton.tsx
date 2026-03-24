@@ -3,9 +3,11 @@ import { useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { useAuth } from "../../providers/AuthProvider";
 import { useRouter } from "next/navigation";
+import { useTheme } from "../../theme-context";
 
 export default function JoinCliqueButton({ cliqueId }: { cliqueId: string }) {
   const { user } = useAuth();
+  const { accent } = useTheme();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -26,7 +28,8 @@ export default function JoinCliqueButton({ cliqueId }: { cliqueId: string }) {
 
   return (
     <button
-      className="px-6 py-2 rounded-lg bg-emerald-500/90 text-white font-semibold text-base hover:bg-emerald-500"
+      className="px-6 py-2 rounded-lg text-white font-semibold text-base hover:opacity-90"
+      style={{ background: `var(--tw-color-accent-${accent})` }}
       onClick={join}
       disabled={loading}
     >

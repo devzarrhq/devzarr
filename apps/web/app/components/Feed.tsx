@@ -118,7 +118,7 @@ export default function Feed({ initialPosts = [] as Post[] }) {
             } else {
               projectIcon = (
                 <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-5 h-5 text-emerald-300" />
+                  <Users className="w-5 h-5" style={{ color: `var(--tw-color-accent-${accent})` }} />
                 </div>
               );
             }
@@ -151,7 +151,7 @@ export default function Feed({ initialPosts = [] as Post[] }) {
                     {ownerBadge}
                     {relTime}
                     {p.project?.name && (
-                      <span className="ml-auto text-xs text-emerald-300">
+                      <span className="ml-auto text-xs" style={{ color: `var(--tw-color-accent-${accent})` }}>
                         in {p.project.name}
                       </span>
                     )}
@@ -171,7 +171,8 @@ export default function Feed({ initialPosts = [] as Post[] }) {
               <Link
                 key={p.id}
                 href={`/projects/${p.project.slug}`}
-                className="group block rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg w-full transition hover:ring-2 hover:ring-emerald-400/60 focus:outline-none"
+                className="group block rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-8 shadow-lg w-full transition hover:ring-2 focus:outline-none"
+                style={{ ["--tw-ring-color" as any]: `var(--tw-color-accent-${accent})` }}
                 tabIndex={0}
                 aria-label={`View project ${p.project.name}`}
               >

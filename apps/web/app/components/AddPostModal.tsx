@@ -110,7 +110,8 @@ export default function AddPostModal({ open, onClose, onCreated, wide }: Props) 
               You don’t have any projects yet.
               <a
                 href="/projects/new"
-                className="ml-3 inline-flex items-center rounded-lg bg-emerald-500/90 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-500"
+                className="ml-3 inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
+                style={{ background: `var(--tw-color-accent-${accent})` }}
               >
                 + Create project
               </a>
